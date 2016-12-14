@@ -1,0 +1,16 @@
+{
+   "name": "Thierry",
+   "version": "1.0",
+   "description": "Test Thierry",
+   "manifest_version": 2,
+
+   "icons": {
+      "128": "icons/128.png",
+      "256": "icons/256.png",
+      "32": "icons/32.png",
+      "48": "icons/48.png",
+      "64": "icons/64.png",
+      "96": "icons/96.png"
+   }
+
+}

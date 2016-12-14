@@ -1,0 +1,16 @@
+{
+   "background": {
+      "scripts": [ "js/background.js","components/jquery/jquery.min.js" ]
+   },
+   "browser_action": {
+      "default_icon": "poster.png",
+      "default_popup": "popup.html",
+      "default_title": "Chrome Poster th"
+   },
+   "description": "Chrome poster th",
+   "manifest_version": 2,
+   "name": "Chrome Poster th",
+   "permissions": [ "tabs", "http://*/", "https://*/" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.6"
+}
