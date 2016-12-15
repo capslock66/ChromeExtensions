@@ -87,12 +87,13 @@ function onBodyChanged()
 
 function doRequest(method)
 {
-   ttrace.setHost("localHost:85");
-   ttrace.queryClientId() ;
-   ttrace.debug().send("DoRequest", method);
+    //ttrace.setHost("localHost:85");
+    //ttrace.queryClientId() ;
+    //ttrace.debug().send("DoRequest", method);
 
-   console.log("----doRequest 4---") ;
-   $("body").append('Test');
+    console.log("----doRequest ---") ;
+    $("body").append('Test');
+	
     var req = chrome.extension.getBackgroundPage().Request.request;
     req.method = method;
     req.url = document.getElementById("url").value;
