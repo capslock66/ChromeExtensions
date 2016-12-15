@@ -94,7 +94,8 @@ function doRequest(method)
     console.log("----doRequest ---") ;
     $("body").append('Test');
 	
-    var req = chrome.extension.getBackgroundPage().Request.request;
+	var BackgroundPage = chrome.extension.getBackgroundPage() ;
+    var req = BackgroundPage.Request.request;	// Resquest function. request property
     req.method = method;
     req.url = document.getElementById("url").value;
     if (req.method == "POST" || req.method == "PUT") {
@@ -113,6 +114,33 @@ function doRequest(method)
         console.log(i + " " + req.headers[i]);
     }
 
+	/*
+
+	<div class="tabs">
+		<div class="selected">Article</div><div class="unselected">
+		    <a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a>
+		</div>
+		<div class="unselected"><a href="/script/Articles/Statistics.aspx?aid=5498">Stats</a></div>
+		<div class="unselected"><a href="/script/Articles/ListVersions.aspx?aid=5498">Revisions (33)</a></div>
+		<div class="unselected"><a href="/script/Articles/ListAlternatives.aspx?aid=5498">Alternatives</a></div>
+
+		<div class="unselected">
+		    <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
+			<span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
+		</div>
+	</div>	
+
+	selector
+	--------------
+	#ctl00_ArticleTabs_CommentLink
+	
+	xpath
+	-----------
+	//*[@id="ctl00_ArticleTabs_CommentLink"]
+	
+	
+	*/
+	
     xhr.onload = function() {
         var result = "status: " + xhr.status + " " + xhr.statusText + "<br />";
         var header = xhr.getAllResponseHeaders();
@@ -123,42 +151,26 @@ function doRequest(method)
         }
 
         //document.getElementById("ifrm").setAttribute('src',document.getElementById("url").value);
-        $("ifrm").prepend (xhr.responseText);
-
         //document.getElementById("response_header").innerHTML = result;
         //document.getElementById("response_body").innerText = xhr.responseText;
         $("response_body").prepend(xhr.responseText);
         
+		// create an empty element, not stored in the document
+        var newDivElement = $('<div></div>' );
+		
+		// Parse the XMLHttpRequest result into the new element
+        newDivElement.html(xhr.responseText);
+		
         
-        /*
-        var el = $( '<div></div>' );
-        el.html(xhr.responseText);
-        $('a', el) ;
+        // search line
+        var spanLine = $("#ctl00_ArticleTabs_CommentLink", newDivElement);
+           
+        console.log(spanLine[0]);
         
-        OuterHtml
-        -------------
-        <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">
-        Comments 
-        <span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
-        
-        selector
-        --------------
-        #ctl00_ArticleTabs_CommentLink
-        
-        xpath
-        -----------
-        //*[@id="ctl00_ArticleTabs_CommentLink"]
-        
-        search line
-        --------------
-        var line = $("#ctl00_ArticleTabs_CommentLink", el);
-                                               
-        ilne[0] :
-        <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
-        <span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
-        
-        */
-        
+		//<a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
+		//	<span id="ctl00_ArticleTabs_CmtCnt">(578)</span>
+		//</a>
+
         
     }
     xhr.send(req.body);
