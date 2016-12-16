@@ -2,6 +2,11 @@ console.log("popup init") ;
 
 function init()
 {
+    chrome.storage.local.get('Request', function (obj) {
+        //obj.YourKey contains "YourValue"
+        
+    });
+ 
     var req = chrome.extension.getBackgroundPage().Request.request;
     req.nameE = document.getElementById("header_name");
     req.valueE = document.getElementById("header_value");
@@ -140,7 +145,6 @@ function doRequest(method)
             if (all[i] != "")
                 result += ("<li>" + all[i] + "</li>");
         }
-
         
         // create an empty element, not stored in the document
         var newDivElement = $('<div></div>' );
@@ -160,6 +164,9 @@ function doRequest(method)
         var commentCount = spanLine.textContent.match(/\d+/)[0] ;        //    /\d+/   : get numbers in the string. Result is an array.
         console.log("Comment count : " + commentCount) ;
         $("#response_body").append("Comment count : " + commentCount+ "<br>");
+        
+        chrome.storage.sync.set({'spanLine': spanLine}, null);
+        chrome.storage.sync.set({'commentCount': commentCount}, null);
         
     }
     xhr.send(req.body);
