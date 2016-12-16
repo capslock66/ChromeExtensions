@@ -1,3 +1,5 @@
+console.log("popup init") ;
+
 function init()
 {
     var req = chrome.extension.getBackgroundPage().Request.request;
@@ -91,11 +93,11 @@ function doRequest(method)
     //ttrace.queryClientId() ;
     //ttrace.debug().send("DoRequest", method);
 
-    console.log("----doRequest ---") ;
-    $("body").append('Test');
-	
-	var BackgroundPage = chrome.extension.getBackgroundPage() ;
-    var req = BackgroundPage.Request.request;	// Resquest function. request property
+    console.log("doRequest " + method) ;
+    //$("body").append('Test');
+   
+    var BackgroundPage = chrome.extension.getBackgroundPage() ;
+    var req = BackgroundPage.Request.request;   // Resquest function. request property
     req.method = method;
     req.url = document.getElementById("url").value;
     if (req.method == "POST" || req.method == "PUT") {
@@ -114,33 +116,22 @@ function doRequest(method)
         console.log(i + " " + req.headers[i]);
     }
 
-	/*
+    /*
+    <div class="tabs">
+       <div class="selected">Article</div><div class="unselected">
+           <a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a>
+       </div>
+       <div class="unselected"><a href="/script/Articles/Statistics.aspx?aid=5498">Stats</a></div>
+       <div class="unselected"><a href="/script/Articles/ListVersions.aspx?aid=5498">Revisions (33)</a></div>
+       <div class="unselected"><a href="/script/Articles/ListAlternatives.aspx?aid=5498">Alternatives</a></div>        
 
-	<div class="tabs">
-		<div class="selected">Article</div><div class="unselected">
-		    <a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a>
-		</div>
-		<div class="unselected"><a href="/script/Articles/Statistics.aspx?aid=5498">Stats</a></div>
-		<div class="unselected"><a href="/script/Articles/ListVersions.aspx?aid=5498">Revisions (33)</a></div>
-		<div class="unselected"><a href="/script/Articles/ListAlternatives.aspx?aid=5498">Alternatives</a></div>
-
-		<div class="unselected">
-		    <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
-			<span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
-		</div>
-	</div>	
-
-	selector
-	--------------
-	#ctl00_ArticleTabs_CommentLink
-	
-	xpath
-	-----------
-	//*[@id="ctl00_ArticleTabs_CommentLink"]
-	
-	
-	*/
-	
+       <div class="unselected">
+           <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
+           <span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
+       </div>
+    </div>         
+    */
+   
     xhr.onload = function() {
         var result = "status: " + xhr.status + " " + xhr.statusText + "<br />";
         var header = xhr.getAllResponseHeaders();
@@ -150,27 +141,25 @@ function doRequest(method)
                 result += ("<li>" + all[i] + "</li>");
         }
 
+        
+        // create an empty element, not stored in the document
+        var newDivElement = $('<div></div>' );
+      
+        // Parse the XMLHttpRequest result into the new element
+        newDivElement.html(xhr.responseText);
+              
+        // search line in new element
+        var spanLines = $("#ctl00_ArticleTabs_CmtCnt", newDivElement);   // array of one element : <span id="ctl00_ArticleTabs_CmtCnt">(578)</span>
+        var spanLine = spanLines[0] ;
+
         //document.getElementById("ifrm").setAttribute('src',document.getElementById("url").value);
         //document.getElementById("response_header").innerHTML = result;
         //document.getElementById("response_body").innerText = xhr.responseText;
-        $("response_body").prepend(xhr.responseText);
-        
-		// create an empty element, not stored in the document
-        var newDivElement = $('<div></div>' );
-		
-		// Parse the XMLHttpRequest result into the new element
-        newDivElement.html(xhr.responseText);
-		
-        
-        // search line
-        var spanLine = $("#ctl00_ArticleTabs_CommentLink", newDivElement);
-           
-        console.log(spanLine[0]);
-        
-		//<a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
-		//	<span id="ctl00_ArticleTabs_CmtCnt">(578)</span>
-		//</a>
+        $("#response_body").append("spanLine : " + spanLine.innerHTML + "<br>");
 
+        var commentCount = spanLine.textContent.match(/\d+/)[0] ;        //    /\d+/   : get numbers in the string. Result is an array.
+        console.log("Comment count : " + commentCount) ;
+        $("#response_body").append("Comment count : " + commentCount+ "<br>");
         
     }
     xhr.send(req.body);
