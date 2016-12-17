@@ -1,3 +1,9 @@
+// manifest key comes from 
+// c:\Users\Parent\AppData\Local\Google\Chrome\User Data\Default\Extensions\cgciaejemkddoollpocbepblfglddmkf\2015.10.5.42816_0\manifest.json
+// something about http://www.webmaster-gratuit.com/radio/nostal
+//
+// The ID will be cgciaejemkddoollpocbepblfglddmkf on all browsers for this extension 
+// chrome.storage.sync will synchronize data on all browsers for this extension
 
 function init()
 {
@@ -115,9 +121,17 @@ function doRequest()
             var searchResults = $(onLoadScanner.searchSelector, newDivElement);              
             if (searchResults.length != 0)
             {
-                var lastSearchResult = searchResults[searchResults.length-1] ;
+                var index = searchResults.length-1  ;   // TODO : use onLoadScanner.searchPosition
+                var lastSearchResult = searchResults[index] ;
                 var resultString = lastSearchResult.outerHTML ;
-                $("#response_body").append("last result : " + resultString + "<br>");
+                resultString = resultString
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    //.replace(/&/g, '&amp;')
+                    //.replace(/"/g, '&quot;')
+                    ;
+            
+                $("#response_body").append("result [" + index + "] : <br>" + resultString + "<br>");
                 console.log("lastSearchResult : " + resultString);
                 var hash = resultString.hashCode() ;
                 $("#response_body").append("hash : " + hash + "<br>");
@@ -152,16 +166,10 @@ function doRequest()
 
 function initStorage()
 {
-// https://www.devexpress.com/Support/Center/Question/Details/T166379
-// https://www.devexpress.com/support/center/Question/Details/T450669
-// https://www.devexpress.com/Support/Center/Question/Details/T455210
-
-
     // to in each scanner : 
     // -> enabled true/false, 
-    // -> searchPosition (-1 = last), 
-    // -> innerHtml/outerHtml
-    // -> trigger if search count change
+    // -> searchPosition (-1 = last, -2 = use count), 
+    // -> afterSearchUse innerHtml/outerHtml/...
     // -> Validated. If not a counter is displayed on the Icon
     
     var scannerList = [] ;
@@ -192,6 +200,24 @@ function initStorage()
     scanner = {};
     scanner.targetSite = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
     scanner.searchSelector = ".postCount" ;
+    scanner.hash = -1 ;
+    scannerList.push(scanner);
+    
+    scanner = {};
+    scanner.targetSite = "https://www.devexpress.com/Support/Center/Question/Details/T166379";
+    scanner.searchSelector = "#question-modified-on" ;
+    scanner.hash = -1 ;
+    scannerList.push(scanner);
+    
+    scanner = {};
+    scanner.targetSite = "https://www.devexpress.com/support/center/Question/Details/T450669";
+    scanner.searchSelector = "#question-modified-on" ;
+    scanner.hash = -1 ;
+    scannerList.push(scanner);
+    
+    scanner = {};
+    scanner.targetSite = "https://www.devexpress.com/Support/Center/Question/Details/T455210";
+    scanner.searchSelector = "#question-modified-on" ;
     scanner.hash = -1 ;
     scannerList.push(scanner);
     
