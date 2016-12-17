@@ -10,6 +10,7 @@
     "description": "Chrome poster th",
     "manifest_version": 2,
     "name": "Chrome Poster th",
+    "key": "7YPMLF+1ae78IWCXl1+H/uGWNq1tbKB1iU1ZMIn38zc=",
     "permissions": [
         "storage",
         "tabs", 
