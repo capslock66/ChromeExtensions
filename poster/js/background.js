@@ -1,4 +1,6 @@
+console.log("background init") ;
 function Request() {
+    this.scannerList = {} ;
     this.headers = {};
     this.body = null;
     this.method = "GET";

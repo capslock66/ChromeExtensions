@@ -1,175 +1,174 @@
-console.log("popup init") ;
 
 function init()
 {
-    chrome.storage.local.get('Request', function (obj) {
-        //obj.YourKey contains "YourValue"
-        
+    console.log("popup init") ;
+    //alert("I am alive");
+
+    var BackgroundPage = chrome.extension.getBackgroundPage() ;
+    chrome.storage.sync.get('scannerList', function (obj) 
+    { 
+       BackgroundPage.Request.scannerList = obj.scannerList;
+       console.log("storage get callback : saved scanners : \n" , BackgroundPage.Request.scannerList) ; 
+    }) ; 
+    
+    var req = BackgroundPage.Request.request;   // Resquest function. request property
+
+    var url = $("#url")[0] ;
+    console.log("before",url.value);
+    url.value = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace" ;
+    console.log("after",url.value);
+    
+    var button = document.getElementById("get_request_button");
+    button.addEventListener("click", function () {
+        doRequest();
     });
- 
-    var req = chrome.extension.getBackgroundPage().Request.request;
-    req.nameE = document.getElementById("header_name");
-    req.valueE = document.getElementById("header_value");
-    req.nameE.value = req.hname;
-    req.valueE.value = req.hvalue;
-    document.getElementById("url").value = req.url;
-    document.getElementById("content_body").value = req.body;
-    var list = document.getElementById("header_list");
-    list.innerHTML = renderHeaders()
 
-    document.getElementById("url").addEventListener("keyup", onUrlChanged);
-    document.getElementById("url").addEventListener("blur", onUrlChanged);
-
-    document.getElementById("header_name").addEventListener("keyup", onHeaderChanged);
-    document.getElementById("header_name").addEventListener("blur", onHeaderChanged);
-
-    document.getElementById("header_value").addEventListener("keyup", onHeaderChanged);
-    document.getElementById("header_value").addEventListener("blur", onHeaderChanged);
-
-    document.getElementById("add_header_button").addEventListener("click", onAddChangeHeader);
-
-    document.getElementById("content_body").addEventListener("keyup", onBodyChanged);
-    document.getElementById("content_body").addEventListener("blur", onBodyChanged);
-
-    var methods = ["GET", "POST", "DELETE", "HEAD", "PUT"];
-    for (var i=0; i<methods.length;i++) {
-        (function(index){
-            var button = document.getElementById(methods[i].toLowerCase() + "_request_button");
-            button.addEventListener("click", function () {
-                doRequest(methods[index]);
-            });
-        })(i);
-    }
 }
 
-function onHeaderChanged()
-{
-    var req = chrome.extension.getBackgroundPage().Request.request;
-    req.hname = req.nameE.value;
-    req.hvalue = req.valueE.value;
-}
 
-function onUrlChanged()
-{
-    var req = chrome.extension.getBackgroundPage().Request.request;
-    req.url = document.getElementById("url").value;;
-}
+/*
+<div class="tabs">
+    <div class="selected">Article</div><div class="unselected">
+        <a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a>
+    </div>
+    <div class="unselected"><a href="/script/Articles/Statistics.aspx?aid=5498">Stats</a></div>
+    <div class="unselected"><a href="/script/Articles/ListVersions.aspx?aid=5498">Revisions (33)</a></div>
+    <div class="unselected"><a href="/script/Articles/ListAlternatives.aspx?aid=5498">Alternatives</a></div>        
 
-function renderHeaders()
-{
-    var req = chrome.extension.getBackgroundPage().Request.request;
-    var html = "<table border=1>";
-    html += "<tr><th>name</th><th>value</th></tr>";
-    for (var i in req.headers) {
-        html += "<tr><td align=\"left\">" + i + "</td><td align=\"right\">" + req.headers[i] + "</td></tr>";
-    }
-    html += "</table>"
-    return html;
-}
+    <div class="unselected">
+        <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
+        <span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
+    </div>
+</div>         
+*/
 
-function onAddChangeHeader()
-{
-    var req = chrome.extension.getBackgroundPage().Request.request;
-    var name = req.nameE.value;
-    if (!name) {
-        return;
-    }
-    var value = req.valueE.value;
-    if (value == "##") {
-        delete req.headers[name];
-    } else {
-        req.headers[name] = value;
-    }
-    req.nameE.value = req.valueE.value = "";
-    onHeaderChanged();
-    var list = document.getElementById("header_list");
-    list.innerHTML = renderHeaders()
-}
+/*
+XDA : search last .postCount
+<a href="showpost.php?p=69842275&amp;postcount=2373" target="new" rel="nofollow" 
+    id="postcount69842275" 
+    name="2373" 
+    class="postCount" 
+    title="Permalink to post #2373">
 
-function onBodyChanged()
-{
-    var req = chrome.extension.getBackgroundPage().Request.request;
-    req.body = document.getElementById("content_body").value;
-}
+    <strong>#2373</strong>
+    
+</a>
+*/
 
-function doRequest(method)
+function doRequest()
 {
+    console.log("doRequest") ;
+
     //ttrace.setHost("localHost:85");
     //ttrace.queryClientId() ;
-    //ttrace.debug().send("DoRequest", method);
+    //ttrace.debug().send("DoRequest");
+    //var url = $("#url")[0].value ;
 
-    console.log("doRequest " + method) ;
-    //$("body").append('Test');
    
     var BackgroundPage = chrome.extension.getBackgroundPage() ;
-    var req = BackgroundPage.Request.request;   // Resquest function. request property
-    req.method = method;
-    req.url = document.getElementById("url").value;
-    if (req.method == "POST" || req.method == "PUT") {
-        req.body = document.getElementById("content_body").value;
+    for (var i in BackgroundPage.Request.scannerList) 
+    {
+        var currentScanner = BackgroundPage.Request.scannerList[i] ;
+        var url = currentScanner.targetSite ;
+
+        var xhr = new XMLHttpRequest();
+        xhr.scanner = currentScanner ; // inject 
+        
+        xhr.onload = function(e) 
+        {
+            // e : ProgressEvent
+            // e.currentTarget : XMLHttpRequest
+            // e.currentTarget.responseURL
+            var onloadRequest = e.currentTarget ;
+            var onLoadScanner = e.currentTarget.scanner ;
+            
+            console.log("onLoadScanner.targetSite = " , onLoadScanner.targetSite) ;
+            console.log("onLoadScanner.searchKey = " , onLoadScanner.searchKey) ;
+            
+            // var result = "status: " + xhr.status + " " + xhr.statusText + "<br />";
+            // var header = xhr.getAllResponseHeaders();
+            // var all = header.split("\r\n");
+            // for (var i = 0; i < all.length; i++) {
+                // if (all[i] != "")
+                    // result += ("<li>" + all[i] + "</li>");
+            // }
+            
+            // create an empty element, not stored in the document
+            var newDivElement = $('<div></div>' );
+          
+            // Parse the XMLHttpRequest result into the new element
+            newDivElement.html(xhr.responseText);
+                  
+            // search line in new element
+            var spanLines = $(onLoadScanner.searchKey, newDivElement);              
+            if (spanLines.length != 0)
+            {
+                console.log("found search length = " + spanLines.length) ;
+                var spanLine = spanLines[spanLines.length-1] ;
+                
+                $("#response_body").append("spanLine : " + spanLine.innerHTML + "<br>");
+
+                //var commentCount = spanLine.textContent.match(/\d+/)[0] ;        //    /\d+/   : get numbers in the string. Result is an array.
+                //console.log("Comment count : " + commentCount) ;
+                //$("#response_body").append("Comment count : " + commentCount+ "<br>");
+            }
+        }        
+        xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
+        xhr.send(null);                     // fire onload
     }
 
-    var xhr = new XMLHttpRequest();
-    xhr.open(
-        req.method,
-        req.url,
-        false);
-
-    console.log(method + " " + req.url);
-    for (var i in req.headers) {
-        xhr.setRequestHeader(i, req.headers[i]);
-        console.log(i + " " + req.headers[i]);
-    }
-
-    /*
-    <div class="tabs">
-       <div class="selected">Article</div><div class="unselected">
-           <a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a>
-       </div>
-       <div class="unselected"><a href="/script/Articles/Statistics.aspx?aid=5498">Stats</a></div>
-       <div class="unselected"><a href="/script/Articles/ListVersions.aspx?aid=5498">Revisions (33)</a></div>
-       <div class="unselected"><a href="/script/Articles/ListAlternatives.aspx?aid=5498">Alternatives</a></div>        
-
-       <div class="unselected">
-           <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
-           <span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
-       </div>
-    </div>         
-    */
-   
-    xhr.onload = function() {
-        var result = "status: " + xhr.status + " " + xhr.statusText + "<br />";
-        var header = xhr.getAllResponseHeaders();
-        var all = header.split("\r\n");
-        for (var i = 0; i < all.length; i++) {
-            if (all[i] != "")
-                result += ("<li>" + all[i] + "</li>");
-        }
-        
-        // create an empty element, not stored in the document
-        var newDivElement = $('<div></div>' );
-      
-        // Parse the XMLHttpRequest result into the new element
-        newDivElement.html(xhr.responseText);
-              
-        // search line in new element
-        var spanLines = $("#ctl00_ArticleTabs_CmtCnt", newDivElement);   // array of one element : <span id="ctl00_ArticleTabs_CmtCnt">(578)</span>
-        var spanLine = spanLines[0] ;
-
-        //document.getElementById("ifrm").setAttribute('src',document.getElementById("url").value);
-        //document.getElementById("response_header").innerHTML = result;
-        //document.getElementById("response_body").innerText = xhr.responseText;
-        $("#response_body").append("spanLine : " + spanLine.innerHTML + "<br>");
-
-        var commentCount = spanLine.textContent.match(/\d+/)[0] ;        //    /\d+/   : get numbers in the string. Result is an array.
-        console.log("Comment count : " + commentCount) ;
-        $("#response_body").append("Comment count : " + commentCount+ "<br>");
-        
-        chrome.storage.sync.set({'spanLine': spanLine}, null);
-        chrome.storage.sync.set({'commentCount': commentCount}, null);
-        
-    }
-    xhr.send(req.body);
+    // console.log("Get " + url);
+    // xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
+    // xhr.send(null);                     // fire onload
+    
+    return ;
+    var scannerList = [] ;
+    var scanner = {};
+    scanner.targetSite = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace";
+    scanner.searchKey = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
+    scanner.hash1 = 123 ;
+    scanner.hash2 = 456 ;       
+    scannerList.push(scanner);
+    
+    scanner = {};
+    scanner.targetSite = "https://www.codeproject.com/Articles/191930/Android-Usb-Port-Forwarding";
+    scanner.searchKey = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
+    scanner.hash1 = 123 ;
+    scanner.hash2 = 456 ;   
+    scannerList.push(scanner);
+    
+    scanner = {};
+    scanner.targetSite = "https://www.codeproject.com/Articles/6009/AidaNet-Network-resources-inventory";
+    scanner.searchKey = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
+    scanner.hash1 = 123 ;
+    scanner.hash2 = 456 ;   
+    scannerList.push(scanner);
+    
+    scanner = {};
+    scanner.targetSite = "http://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000";
+    scanner.searchKey = ".postCount" ;
+    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
+    scanner.hash1 = 123 ;
+    scanner.hash2 = 456 ;   
+    scannerList.push(scanner);
+    
+    scanner = {};
+    scanner.targetSite = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
+    scanner.searchKey = ".postCount" ;
+    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
+    scanner.hash1 = 123 ;
+    scanner.hash2 = 456 ;   
+    scannerList.push(scanner);
+    
+    console.log ("save all scanner") ;
+    chrome.storage.sync.set({'scannerList': scannerList}, function (obj) 
+    {
+        console.log("storage set callback") ; 
+    }) ;         
+    
 }
 
 init();
