@@ -1,6 +1,11 @@
 
 function init()
 {
+    //ttrace.setHost("localHost:85");
+    //ttrace.queryClientId() ;
+    //ttrace.debug().send("DoRequest");
+    //var url = $("#url")[0].value ;
+
     console.log("popup init") ;
     //alert("I am alive");
 
@@ -11,61 +16,74 @@ function init()
        console.log("storage get callback : saved scanners : \n" , BackgroundPage.Request.scannerList) ; 
     }) ; 
     
-    var req = BackgroundPage.Request.request;   // Resquest function. request property
+    //var req = BackgroundPage.Request.request;   // Resquest function. request property
 
-    var url = $("#url")[0] ;
-    console.log("before",url.value);
-    url.value = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace" ;
-    console.log("after",url.value);
+    //var url = $("#url")[0] ;
+    //console.log("before",url.value);
+    //url.value = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace" ;
+    //console.log("after",url.value);
     
-    var button = document.getElementById("get_request_button");
-    button.addEventListener("click", function () {
+    var checkButton = document.getElementById("check_request_button");
+    checkButton.addEventListener("click", function () {
         doRequest();
     });
+
+    var initButton = document.getElementById("init_storage_button");
+    initButton.addEventListener("click", function () {
+        initStorage();
+    });
+
+    
 
 }
 
 
 /*
+Code project : search class anchorLink 
+----------------------------------------
 <div class="tabs">
-    <div class="selected">Article</div><div class="unselected">
-        <a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a>
-    </div>
+    <div class="selected">Article</div><div class="unselected"><a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a></div>
     <div class="unselected"><a href="/script/Articles/Statistics.aspx?aid=5498">Stats</a></div>
     <div class="unselected"><a href="/script/Articles/ListVersions.aspx?aid=5498">Revisions (33)</a></div>
     <div class="unselected"><a href="/script/Articles/ListAlternatives.aspx?aid=5498">Alternatives</a></div>        
-
     <div class="unselected">
         <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
         <span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
     </div>
 </div>         
-*/
 
-/*
-XDA : search last .postCount
+XDA : search last class postCount
+--------------------------------------
 <a href="showpost.php?p=69842275&amp;postcount=2373" target="new" rel="nofollow" 
     id="postcount69842275" 
     name="2373" 
     class="postCount" 
     title="Permalink to post #2373">
-
     <strong>#2373</strong>
-    
 </a>
+
+DevExpress : search id question-modified-on
+----------------------------------------------
+<dd id="question-modified-on">    
+   <abbr role="datetime" class="date" title="2016-11-15T12:26:15.160Z">15/11/2016 13:26:15</abbr>
+</dd>
+
 */
+
+
 
 function doRequest()
 {
     console.log("doRequest") ;
-
-    //ttrace.setHost("localHost:85");
-    //ttrace.queryClientId() ;
-    //ttrace.debug().send("DoRequest");
-    //var url = $("#url")[0].value ;
-
-   
+    var scannedCount = 0;
+    
     var BackgroundPage = chrome.extension.getBackgroundPage() ;
+    for (var i in BackgroundPage.Request.scannerList) 
+    {
+        var currentScanner = BackgroundPage.Request.scannerList[i] ;
+        currentScanner
+    }
+
     for (var i in BackgroundPage.Request.scannerList) 
     {
         var currentScanner = BackgroundPage.Request.scannerList[i] ;
@@ -82,85 +100,99 @@ function doRequest()
             var onloadRequest = e.currentTarget ;
             var onLoadScanner = e.currentTarget.scanner ;
             
+            $("#response_body").append(onLoadScanner.targetSite + "<br>") ;
+            $("#response_body").append("Selector : " + onLoadScanner.searchSelector + "<br>") ;
             console.log("onLoadScanner.targetSite = " , onLoadScanner.targetSite) ;
-            console.log("onLoadScanner.searchKey = " , onLoadScanner.searchKey) ;
-            
-            // var result = "status: " + xhr.status + " " + xhr.statusText + "<br />";
-            // var header = xhr.getAllResponseHeaders();
-            // var all = header.split("\r\n");
-            // for (var i = 0; i < all.length; i++) {
-                // if (all[i] != "")
-                    // result += ("<li>" + all[i] + "</li>");
-            // }
-            
+            console.log("onLoadScanner.searchSelector = " , onLoadScanner.searchSelector) ;
+                       
             // create an empty element, not stored in the document
             var newDivElement = $('<div></div>' );
           
             // Parse the XMLHttpRequest result into the new element
-            newDivElement.html(xhr.responseText);
+            newDivElement.html(onloadRequest.responseText);
                   
-            // search line in new element
-            var spanLines = $(onLoadScanner.searchKey, newDivElement);              
-            if (spanLines.length != 0)
+            // search key in new element
+            var searchResults = $(onLoadScanner.searchSelector, newDivElement);              
+            if (searchResults.length != 0)
             {
-                console.log("found search length = " + spanLines.length) ;
-                var spanLine = spanLines[spanLines.length-1] ;
-                
-                $("#response_body").append("spanLine : " + spanLine.innerHTML + "<br>");
+                var lastSearchResult = searchResults[searchResults.length-1] ;
+                var resultString = lastSearchResult.outerHTML ;
+                $("#response_body").append("last result : " + resultString + "<br>");
+                console.log("lastSearchResult : " + resultString);
+                var hash = resultString.hashCode() ;
+                $("#response_body").append("hash : " + hash + "<br>");
 
-                //var commentCount = spanLine.textContent.match(/\d+/)[0] ;        //    /\d+/   : get numbers in the string. Result is an array.
-                //console.log("Comment count : " + commentCount) ;
-                //$("#response_body").append("Comment count : " + commentCount+ "<br>");
-            }
+                if (onLoadScanner.hash !== -1 && onLoadScanner.hash !== hash)
+                {
+                    console.log("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
+                }
+                
+                onLoadScanner.hash = hash ;
+                scannedCount++ ;
+                if (scannedCount == BackgroundPage.Request.scannerList.length)
+                {
+                    chrome.storage.sync.set({'scannerList': BackgroundPage.Request.scannerList}, function (obj) 
+                    {
+                        console.log("storage set callback") ; 
+                    }) ;                             
+                }
+            
+                //var commentCount = lastSearchResult.textContent.match(/\d+/)[0] ;        //    /\d+/   : get numbers in the string. Result is an array.
+
+            } else {
+                console.log("No result") ;
+                $("#response_body").append("No result <br>");
+            }            
+            $("#response_body").append("------------------------<br>");
         }        
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
         xhr.send(null);                     // fire onload
-    }
+    }   
+}
 
-    // console.log("Get " + url);
-    // xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
-    // xhr.send(null);                     // fire onload
+function initStorage()
+{
+// https://www.devexpress.com/Support/Center/Question/Details/T166379
+// https://www.devexpress.com/support/center/Question/Details/T450669
+// https://www.devexpress.com/Support/Center/Question/Details/T455210
+
+
+    // to in each scanner : 
+    // -> enabled true/false, 
+    // -> searchPosition (-1 = last), 
+    // -> innerHtml/outerHtml
+    // -> trigger if search count change
+    // -> Validated. If not a counter is displayed on the Icon
     
-    return ;
     var scannerList = [] ;
     var scanner = {};
     scanner.targetSite = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace";
-    scanner.searchKey = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
-    scanner.hash1 = 123 ;
-    scanner.hash2 = 456 ;       
+    scanner.searchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
     scanner.targetSite = "https://www.codeproject.com/Articles/191930/Android-Usb-Port-Forwarding";
-    scanner.searchKey = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
-    scanner.hash1 = 123 ;
-    scanner.hash2 = 456 ;   
+    scanner.searchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
     scanner.targetSite = "https://www.codeproject.com/Articles/6009/AidaNet-Network-resources-inventory";
-    scanner.searchKey = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
-    scanner.hash1 = 123 ;
-    scanner.hash2 = 456 ;   
+    scanner.searchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
     scanner.targetSite = "http://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000";
-    scanner.searchKey = ".postCount" ;
-    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
-    scanner.hash1 = 123 ;
-    scanner.hash2 = 456 ;   
+    scanner.searchSelector = ".postCount" ;
+    scanner.hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
     scanner.targetSite = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
-    scanner.searchKey = ".postCount" ;
-    scanner.searchResult = spanLine.outerHTML ;        // don't save the dom but it's representation. TODO : remove : store only the 2 hashs
-    scanner.hash1 = 123 ;
-    scanner.hash2 = 456 ;   
+    scanner.searchSelector = ".postCount" ;
+    scanner.hash = -1 ;
     scannerList.push(scanner);
     
     console.log ("save all scanner") ;
@@ -168,7 +200,20 @@ function doRequest()
     {
         console.log("storage set callback") ; 
     }) ;         
-    
+}
+
+String.prototype.hashCode = function(){
+    if (Array.prototype.reduce){
+        return this.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+    } 
+    var hash = 0;
+    if (this.length === 0) return hash;
+    for (var i = 0; i < this.length; i++) {
+        var character  = this.charCodeAt(i);
+        hash  = ((hash<<5)-hash)+character;
+        hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
 }
 
 init();

@@ -5,7 +5,7 @@
     "browser_action": {
        "default_icon": "poster.png",
        "default_popup": "popup.html",
-       "default_title": "Chrome Poster th"
+       "default_title": "Page checker"
     },
     "description": "Chrome poster th",
     "manifest_version": 2,
