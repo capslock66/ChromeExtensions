@@ -166,11 +166,12 @@ function doRequest()
 
 function initStorage()
 {
-    // to in each scanner : 
+    // to do in each scanner : 
     // -> enabled true/false, 
     // -> searchPosition (-1 = last, -2 = use count), 
     // -> afterSearchUse innerHtml/outerHtml/...
     // -> Validated. If not a counter is displayed on the Icon
+    // -> Title
     
     var scannerList = [] ;
     var scanner = {};
