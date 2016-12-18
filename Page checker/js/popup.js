@@ -7,12 +7,11 @@
 
 function init()
 {
-    //ttrace.setHost("localHost:85");
-    //ttrace.queryClientId() ;
-    //ttrace.debug().send("DoRequest");
-    //var url = $("#url")[0].value ;
-
     console.log("popup init") ;
+    
+    ttrace.setHost("localHost:85");
+    ttrace.queryClientId() ; // clientId will be received in asynch
+    
     //alert("I am alive");
 
     var BackgroundPage = chrome.extension.getBackgroundPage() ;
@@ -38,8 +37,6 @@ function init()
     initButton.addEventListener("click", function () {
         initStorage();
     });
-
-    
 
 }
 
@@ -76,11 +73,13 @@ DevExpress : search id question-modified-on
 
 */
 
-
-
 function doRequest()
 {
     console.log("doRequest") ;
+    //ttrace.setHost("localHost:85");
+    //ttrace.queryClientId() ; // clientId will be received in asynch
+    ttrace.debug().send("doRequest. ClientId=" + ttrace.getClientId());
+
     var scannedCount = 0;
     
     var BackgroundPage = chrome.extension.getBackgroundPage() ;
@@ -98,6 +97,8 @@ function doRequest()
         var xhr = new XMLHttpRequest();
         xhr.scanner = currentScanner ; // inject 
         
+        // xhr.addEventListener("error", ...);
+        // xhr.addEventListener("load", ...);
         xhr.onload = function(e) 
         {
             // e : ProgressEvent
@@ -108,9 +109,14 @@ function doRequest()
             
             $("#response_body").append(onLoadScanner.targetSite + "<br>") ;
             $("#response_body").append("Selector : " + onLoadScanner.searchSelector + "<br>") ;
+            
             console.log("onLoadScanner.targetSite = " , onLoadScanner.targetSite) ;
             console.log("onLoadScanner.searchSelector = " , onLoadScanner.searchSelector) ;
-                       
+                        
+            ttrace.debug().send("onLoadScanner.targetSite = " , onLoadScanner.targetSite) ;
+            ttrace.debug().send("onLoadScanner.searchSelector = " , onLoadScanner.searchSelector) ;
+
+            
             // create an empty element, not stored in the document
             var newDivElement = $('<div></div>' );
           
@@ -124,21 +130,27 @@ function doRequest()
                 var index = searchResults.length-1  ;   // TODO : use onLoadScanner.searchPosition
                 var lastSearchResult = searchResults[index] ;
                 var resultString = lastSearchResult.outerHTML ;
+                
+                console.log("lastSearchResult : " + resultString);
+                ttrace.debug().send("lastSearchResult : " + resultString);
                 resultString = resultString
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     //.replace(/&/g, '&amp;')
                     //.replace(/"/g, '&quot;')
                     ;
-            
                 $("#response_body").append("result [" + index + "] : <br>" + resultString + "<br>");
-                console.log("lastSearchResult : " + resultString);
+                
                 var hash = resultString.hashCode() ;
                 $("#response_body").append("hash : " + hash + "<br>");
+                console.log("hash : " + hash );
+                ttrace.debug().send("hash : " + hash );
 
                 if (onLoadScanner.hash !== -1 && onLoadScanner.hash !== hash)
                 {
                     console.log("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
+                    $("#response_body").append("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
+                    ttrace.warning.send("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
                 }
                 
                 onLoadScanner.hash = hash ;
@@ -147,17 +159,22 @@ function doRequest()
                 {
                     chrome.storage.sync.set({'scannerList': BackgroundPage.Request.scannerList}, function (obj) 
                     {
+                        $("#response_body").append("storage set callback") ; 
                         console.log("storage set callback") ; 
+                        ttrace.debug().send("storage set callback") ; 
                     }) ;                             
                 }
             
                 //var commentCount = lastSearchResult.textContent.match(/\d+/)[0] ;        //    /\d+/   : get numbers in the string. Result is an array.
 
             } else {
+                ttrace.warning.send("No result") ;
                 console.log("No result") ;
                 $("#response_body").append("No result <br>");
             }            
             $("#response_body").append("------------------------<br>");
+            console.log("------------------------");
+            ttrace.debug().send("---");
         }        
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
         xhr.send(null);                     // fire onload
