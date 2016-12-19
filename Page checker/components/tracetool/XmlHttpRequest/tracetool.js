@@ -168,7 +168,7 @@ if (!window.ttrace) {
     */
    function addMessage(objMessage)
    {
-      //console.log("tracetool:addMessage") ;
+      console.log("addMessage") ;
       objMessage.command = objMessage.command || "WMD" ;
       toSend.push(objMessage) ;          // add to end
       if (toSend.length === 1)           
@@ -181,7 +181,7 @@ if (!window.ttrace) {
     */
    function worker ()
    {
-      //console.log("tracetool:worker " + toSend.length) ;
+      console.log("worker " + toSend.length) ;
       if (toSend.length !== 0)
       {
          var objMessage = toSend.shift() ; // get first
@@ -201,16 +201,32 @@ if (!window.ttrace) {
          hostUrl = hostUrl + '&partNum=' + objMessage.partNum ;
 
       var xhr = createXHR() ;
+      // xhr.addEventListener("error", ...);
+      // xhr.addEventListener("load", ...);
       
-      //xhr.addEventListener("load", function(e) {
-      //  console.log("tracetool:load callback");
-      //  }, false);
+      xhr.addEventListener("load", function(e) {
+        console.log("load callback");
+        }, false);
         
       xhr.addEventListener("error", function(e) {
-        //console.log("tracetool:error callback " + toSend.length);
+        console.log("error callback");
+        console.log("on error readyState : " + this.readyState) ;
+        console.log("on error status  : " + this.status ) ;
+        console.log("on error statusText  : " + this.statusText ) ;
         setTimeout(worker, 0);    // send next
         }, false);
-
+        
+      xhr.addEventListener("abort", function(e) {
+        console.log("abort callback");
+        }, false);
+        
+      // xhr.onreadystatechange = function() 
+      // {
+          // console.log("onreadystatechange readyState : " + this.readyState) ;
+          // console.log("onreadystatechange status  : " + this.status ) ;
+          // console.log("onreadystatechange statusText  : " + this.statusText ) ;
+      // }
+      
       xhr.onload = function(e)
       {
           // e : ProgressEvent
@@ -226,7 +242,7 @@ if (!window.ttrace) {
           var script = onloadRequest.responseText ;
           if (script.startsWith("ttrace.setClientID("))
               clientId = script.match(/\d+/)[0];  // extract first number anywhere in the string. Result is an array of string. first : 123
-          //console.log("tracetool:onload " + toSend.length);
+          console.log("onload, set timeout 0");
           setTimeout(worker, 0);    // send next
       }
       xhr.open("GET", hostUrl, true);     // xhrReq.open(method, url, async, user, password); 
@@ -240,7 +256,7 @@ if (!window.ttrace) {
       xhr.send();                     // fire onload
       
       // check every 20 seconds if msg is send
-      //setTimeout(worker, 20000);
+      setTimeout(worker, 20000);
    }
 
    //--------------------------------------------------------------------------------------------------------

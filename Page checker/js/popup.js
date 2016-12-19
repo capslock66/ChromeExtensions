@@ -71,6 +71,15 @@ DevExpress : search id question-modified-on
    <abbr role="datetime" class="date" title="2016-11-15T12:26:15.160Z">15/11/2016 13:26:15</abbr>
 </dd>
 
+
+Other css selector
+http://www.w3schools.com/cssref/css_selectors.asp
+http://www.w3schools.com/cssref/sel_nth-child.asp
+http://www.w3schools.com/cssref/sel_nth-last-child.asp
+
+$('.someClass:nth-child(1)')        First
+$('.someClass:nth-last-child(1)')   Last
+
 */
 
 function doRequest()
@@ -86,7 +95,7 @@ function doRequest()
     for (var i in BackgroundPage.Request.scannerList) 
     {
         var currentScanner = BackgroundPage.Request.scannerList[i] ;
-        currentScanner
+        //currentScanner => Table
     }
 
     for (var i in BackgroundPage.Request.scannerList) 
@@ -107,14 +116,12 @@ function doRequest()
             var onloadRequest = e.currentTarget ;
             var onLoadScanner = e.currentTarget.scanner ;
             
+            // TODO : TABLE
             $("#response_body").append(onLoadScanner.targetSite + "<br>") ;
             $("#response_body").append("Selector : " + onLoadScanner.searchSelector + "<br>") ;
             
-            console.log("onLoadScanner.targetSite = " , onLoadScanner.targetSite) ;
-            console.log("onLoadScanner.searchSelector = " , onLoadScanner.searchSelector) ;
-                        
-            ttrace.debug().send("onLoadScanner.targetSite = " , onLoadScanner.targetSite) ;
-            ttrace.debug().send("onLoadScanner.searchSelector = " , onLoadScanner.searchSelector) ;
+            ttrace.debug().send("onLoadScanner.targetSite = " + onLoadScanner.targetSite) ;
+            ttrace.debug().send("onLoadScanner.searchSelector = " + onLoadScanner.searchSelector) ;
 
             
             // create an empty element, not stored in the document
@@ -131,7 +138,6 @@ function doRequest()
                 var lastSearchResult = searchResults[index] ;
                 var resultString = lastSearchResult.outerHTML ;
                 
-                console.log("lastSearchResult : " + resultString);
                 ttrace.debug().send("lastSearchResult : " + resultString);
                 resultString = resultString
                     .replace(/</g, '&lt;')
@@ -139,16 +145,20 @@ function doRequest()
                     //.replace(/&/g, '&amp;')
                     //.replace(/"/g, '&quot;')
                     ;
+    
+                // TODO : TABLE
                 $("#response_body").append("result [" + index + "] : <br>" + resultString + "<br>");
                 
                 var hash = resultString.hashCode() ;
+                
+                // TODO : TABLE
                 $("#response_body").append("hash : " + hash + "<br>");
-                console.log("hash : " + hash );
+
                 ttrace.debug().send("hash : " + hash );
 
                 if (onLoadScanner.hash !== -1 && onLoadScanner.hash !== hash)
                 {
-                    console.log("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
+                    // TODO : TABLE
                     $("#response_body").append("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
                     ttrace.warning.send("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
                 }
@@ -157,11 +167,11 @@ function doRequest()
                 scannedCount++ ;
                 if (scannedCount == BackgroundPage.Request.scannerList.length)
                 {
+                    // TODO : TABLE END
                     chrome.storage.sync.set({'scannerList': BackgroundPage.Request.scannerList}, function (obj) 
                     {
-                        $("#response_body").append("storage set callback") ; 
-                        console.log("storage set callback") ; 
-                        ttrace.debug().send("storage set callback") ; 
+                        //$("#response_body").append("storage set callback") ; 
+                        //ttrace.debug().send("storage set callback") ; 
                     }) ;                             
                 }
             
@@ -169,11 +179,10 @@ function doRequest()
 
             } else {
                 ttrace.warning.send("No result") ;
-                console.log("No result") ;
+                // TODO : TABLE
                 $("#response_body").append("No result <br>");
             }            
             $("#response_body").append("------------------------<br>");
-            console.log("------------------------");
             ttrace.debug().send("---");
         }        
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 

@@ -3,15 +3,11 @@
 //  Author : Thierry Parent
 //  Version : 12.4 
 //  See License.txt for license information
-//  XmlHttpRequest mode
+//  Script mode
 //------------------------------------------------------------------------------
 
-//"use strict";
+console.log("tracetool.js script mode");
 
-// http://stackoverflow.com/questions/4224606/how-to-check-whether-a-script-is-running-under-node-js
-// var isBrowser => (typeof module == 'undefined') , (typeof window != 'undefined'
-// var IsNode => (typeof process !== 'undefined') && (process.release.name.search(/node|io.js/) !== -1)
-console.log("tracetool.js XmlHttpRequest mode");
 if (!window.ttrace) {
    // /** @ignore */
    var tracetool = function()  // encapsulate all code into a function then execute it
@@ -33,7 +29,7 @@ if (!window.ttrace) {
    /** main WinWatch                     */
    var _watches = null;
    /** Communication ID with the viewer  */
-   var clientId="";
+   var clientID="";
    /** Full Url to TraceTool viewer (localhost:81 for example) */
    var host="127.0.0.1:81";
    /** Shortcut to head. used by RunScript() */
@@ -159,7 +155,7 @@ if (!window.ttrace) {
          addMessage ({msgId:msgId, msg:msg, partNum:''}) ;
       }
 
-   } 
+   } ;
 
    //--------------------------------------------------------------------------------------------------------
    /** Add a message to the waiting queue list. Run it if no other scripts are waiting 
@@ -168,96 +164,100 @@ if (!window.ttrace) {
     */
    function addMessage(objMessage)
    {
-      //console.log("tracetool:addMessage") ;
       objMessage.command = objMessage.command || "WMD" ;
       toSend.push(objMessage) ;          // add to end
-      if (toSend.length === 1)           
-         setTimeout(worker, 0);      
-   } 
+      if (toSend.length == 1) {
+         setTimeout(Worker, 0);
+      }
+   } ;
+
+   //--------------------------------------------------------------------------------------------------------
+   /** Create a script and execute it. This script send message to the viewer 
+    * @param {Object} objMessage Object message : {msgId , msg, partNum}
+    * @returns {void}
+    */  
+   function runScript (objMessage)
+   {
+      var ScriptUrl = 'http://'+host+'/' + objMessage.command + '?msgId=' + objMessage.msgId  + '&msg=' + escape(objMessage.msg) ;  // '&method=script'  + '&crc=' + objMessage.crc
+      if (objMessage.partNum != '')
+         ScriptUrl = ScriptUrl + '&partNum=' + objMessage.partNum ;
+
+      var script ;
+      script = document.createElement('script');// script is executed only when added to head
+      script.type = 'text/javascript';    // ttraceScript.setAttribute("type",'text/javascript')
+      script.setAttribute("id"  , "ttraceScript");
+      script.setAttribute("name", "ttraceScript");
+      script.src = ScriptUrl;
+      script.timeSend = new Date() ;
+      script.message = objMessage
+      ttraceScript = script ;        // set script as current script
+      headID.appendChild(script);           // run the script
+
+      /*
+      generated element in head :
+      
+      <script type="text/javascript" id="ttraceScript" name="ttraceScript" 
+         src="http://localhost:85/WMD?msgId=3_2&amp;msg= encoded Trace ...">
+      </script>
+      
+      */
+      
+      
+      // check every 20 seconds if msg is send
+      setTimeout(Worker, 20000);
+   }
 
    //--------------------------------------------------------------------------------------------------------
    /** Callback Timer function 
     * @returns {void}
     */
-   function worker ()
+   function Worker ()
    {
-      //console.log("tracetool:worker " + toSend.length) ;
-      if (toSend.length !== 0)
+      if (ttraceScript === null && toSend.length != 0)
+      {
+         // no script is running.
+         var objMessage = toSend.shift() ; // get first
+         runScript(objMessage);
+         return
+      }
+      if (ttraceScript !== null && new Date()-ttraceScript.timeSend > 19900)
+      {
+
+         // get message
+         var objMessage = ttraceScript.message ;
+
+         // kill current script
+         headID.removeChild (ttraceScript) ;
+         ttraceScript = null ;
+
+         // re-run script
+         runScript(objMessage);
+      }
+   }
+
+   //--------------------------------------------------------------------------------------------------------
+   /** Called after script is loaded  (_done and _setClientID) 
+    * @param {string} msgId Message id
+    * @param {string} partNum Part of the message
+    * @returns {void}
+    */
+   function afterRun(msgId , partNum)
+   {
+      if (ttraceScript === null)
+         return ;
+      msgId = msgId || '' ;
+      partNum = partNum || '' ;
+
+      // remove the script once loaded and executed.
+      headID.removeChild (ttraceScript) ;
+      ttraceScript = null ;
+      if (toSend.length != 0)
       {
          var objMessage = toSend.shift() ; // get first
-         sendToClientWorker(objMessage);
+         runScript(objMessage);          // run the script
       }
-   }
+   } ;
 
-   //--------------------------------------------------------------------------------------------------------
-   /** send message to the viewer 
-   * @param {Object} objMessage Object message : {msgId , msg, partNum}
-   * @returns {void}
-   */  
-   function sendToClientWorker (objMessage)
-   {
-      var hostUrl = 'http://'+host+'/' + objMessage.command + '?msgId=' + objMessage.msgId  + '&msg=' + escape(objMessage.msg) ;  // '&method=script'  + '&crc=' + objMessage.crc
-      if (objMessage.partNum !== '')
-         hostUrl = hostUrl + '&partNum=' + objMessage.partNum ;
-
-      var xhr = createXHR() ;
-      
-      //xhr.addEventListener("load", function(e) {
-      //  console.log("tracetool:load callback");
-      //  }, false);
-        
-      xhr.addEventListener("error", function(e) {
-        //console.log("tracetool:error callback " + toSend.length);
-        setTimeout(worker, 0);    // send next
-        }, false);
-
-      xhr.onload = function(e)
-      {
-          // e : ProgressEvent
-          // e.currentTarget : XMLHttpRequest
-          var onloadRequest = e.currentTarget ;
-
-          // With the js tracetool API for browser, the response for "UniqueClientId" command is a single line script 
-          // Sample script for "UniqueClientId" : ttrace.setclientId("123");
-          // Sample script for other messages   : ttrace._done("_1",""); 
-          // On the browser, this script is executed.
-          // For compatibility, on NodeJs , the Id is extracted from this script
-
-          var script = onloadRequest.responseText ;
-          if (script.startsWith("ttrace.setClientID("))
-              clientId = script.match(/\d+/)[0];  // extract first number anywhere in the string. Result is an array of string. first : 123
-          //console.log("tracetool:onload " + toSend.length);
-          setTimeout(worker, 0);    // send next
-      }
-      xhr.open("GET", hostUrl, true);     // xhrReq.open(method, url, async, user, password); 
-      //xhr.setRequestHeader("Content-Type", "text/javascript");
-      
-      //xhr.setRequestHeader('Access-Control-Allow-Headers', '*');
-      //xhr.setRequestHeader('Content-type', 'application/ecmascript');
-      //xhr.setRequestHeader('Content-type', 'text/plain');
-      //xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
-    
-      xhr.send();                     // fire onload
-      
-      // check every 20 seconds if msg is send
-      //setTimeout(worker, 20000);
-   }
-
-   //--------------------------------------------------------------------------------------------------------
-
-   function createXHR() 
-   {
-       try {
-           return new XMLHttpRequest();
-       } catch (e) {
-           try {
-               return new ActiveXObject("Microsoft.XMLHTTP");
-           } catch (e) {
-               return new ActiveXObject("Msxml2.XMLHTTP");
-           }
-       }
-   }
-   
    //--------------------------------------------------------------------------------------------------------
    /** Remove extra left spaces 
     * @param {Object} str String to trim
@@ -392,7 +392,7 @@ if (!window.ttrace) {
    function newGuid ()
    {
       RequestId++ ;
-      return clientId + '_' + RequestId ;
+      return clientID + '_' + RequestId ;
    } ;
 
    //--------------------------------------------------------------------------------------------------------
@@ -701,9 +701,9 @@ if (!window.ttrace) {
       * @param {string} newId New client ID
       * @returns {void}
       */
-      setClientId : function (newId)
+      setClientID : function (newId)
       {
-         clientId = newId ;    // var clientId
+         clientID = newId ;    // var clientID
          afterRun() ; // process any other messages
       } ,
 
@@ -713,9 +713,9 @@ if (!window.ttrace) {
       * @function
       * @returns {void}client ID
       */
-      getClientId : function ()
+      getClientID : function ()
       {
-         return clientId  ;    // var clientId
+         return clientID  ;    // var clientID
       } ,
 
       //--------------------------------------------------------------------------------------------------------
