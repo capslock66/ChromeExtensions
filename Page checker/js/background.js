@@ -8,6 +8,7 @@ function Request() {
 function main()
 {
     console.log("staring main()");
+    ttrace.host = "localHost:85";
 }
 
 main();
