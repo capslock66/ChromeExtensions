@@ -9,8 +9,8 @@ function init()
 {
     console.log("popup init") ;
     
-    ttrace.setHost("localHost:85");
-    ttrace.queryClientId() ; // clientId will be received in asynch
+    ttrace.host = "localHost:85";
+    //ttrace.queryClientId() ; // clientId will be received in asynch
     
     //alert("I am alive");
 
@@ -85,22 +85,22 @@ $('.someClass:nth-last-child(1)')   Last
 function doRequest()
 {
     console.log("doRequest") ;
-    //ttrace.setHost("localHost:85");
+    //ttrace.host = "localHost:85";
     //ttrace.queryClientId() ; // clientId will be received in asynch
-    ttrace.debug().send("doRequest. ClientId=" + ttrace.getClientId());
+    ttrace.debug.send("doRequest. ClientId=" + ttrace.clientId);
 
     var scannedCount = 0;
     
-    var BackgroundPage = chrome.extension.getBackgroundPage() ;
-    for (var i in BackgroundPage.Request.scannerList) 
+    var backgroundPage = chrome.extension.getBackgroundPage() ;
+    for (var i in backgroundPage.Request.scannerList) 
     {
-        var currentScanner = BackgroundPage.Request.scannerList[i] ;
+        var currentScanner = backgroundPage.Request.scannerList[i] ;
         //currentScanner => Table
     }
 
-    for (var i in BackgroundPage.Request.scannerList) 
+    for (var i in backgroundPage.Request.scannerList) 
     {
-        var currentScanner = BackgroundPage.Request.scannerList[i] ;
+        var currentScanner = backgroundPage.Request.scannerList[i] ;
         var url = currentScanner.targetSite ;
 
         var xhr = new XMLHttpRequest();
@@ -120,8 +120,8 @@ function doRequest()
             $("#response_body").append(onLoadScanner.targetSite + "<br>") ;
             $("#response_body").append("Selector : " + onLoadScanner.searchSelector + "<br>") ;
             
-            ttrace.debug().send("onLoadScanner.targetSite = " + onLoadScanner.targetSite) ;
-            ttrace.debug().send("onLoadScanner.searchSelector = " + onLoadScanner.searchSelector) ;
+            ttrace.debug.send("onLoadScanner.targetSite = " + onLoadScanner.targetSite) ;
+            ttrace.debug.send("onLoadScanner.searchSelector = " + onLoadScanner.searchSelector) ;
 
             
             // create an empty element, not stored in the document
@@ -138,7 +138,7 @@ function doRequest()
                 var lastSearchResult = searchResults[index] ;
                 var resultString = lastSearchResult.outerHTML ;
                 
-                ttrace.debug().send("lastSearchResult : " + resultString);
+                ttrace.debug.send("lastSearchResult : " + resultString);
                 resultString = resultString
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
@@ -154,7 +154,7 @@ function doRequest()
                 // TODO : TABLE
                 $("#response_body").append("hash : " + hash + "<br>");
 
-                ttrace.debug().send("hash : " + hash );
+                ttrace.debug.send("hash : " + hash );
 
                 if (onLoadScanner.hash !== -1 && onLoadScanner.hash !== hash)
                 {
@@ -165,13 +165,13 @@ function doRequest()
                 
                 onLoadScanner.hash = hash ;
                 scannedCount++ ;
-                if (scannedCount == BackgroundPage.Request.scannerList.length)
+                if (scannedCount == backgroundPage.Request.scannerList.length)
                 {
                     // TODO : TABLE END
-                    chrome.storage.sync.set({'scannerList': BackgroundPage.Request.scannerList}, function (obj) 
+                    chrome.storage.sync.set({'scannerList': backgroundPage.Request.scannerList}, function (obj) 
                     {
                         //$("#response_body").append("storage set callback") ; 
-                        //ttrace.debug().send("storage set callback") ; 
+                        //ttrace.debug.send("storage set callback") ; 
                     }) ;                             
                 }
             
@@ -183,7 +183,7 @@ function doRequest()
                 $("#response_body").append("No result <br>");
             }            
             $("#response_body").append("------------------------<br>");
-            ttrace.debug().send("---");
+            ttrace.debug.send("---");
         }        
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
         xhr.send(null);                     // fire onload

@@ -185,7 +185,7 @@ if (!window.ttrace) {
       if (toSend.length !== 0)
       {
          var objMessage = toSend.shift() ; // get first
-         sendToClientWorker(objMessage);
+         sendToClientUsingXMLHttpRequest(objMessage);
       }
    }
 
@@ -194,13 +194,22 @@ if (!window.ttrace) {
    * @param {Object} objMessage Object message : {msgId , msg, partNum}
    * @returns {void}
    */  
-   function sendToClientWorker (objMessage)
+   function sendToClientUsingXMLHttpRequest (objMessage)
    {
       var hostUrl = 'http://'+host+'/' + objMessage.command + '?msgId=' + objMessage.msgId  + '&msg=' + escape(objMessage.msg) ;  // '&method=script'  + '&crc=' + objMessage.crc
       if (objMessage.partNum !== '')
          hostUrl = hostUrl + '&partNum=' + objMessage.partNum ;
 
-      var xhr = createXHR() ;
+      var xhr ;
+      try {
+         xhr = new XMLHttpRequest();
+      } catch (e) {
+         try {
+            xhr = new ActiveXObject("Microsoft.XMLHTTP");
+         } catch (e) {
+            xhr = new ActiveXObject("Msxml2.XMLHTTP");
+         }
+      }
       
       //xhr.addEventListener("load", function(e) {
       //  console.log("tracetool:load callback");
@@ -243,21 +252,6 @@ if (!window.ttrace) {
       //setTimeout(worker, 20000);
    }
 
-   //--------------------------------------------------------------------------------------------------------
-
-   function createXHR() 
-   {
-       try {
-           return new XMLHttpRequest();
-       } catch (e) {
-           try {
-               return new ActiveXObject("Microsoft.XMLHTTP");
-           } catch (e) {
-               return new ActiveXObject("Msxml2.XMLHTTP");
-           }
-       }
-   }
-   
    //--------------------------------------------------------------------------------------------------------
    /** Remove extra left spaces 
     * @param {Object} str String to trim

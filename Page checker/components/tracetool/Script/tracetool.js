@@ -3567,4 +3567,7 @@ if (!window.ttrace) {
    // tracetool initialisation : ask for an unique client id. Removed when this file is loaded by the viewer (client id is gived)
    //ttrace.queryClientId();
 
-   } ; tracetool () ; }  // end if
+   } ; 
+   tracetool () ; 
+   
+}  // end if
