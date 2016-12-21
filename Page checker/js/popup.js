@@ -87,6 +87,9 @@ function doRequest()
     var responseBody = $("#response_body") ;
     var backgroundPage = chrome.extension.getBackgroundPage() ;
     
+    // http://www.w3schools.com/html/html_tables.asp
+    // http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1
+    
     var resultTable = $("<table style='width:100%'></table>" );
     responseBody.append(resultTable) ;
     
