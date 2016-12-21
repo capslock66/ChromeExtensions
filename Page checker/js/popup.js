@@ -7,12 +7,8 @@
 
 function init()
 {
-    console.log("popup init") ;
-    
+    console.log("popup init") ;    
     ttrace.host = "localHost:85";
-    //ttrace.queryClientId() ; // clientId will be received in asynch
-    
-    //alert("I am alive");
 
     var BackgroundPage = chrome.extension.getBackgroundPage() ;
     chrome.storage.sync.get('scannerList', function (obj) 
@@ -85,29 +81,30 @@ $('.someClass:nth-last-child(1)')   Last
 function doRequest()
 {
     console.log("doRequest") ;
-    //ttrace.host = "localHost:85";
-    //ttrace.queryClientId() ; // clientId will be received in asynch
     ttrace.debug.send("doRequest. ClientId=" + ttrace.clientId);
 
     var scannedCount = 0;
-    
+    var responseBody = $("#response_body") ;
     var backgroundPage = chrome.extension.getBackgroundPage() ;
-    for (var i in backgroundPage.Request.scannerList) 
-    {
-        var currentScanner = backgroundPage.Request.scannerList[i] ;
-        //currentScanner => Table
-    }
-
+    
+    var resultTable = $("<table style='width:100%'></table>" );
+    responseBody.append(resultTable) ;
+    
+    var headerTr = $("<tr></tr>");
+    resultTable.append(headerTr);
+    
+    headerTr.append($("<th>targetSite</th>")) ;
+    headerTr.append($("<th>Selector</th>")) ;
+    headerTr.append($("<th>resultString</th>")) ;
+    headerTr.append($("<th>hash</th>")) ;
+    
     for (var i in backgroundPage.Request.scannerList) 
     {
         var currentScanner = backgroundPage.Request.scannerList[i] ;
         var url = currentScanner.targetSite ;
-
         var xhr = new XMLHttpRequest();
-        xhr.scanner = currentScanner ; // inject 
-        
-        // xhr.addEventListener("error", ...);
-        // xhr.addEventListener("load", ...);
+        xhr.scanner = currentScanner ; // save to xhr for later retreival (onload callback) 
+
         xhr.onload = function(e) 
         {
             // e : ProgressEvent
@@ -116,13 +113,22 @@ function doRequest()
             var onloadRequest = e.currentTarget ;
             var onLoadScanner = e.currentTarget.scanner ;
             
-            // TODO : TABLE
-            $("#response_body").append(onLoadScanner.targetSite + "<br>") ;
-            $("#response_body").append("Selector : " + onLoadScanner.searchSelector + "<br>") ;
+            var ScannerTr = $("<tr></tr>");
+            resultTable.append(ScannerTr);
+            
+            ScannerTr.append($("<td>"+onLoadScanner.targetSite+"</td>")) ;
+            ScannerTr.append($("<td>Selector</td>")) ;
+            ScannerTr.append($("<td>resultString</td>")) ;
+            ScannerTr.append($("<td>hash</td>")) ;
+            
+            
+            // <td>targetSite</td>
+            responseBody.append(onLoadScanner.targetSite + "<br>") ;
+            // <td>Selector</td>
+            responseBody.append("Selector : " + onLoadScanner.searchSelector + "<br>") ;
             
             ttrace.debug.send("onLoadScanner.targetSite = " + onLoadScanner.targetSite) ;
             ttrace.debug.send("onLoadScanner.searchSelector = " + onLoadScanner.searchSelector) ;
-
             
             // create an empty element, not stored in the document
             var newDivElement = $('<div></div>' );
@@ -146,44 +152,44 @@ function doRequest()
                     //.replace(/"/g, '&quot;')
                     ;
     
-                // TODO : TABLE
-                $("#response_body").append("result [" + index + "] : <br>" + resultString + "<br>");
+                // <td>resultString</td>
+                responseBody.append("result [" + index + "] : <br>" + resultString + "<br>");
                 
                 var hash = resultString.hashCode() ;
                 
-                // TODO : TABLE
-                $("#response_body").append("hash : " + hash + "<br>");
-
-                ttrace.debug.send("hash : " + hash );
 
                 if (onLoadScanner.hash !== -1 && onLoadScanner.hash !== hash)
                 {
-                    // TODO : TABLE
-                    $("#response_body").append("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
+                    // <td>hash</td>
+                    responseBody.append("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
                     ttrace.warning.send("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
+                } else {
+                    // <td>hash</td>
+                    responseBody.append("hash : " + hash + "<br>");
+                    ttrace.debug.send("hash : " + hash );
                 }
                 
-                onLoadScanner.hash = hash ;
-                scannedCount++ ;
-                if (scannedCount == backgroundPage.Request.scannerList.length)
-                {
-                    // TODO : TABLE END
-                    chrome.storage.sync.set({'scannerList': backgroundPage.Request.scannerList}, function (obj) 
-                    {
-                        //$("#response_body").append("storage set callback") ; 
-                        //ttrace.debug.send("storage set callback") ; 
-                    }) ;                             
-                }
             
-                //var commentCount = lastSearchResult.textContent.match(/\d+/)[0] ;        //    /\d+/   : get numbers in the string. Result is an array.
-
             } else {
                 ttrace.warning.send("No result") ;
-                // TODO : TABLE
-                $("#response_body").append("No result <br>");
+                // <td>...resultString...</td>
+                // <td>...hash...        </td>
+                responseBody.append("No result <br>");
             }            
-            $("#response_body").append("------------------------<br>");
+            
+            responseBody.append("------------------------<br>");
             ttrace.debug.send("---");
+            
+            onLoadScanner.hash = hash ;
+            scannedCount++ ;
+            if (scannedCount == backgroundPage.Request.scannerList.length)
+            {
+                chrome.storage.sync.set({'scannerList': backgroundPage.Request.scannerList}, function (obj) 
+                {
+                    //responseBody.append("storage set callback") ; 
+                    //ttrace.debug.send("storage set callback") ; 
+                }) ;                             
+            }
         }        
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
         xhr.send(null);                     // fire onload
