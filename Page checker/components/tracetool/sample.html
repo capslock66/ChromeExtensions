@@ -49,8 +49,8 @@ function butSample()
    hello.send('world') ;  // send traces under another node
    ttrace.debug.send('>test é & = ? à<','ampersand') ;   // send any kind of chars
    ttrace.debug.send('----------') ;  //separator
-   ttrace.error.sendStack("stack",this.butSample) ;
-//   ttrace.warning.sendCaller() ;
+   ttrace.error.sendStack("stack") ;
+   ttrace.warning.sendCaller() ;  // default trace is "Caller"
    ttrace.debug.sendDump("Dump sample", "dump", "sample text with special chars >test é & = ? à< ") ; // , 30
 
    // send array. 
@@ -81,7 +81,7 @@ function butSample()
    f.colId = 1 ;
    f.bold = true ;
    nodeEx.members.add('my member', 'col2').setFontDetail (f);
-//   nodeEx.addStackTrace() ;
+   nodeEx.addStackTrace() ;
    nodeEx.addValue  (nodeEx) ;
    nodeEx.addBackgroundColor ('#208020' , -1);   // dark green
    nodeEx.addXML('<?xml version="1.0" ?><Data> Hello XML </Data>') ;

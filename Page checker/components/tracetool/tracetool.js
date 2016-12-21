@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 //  TraceTool JavaScript API.
 //  Author : Thierry Parent
-//  Version : 13.0.0 
+//  Version : 13.0.1 
 //  sample use for NodeJs:    
 //     var ttrace = require('tracetool') ;
 //     ttrace.clearAll();
@@ -48,9 +48,9 @@ var isNodeJs;                              /** library run in Node Js           
 //--------------------------------------------------------------------------------------------------------
     
 detectEnvironment() ;
-console.log ("isChromeExtension : " + isChromeExtension);
-console.log ("isBrowser         : " + isBrowser);
-console.log ("isNodeJs          : " + isNodeJs);
+//console.log ("isChromeExtension : " + isChromeExtension);
+//console.log ("isBrowser         : " + isBrowser);
+//console.log ("isNodeJs          : " + isNodeJs);
 
 if (isNodeJs)    
 {
@@ -1394,19 +1394,17 @@ traceClasses.TraceToSend.prototype =
       * Send the call stack
       * @function
       * @param {string} leftMsg Trace message
-      * @param {function} [belowFn] function to start display the stack
+      * @param {integer} [level] Call to skip (default = 0 : don't skip)
       * @returns {TraceNode} a Trace node
       */
-      sendStack: function (leftMsg, belowFn)
+      sendStack: function (leftMsg, level)
       {
          if (!this.enabled)
             return new traceClasses.TraceNode(this);
 
-         belowFn = belowFn || this.sendStack;
-
          var result = new traceClasses.TraceNodeEx(this, true); // create a node with same properties as "this" with new ID
          var commandList = prepareNewNode(this, leftMsg || "Stack" , result.id);
-         result.addStackTrace(belowFn);
+         result.addStackTrace(level);
          result.members.addToStringList(commandList); // convert all groups and nested items/group to strings
 
          sendToWinTraceClient(commandList, this.winTraceId);
@@ -1419,19 +1417,17 @@ traceClasses.TraceToSend.prototype =
       * Send the caller function name.It's like the call stack, but display only 1 line
       * @function
       * @param {string} leftMsg Trace message
-      * @param {function} [belowFn] function to start display the stack
+      * @param {integer} [level] Call to skip (default = 0 : don't skip)
       * @returns {TraceNode} a Trace node
       */
-      sendCaller: function (leftMsg, belowFn)
+      sendCaller: function (leftMsg, level)
       {
          if (!this.enabled)
             return new traceClasses.TraceNode(this);
 
-         belowFn = belowFn || this.sendCaller;
-
          var result = new traceClasses.TraceNodeEx(this, true); // create a node with same properties as "this" with new ID
          var commandList = prepareNewNode(this, leftMsg || "Caller" , result.id);
-         result.addCaller(belowFn);
+         result.addCaller(level);
          result.members.addToStringList(commandList); // convert all groups and nested items/group to strings
 
          sendToWinTraceClient(commandList, this.winTraceId);
@@ -3143,13 +3139,14 @@ traceClasses.TraceNodeEx.prototype =
       * add caller to the Members
       * It's like the call stack, but display only 1 line
       * @function
-      * @param {function} [belowFn] function to start display the stack
+      * @param {function} [level] Call to skip (default = 0 : don't skip)
       * @returns {void}
       */
-      addCaller: function (belowFn)
+      addCaller: function (level)
       {
          if (!this.enabled)
             return;
+         level = level || 0 ;
 
          var group = new traceClasses.MemberNode("Call stack").setFontDetail(0, true);
          group.viewerKind =  /* CST_VIEWER_STACK */ 4 ;
@@ -3157,34 +3154,46 @@ traceClasses.TraceNodeEx.prototype =
 
          if (isNodeJs)
          {
-             belowFn = belowFn || this.addCaller;
-             var stack = stackTrace.get(belowFn);
+             var stack = stackTrace.get(this.addCaller);
              var stackLength = stack.length;
              for (var i = 0; i < stackLength; i++)
              {
-                 var callObj = stack[i];
-                 if (callObj.getFileName().includes("tracetool.js") === false)
-                 {
-                     var callName = callObj.toString();
-                     group.add(callName);
-                     return;
-                 }
+                var callObj = stack[i];
+                if (callObj.getFileName().includes("tracetool.js") === false)
+                {
+                   if (level > 0)
+                      level-- ;
+                   else {
+                      var callName = callObj.toString();
+                      group.add(callName);
+                      return;
+                   }
+                }
              }
          } else {
-            var level = belowFn || 1 ;
            
-            var callObj = arguments.callee ;
-            while (callObj)
+            var stack = new Error().stack ;
+            var stackList = stack.split('\n') ;
+            var stackLength = stackList.length;
+            for (var i = 0; i < stackLength; i++)
             {
-               if (level > 0)
-                  level-- ;
-               else {
-                  callName = callObj.name ? callObj.name : callObj.toString();
-                  callName = getFunctionName (callName) ;
-                  group.add(callName) ;
-                  return ;  // display only one line
-               }
-               callObj = callObj.caller;
+               var callObj = stackList[i].trim();
+               if (callObj === "Error")
+                   continue ;
+               
+               if (callObj.includes("tracetool.js") === true)
+                   continue ;
+
+               if (callObj.startsWith("at ")) // other fancy lines are ignored
+               {
+                  if (level > 0)
+                     level-- ;
+                  else {
+                     var callName = callObj.substring(3);
+                     group.add(callName);
+                     return ;
+                  }
+               }  
             }
          }
       } ,
@@ -3193,14 +3202,14 @@ traceClasses.TraceNodeEx.prototype =
       /**
       * add stack to the Members
       * @function
-      * @param {function} [belowFn] function to start display the stack
-      * @param {integer} [level] Level to use (0 is the current function)
+      * @param {integer} [level] Call to skip (default = 0 : don't skip)
       * @returns {void}
       */
-      addStackTrace: function (belowFn)
+      addStackTrace: function (level)
       {
          if (!this.enabled)
             return;
+         level = level || 0 ;
 
          var group = new traceClasses.MemberNode("Call stack").setFontDetail(0, true);
          group.viewerKind =  /* CST_VIEWER_STACK */ 4 ;
@@ -3208,27 +3217,22 @@ traceClasses.TraceNodeEx.prototype =
          
          if (isNodeJs)
          {
-             belowFn = belowFn || this.addStackTrace;
-             
-             var stack = stackTrace.get(belowFn);
-             var stackLength = stack.length;
-             for (var i = 0; i < stackLength; i++)
-             {
-                 var callObj = stack[i];
-                 if (callObj.getFileName().includes("tracetool.js") === false)
-                 {
+            var stack = stackTrace.get(this.addStackTrace);
+            var stackLength = stack.length;
+            for (var i = 0; i < stackLength; i++)
+            {
+               var callObj = stack[i];
+               if (callObj.getFileName().includes("tracetool.js") === false)
+               {
+                  if (level > 0)
+                     level-- ;
+                  else {
                      var callName = callObj.toString();
                      group.add(callName);
-                 }
-             }
+                  }
+               }
+            }
          } else {
-            var level = belowFn || 1 ;
-
-            var maxFn = belowFn || this.addCaller ;
-            var maxName = maxFn.name ? maxFn.name : maxFn.toString();            
-
-            // don't work in strict mode
-            //var callObj = arguments.callee ;
             var stack = new Error().stack ;
             
             /*
@@ -3240,23 +3244,27 @@ traceClasses.TraceNodeEx.prototype =
                 at HTMLInputElement.onclick (file:///C:/Thierry/ChromeExtensions/Page%20checker/components/tracetool/sample.html:302:94)
             */
             
-            var re = /(\w+)@|at (\w+) \(/g;
-            var aRegexResult = re.exec(stack);
-            console.log(aRegexResult) ;            
-            
-            while (callObj)
+            var stackList = stack.split('\n') ;
+            var stackLength = stackList.length;
+            for (var i = 0; i < stackLength; i++)
             {
-               if (level > 0)
-                  level-- ;
-               else {
-                  callName = callObj.name ? callObj.name : callObj.toString();
-                  if (callName === maxName)
-                      break ;
-                  callName = getFunctionName (callName) ;
-                  group.add(callName) ;
-               }
-               callObj = callObj.caller;
-            }
+               var callObj = stackList[i].trim();
+               if (callObj === "Error")
+                   continue ;
+               
+               if (callObj.includes("tracetool.js") === true)
+                   continue ;
+
+               if (callObj.startsWith("at ")) // other fancy lines are ignored
+               {
+                  if (level > 0)
+                     level-- ;
+                  else {
+                     var callName = callObj.substring(3);
+                     group.add(callName);
+                  }
+               }  
+            }           
          }
       } ,
 
