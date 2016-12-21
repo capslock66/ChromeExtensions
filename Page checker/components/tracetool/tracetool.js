@@ -3151,23 +3151,41 @@ traceClasses.TraceNodeEx.prototype =
          if (!this.enabled)
             return;
 
-         belowFn = belowFn || this.addCaller;
          var group = new traceClasses.MemberNode("Call stack").setFontDetail(0, true);
          group.viewerKind =  /* CST_VIEWER_STACK */ 4 ;
          this.members.add(group);
 
-         var stack = stackTrace.get(belowFn);
-
-         var stackLength = stack.length;
-         for (var i = 0; i < stackLength; i++)
+         if (isNodeJs)
          {
-             var callObj = stack[i];
-             if (callObj.getFileName().includes("tracetool.js") === false)
+             belowFn = belowFn || this.addCaller;
+             var stack = stackTrace.get(belowFn);
+             var stackLength = stack.length;
+             for (var i = 0; i < stackLength; i++)
              {
-                 var callName = callObj.toString();
-                 group.add(callName);
-                 return;
+                 var callObj = stack[i];
+                 if (callObj.getFileName().includes("tracetool.js") === false)
+                 {
+                     var callName = callObj.toString();
+                     group.add(callName);
+                     return;
+                 }
              }
+         } else {
+            var level = belowFn || 1 ;
+           
+            var callObj = arguments.callee ;
+            while (callObj)
+            {
+               if (level > 0)
+                  level-- ;
+               else {
+                  callName = callObj.name ? callObj.name : callObj.toString();
+                  callName = getFunctionName (callName) ;
+                  group.add(callName) ;
+                  return ;  // display only one line
+               }
+               callObj = callObj.caller;
+            }
          }
       } ,
 
@@ -3176,6 +3194,7 @@ traceClasses.TraceNodeEx.prototype =
       * add stack to the Members
       * @function
       * @param {function} [belowFn] function to start display the stack
+      * @param {integer} [level] Level to use (0 is the current function)
       * @returns {void}
       */
       addStackTrace: function (belowFn)
@@ -3183,24 +3202,62 @@ traceClasses.TraceNodeEx.prototype =
          if (!this.enabled)
             return;
 
-         belowFn = belowFn || this.addStackTrace;
-
          var group = new traceClasses.MemberNode("Call stack").setFontDetail(0, true);
          group.viewerKind =  /* CST_VIEWER_STACK */ 4 ;
          this.members.add(group);
-         var stack = stackTrace.get(belowFn);
-
-         var stackLength = stack.length;
-         for (var i = 0; i < stackLength; i++)
+         
+         if (isNodeJs)
          {
-             var callObj = stack[i];
-             if (callObj.getFileName().includes("tracetool.js") === false)
+             belowFn = belowFn || this.addStackTrace;
+             
+             var stack = stackTrace.get(belowFn);
+             var stackLength = stack.length;
+             for (var i = 0; i < stackLength; i++)
              {
-                 var callName = callObj.toString();
-                 group.add(callName);
+                 var callObj = stack[i];
+                 if (callObj.getFileName().includes("tracetool.js") === false)
+                 {
+                     var callName = callObj.toString();
+                     group.add(callName);
+                 }
              }
-         }
+         } else {
+            var level = belowFn || 1 ;
 
+            var maxFn = belowFn || this.addCaller ;
+            var maxName = maxFn.name ? maxFn.name : maxFn.toString();            
+
+            // don't work in strict mode
+            //var callObj = arguments.callee ;
+            var stack = new Error().stack ;
+            
+            /*
+            typeof stack : string 
+            Error
+                at traceClasses.TraceNodeEx.addStackTrace (file:///C:/Thierry/ChromeExtensions/Page%20checker/components/tracetool/tracetool.js:3232:25)
+                at traceClasses.TraceToSend.sendStack (file:///C:/Thierry/ChromeExtensions/Page%20checker/components/tracetool/tracetool.js:1409:17)
+                at butSample (file:///C:/Thierry/ChromeExtensions/Page%20checker/components/tracetool/sample.html:52:17)
+                at HTMLInputElement.onclick (file:///C:/Thierry/ChromeExtensions/Page%20checker/components/tracetool/sample.html:302:94)
+            */
+            
+            var re = /(\w+)@|at (\w+) \(/g;
+            var aRegexResult = re.exec(stack);
+            console.log(aRegexResult) ;            
+            
+            while (callObj)
+            {
+               if (level > 0)
+                  level-- ;
+               else {
+                  callName = callObj.name ? callObj.name : callObj.toString();
+                  if (callName === maxName)
+                      break ;
+                  callName = getFunctionName (callName) ;
+                  group.add(callName) ;
+               }
+               callObj = callObj.caller;
+            }
+         }
       } ,
 
       //--------------------------------------------------------
