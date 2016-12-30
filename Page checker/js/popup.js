@@ -81,7 +81,7 @@ $('.someClass:nth-last-child(1)')   Last
 function doRequest()
 {
     console.log("doRequest") ;
-    ttrace.debug.send("doRequest. ClientId=" + ttrace.clientId);
+    ttrace.debug.send("doRequest");
 
     var scannedCount = 0;
     var responseBody = $("#response_body") ;
@@ -96,10 +96,10 @@ function doRequest()
     var headerTr = $("<tr></tr>");
     resultTable.append(headerTr);
     
-    headerTr.append($("<th>targetSite</th>")) ;
     headerTr.append($("<th>Selector</th>")) ;
     headerTr.append($("<th>resultString</th>")) ;
     headerTr.append($("<th>hash</th>")) ;
+    headerTr.append($("<th>targetSite</th>")) ;
     
     for (var i in backgroundPage.Request.scannerList) 
     {
@@ -115,23 +115,7 @@ function doRequest()
             // e.currentTarget.responseURL
             var onloadRequest = e.currentTarget ;
             var onLoadScanner = e.currentTarget.scanner ;
-            
-            var ScannerTr = $("<tr></tr>");
-            resultTable.append(ScannerTr);
-            
-            ScannerTr.append($("<td>"+onLoadScanner.targetSite+"</td>")) ;
-            ScannerTr.append($("<td>Selector</td>")) ;
-            ScannerTr.append($("<td>resultString</td>")) ;
-            ScannerTr.append($("<td>hash</td>")) ;
-            
-            
-            // <td>targetSite</td>
-            responseBody.append(onLoadScanner.targetSite + "<br>") ;
-            // <td>Selector</td>
-            responseBody.append("Selector : " + onLoadScanner.searchSelector + "<br>") ;
-            
-            ttrace.debug.send("onLoadScanner.targetSite = " + onLoadScanner.targetSite) ;
-            ttrace.debug.send("onLoadScanner.searchSelector = " + onLoadScanner.searchSelector) ;
+            // responseBody.append(onLoadScanner.targetSite + "<br>") ;
             
             // create an empty element, not stored in the document
             var newDivElement = $('<div></div>' );
@@ -145,43 +129,29 @@ function doRequest()
             {
                 var index = searchResults.length-1  ;   // TODO : use onLoadScanner.searchPosition
                 var lastSearchResult = searchResults[index] ;
-                var resultString = lastSearchResult.outerHTML ;
-                
-                ttrace.debug.send("lastSearchResult : " + resultString);
-                resultString = resultString
+                onLoadScanner.resultString = lastSearchResult.outerHTML
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     //.replace(/&/g, '&amp;')
                     //.replace(/"/g, '&quot;')
-                    ;
-    
-                // <td>resultString</td>
-                responseBody.append("result [" + index + "] : <br>" + resultString + "<br>");
-                
-                var hash = resultString.hashCode() ;
-                
-
-                if (onLoadScanner.hash !== -1 && onLoadScanner.hash !== hash)
-                {
-                    // <td>hash</td>
-                    responseBody.append("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
-                    ttrace.warning.send("Different hash. Stored = " + onLoadScanner.hash + ", calculated = " + hash) ;
-                } else {
-                    // <td>hash</td>
-                    responseBody.append("hash : " + hash + "<br>");
-                    ttrace.debug.send("hash : " + hash );
-                }
-                
-            
+                    ;                
+                onLoadScanner.newHash = onLoadScanner.resultString.hashCode() ;     
             } else {
-                ttrace.warning.send("No result") ;
-                // <td>...resultString...</td>
-                // <td>...hash...        </td>
-                responseBody.append("No result <br>");
+                onLoadScanner.resultString = "Nothing !";
+                onLoadScanner.newHash = 0 ;                
             }            
+ 
+            var ScannerTr = $("<tr></tr>");
+            resultTable.append(ScannerTr);
             
-            responseBody.append("------------------------<br>");
-            ttrace.debug.send("---");
+            var hashToDisplay = onLoadScanner.newHash ;
+            if (onLoadScanner.hash !== -1 && onLoadScanner.hash !== onLoadScanner.newHash)
+                hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
+            
+            ScannerTr.append($("<td>" + onLoadScanner.searchSelector + "</td>")) ;
+            ScannerTr.append($("<td>" + onLoadScanner.resultString   + "</td>")) ;
+            ScannerTr.append($("<td>" + onLoadScanner.newHash        + "</td>")) ;
+            ScannerTr.append($("<td>" + onLoadScanner.targetSite     + "</td>")) ;            
             
             onLoadScanner.hash = hash ;
             scannedCount++ ;
@@ -189,6 +159,7 @@ function doRequest()
             {
                 chrome.storage.sync.set({'scannerList': backgroundPage.Request.scannerList}, function (obj) 
                 {
+                    //console.log("storage set callback") ;
                     //responseBody.append("storage set callback") ; 
                     //ttrace.debug.send("storage set callback") ; 
                 }) ;                             

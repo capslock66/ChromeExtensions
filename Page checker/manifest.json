@@ -3,7 +3,7 @@
        "scripts": [ "components/jquery/jquery.min.js","components/tracetool/tracetool.js","js/background.js" ]
     },
     "browser_action": {
-       "default_icon": "poster.png",
+       "default_icon": "check.png",
        "default_popup": "popup.html",
        "default_title": "Page checker"
     },
