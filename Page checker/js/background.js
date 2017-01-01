@@ -1,14 +1,23 @@
-console.log("background init") ;
+
 function Request() {
     this.scannerList = {} ;
 }
 
-//Request.request = new Request();
-
 function main()
 {
-    console.log("staring main()");
+    console.log("background main()");
     ttrace.host = "localHost:85";
+    ttrace.debug.send("background init");
+    
+    //var BackgroundPage = chrome.extension.getBackgroundPage() ;
+    chrome.storage.sync.get('scannerList', function (obj) 
+    { 
+       Request.scannerList = obj.scannerList;
+       console.log("storage get callback : scanners : \n" , Request.scannerList) ; 
+    }) ; 
+
+    
+    
 }
 
 main();

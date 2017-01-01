@@ -1,14 +1,9 @@
-// manifest key comes from 
-// c:\Users\Parent\AppData\Local\Google\Chrome\User Data\Default\Extensions\cgciaejemkddoollpocbepblfglddmkf\2015.10.5.42816_0\manifest.json
-// something about http://www.webmaster-gratuit.com/radio/nostal
-//
-// The ID will be cgciaejemkddoollpocbepblfglddmkf on all browsers for this extension 
-// chrome.storage.sync will synchronize data on all browsers for this extension
 
 function init()
 {
     console.log("popup init") ;    
     ttrace.host = "localHost:85";
+    ttrace.debug.send("popup init");
 
     var BackgroundPage = chrome.extension.getBackgroundPage() ;
     chrome.storage.sync.get('scannerList', function (obj) 
@@ -16,13 +11,7 @@ function init()
        BackgroundPage.Request.scannerList = obj.scannerList;
        console.log("storage get callback : saved scanners : \n" , BackgroundPage.Request.scannerList) ; 
     }) ; 
-    
-    //var req = BackgroundPage.Request.request;   // Resquest function. request property
 
-    //var url = $("#url")[0] ;
-    //console.log("before",url.value);
-    //url.value = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace" ;
-    //console.log("after",url.value);
     
     var checkButton = document.getElementById("check_request_button");
     checkButton.addEventListener("click", function () {
@@ -99,12 +88,12 @@ function doRequest()
     headerTr.append($("<th>Selector</th>")) ;
     headerTr.append($("<th>resultString</th>")) ;
     headerTr.append($("<th>hash</th>")) ;
-    headerTr.append($("<th>targetSite</th>")) ;
+    headerTr.append($("<th>TargetSite</th>")) ;
     
     for (var i in backgroundPage.Request.scannerList) 
     {
         var currentScanner = backgroundPage.Request.scannerList[i] ;
-        var url = currentScanner.targetSite ;
+        var url = currentScanner.TargetSite ;
         var xhr = new XMLHttpRequest();
         xhr.scanner = currentScanner ; // save to xhr for later retreival (onload callback) 
 
@@ -115,7 +104,7 @@ function doRequest()
             // e.currentTarget.responseURL
             var onloadRequest = e.currentTarget ;
             var onLoadScanner = e.currentTarget.scanner ;
-            // responseBody.append(onLoadScanner.targetSite + "<br>") ;
+            // responseBody.append(onLoadScanner.TargetSite + "<br>") ;
             
             // create an empty element, not stored in the document
             var newDivElement = $('<div></div>' );
@@ -124,36 +113,36 @@ function doRequest()
             newDivElement.html(onloadRequest.responseText);
                   
             // search key in new element
-            var searchResults = $(onLoadScanner.searchSelector, newDivElement);              
+            var searchResults = $(onLoadScanner.SearchSelector, newDivElement);  
+            var newHash = 0    
+            var resultString  = "Nothing !";  
+            
             if (searchResults.length != 0)
             {
                 var index = searchResults.length-1  ;   // TODO : use onLoadScanner.searchPosition
                 var lastSearchResult = searchResults[index] ;
-                onLoadScanner.resultString = lastSearchResult.outerHTML
+                resultString = lastSearchResult.outerHTML
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     //.replace(/&/g, '&amp;')
                     //.replace(/"/g, '&quot;')
                     ;                
-                onLoadScanner.newHash = onLoadScanner.resultString.hashCode() ;     
-            } else {
-                onLoadScanner.resultString = "Nothing !";
-                onLoadScanner.newHash = 0 ;                
+                newHash = resultString.hashCode() ;                  
             }            
  
             var ScannerTr = $("<tr></tr>");
             resultTable.append(ScannerTr);
             
-            var hashToDisplay = onLoadScanner.newHash ;
-            if (onLoadScanner.hash !== -1 && onLoadScanner.hash !== onLoadScanner.newHash)
+            var hashToDisplay = newHash ;
+            if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== newHash)
                 hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
             
-            ScannerTr.append($("<td>" + onLoadScanner.searchSelector + "</td>")) ;
-            ScannerTr.append($("<td>" + onLoadScanner.resultString   + "</td>")) ;
-            ScannerTr.append($("<td>" + onLoadScanner.newHash        + "</td>")) ;
-            ScannerTr.append($("<td>" + onLoadScanner.targetSite     + "</td>")) ;            
+            ScannerTr.append($("<td>" + onLoadScanner.SearchSelector + "</td>")) ;
+            ScannerTr.append($("<td>" + resultString   + "</td>")) ;
+            ScannerTr.append($("<td>" + newHash        + "</td>")) ;
+            ScannerTr.append($("<td>" + onLoadScanner.TargetSite     + "</td>")) ;            
             
-            onLoadScanner.hash = hash ;
+            onLoadScanner.Hash = newHash ;
             scannedCount++ ;
             if (scannedCount == backgroundPage.Request.scannerList.length)
             {
@@ -181,51 +170,83 @@ function initStorage()
     
     var scannerList = [] ;
     var scanner = {};
-    scanner.targetSite = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace";
-    scanner.searchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.hash = -1 ;
+    scanner.Name = "CodeProject - Tracetool" ;
+    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+    scanner.Enabled = true ;
+    scanner.Validated = true ;
+    scanner.TargetSite = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace";
+    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.Hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
-    scanner.targetSite = "https://www.codeproject.com/Articles/191930/Android-Usb-Port-Forwarding";
-    scanner.searchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.hash = -1 ;
+    scanner.Name = "CodeProject - Port Forwarding" ;
+    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+    scanner.Enabled = true ;
+    scanner.Validated = true ;
+    scanner.TargetSite = "https://www.codeproject.com/Articles/191930/Android-Usb-Port-Forwarding";
+    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.Hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
-    scanner.targetSite = "https://www.codeproject.com/Articles/6009/AidaNet-Network-resources-inventory";
-    scanner.searchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.hash = -1 ;
+    scanner.Name = "CodeProject - AidaNet" ;
+    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+    scanner.Enabled = true ;
+    scanner.Validated = true ;
+    scanner.TargetSite = "https://www.codeproject.com/Articles/6009/AidaNet-Network-resources-inventory";
+    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
+    scanner.Hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
-    scanner.targetSite = "http://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000";
-    scanner.searchSelector = ".postCount" ;
-    scanner.hash = -1 ;
+    scanner.Name = " Xda - Reverse Tethering -Q&A" ;
+    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+    scanner.Enabled = true ;
+    scanner.Validated = true ;
+    scanner.TargetSite = "http://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000";
+    scanner.SearchSelector = ".postCount" ;
+    scanner.Hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
-    scanner.targetSite = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
-    scanner.searchSelector = ".postCount" ;
-    scanner.hash = -1 ;
+    scanner.Name = "Xda - Reverse Tethering - Discussion" ;
+    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+    scanner.Enabled = true ;
+    scanner.Validated = true ;
+    scanner.TargetSite = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
+    scanner.SearchSelector = ".postCount" ;
+    scanner.Hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
-    scanner.targetSite = "https://www.devexpress.com/Support/Center/Question/Details/T166379";
-    scanner.searchSelector = "#question-modified-on" ;
-    scanner.hash = -1 ;
+    scanner.Name = "DevExpress - Does the Silverlight/WPF Dxgrid take the icon into consideration when calculating BestFit" ;
+    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+    scanner.Enabled = true ;
+    scanner.Validated = true ;
+    scanner.TargetSite = "https://www.devexpress.com/Support/Center/Question/Details/T166379";
+    scanner.SearchSelector = "#question-modified-on" ;
+    scanner.Hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
-    scanner.targetSite = "https://www.devexpress.com/support/center/Question/Details/T450669";
-    scanner.searchSelector = "#question-modified-on" ;
-    scanner.hash = -1 ;
+    scanner.Name = "DevExpress - How to show a child ExpandoObjects in TreeListControl" ;
+    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+    scanner.Enabled = true ;
+    scanner.Validated = true ;
+    scanner.TargetSite = "https://www.devexpress.com/support/center/Question/Details/T450669";
+    scanner.SearchSelector = "#question-modified-on" ;
+    scanner.Hash = -1 ;
     scannerList.push(scanner);
     
     scanner = {};
-    scanner.targetSite = "https://www.devexpress.com/Support/Center/Question/Details/T455210";
-    scanner.searchSelector = "#question-modified-on" ;
-    scanner.hash = -1 ;
+    scanner.Name = "DevExpress - The error icon's width isn't taken into account when the BestFit operation is calculated" ;
+    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+    scanner.Enabled = true ;
+    scanner.Validated = true ;
+    scanner.TargetSite = "https://www.devexpress.com/Support/Center/Question/Details/T455210";
+    scanner.SearchSelector = "#question-modified-on" ;
+    scanner.Hash = -1 ;
     scannerList.push(scanner);
     
     console.log ("save all scanner") ;
