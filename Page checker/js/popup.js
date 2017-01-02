@@ -1,25 +1,23 @@
 
-function init()
+function init() 
 {
-    console.log("popup init") ;    
-    ttrace.host = "localHost:85";
+    var BackgroundPage = chrome.extension.getBackgroundPage() ;
+    var ttrace = BackgroundPage.ttrace ;
+    console.log("popup init. ttrace.host : " + ttrace.host) ;    
+    //ttrace.host = "localHost:85";
     ttrace.debug.send("popup init");
 
-    var BackgroundPage = chrome.extension.getBackgroundPage() ;
     chrome.storage.sync.get('scannerList', function (obj) 
     { 
        BackgroundPage.Request.scannerList = obj.scannerList;
        console.log("storage get callback : saved scanners : \n" , BackgroundPage.Request.scannerList) ; 
     }) ; 
 
+    $("#check_request_button").click(function(){
+       doRequest();
+    }); 
     
-    var checkButton = document.getElementById("check_request_button");
-    checkButton.addEventListener("click", function () {
-        doRequest();
-    });
-
-    var initButton = document.getElementById("init_storage_button");
-    initButton.addEventListener("click", function () {
+    $("#init_storage_button").click(function () {
         initStorage();
     });
 
@@ -85,79 +83,133 @@ function doRequest()
     var headerTr = $("<tr></tr>");
     resultTable.append(headerTr);
     
-    headerTr.append($("<th>Selector</th>")) ;
-    headerTr.append($("<th>resultString</th>")) ;
-    headerTr.append($("<th>hash</th>")) ;
-    headerTr.append($("<th>TargetSite</th>")) ;
+    //headerTr.append($("<th>Selector</th>")) ;
+    //headerTr.append($("<th>resultString</th>")) ;
+    //headerTr.append($("<th>hash</th>")) ;
+    //headerTr.append($("<th>TargetSite</th>")) ;
     
     for (var i in backgroundPage.Request.scannerList) 
     {
         var currentScanner = backgroundPage.Request.scannerList[i] ;
+        currentScanner.index = i ;
         var url = currentScanner.TargetSite ;
         var xhr = new XMLHttpRequest();
         xhr.scanner = currentScanner ; // save to xhr for later retreival (onload callback) 
 
         xhr.onload = function(e) 
         {
-            // e : ProgressEvent
-            // e.currentTarget : XMLHttpRequest
-            // e.currentTarget.responseURL
-            var onloadRequest = e.currentTarget ;
-            var onLoadScanner = e.currentTarget.scanner ;
-            // responseBody.append(onLoadScanner.TargetSite + "<br>") ;
-            
-            // create an empty element, not stored in the document
-            var newDivElement = $('<div></div>' );
+          // e : ProgressEvent
+          // e.currentTarget : XMLHttpRequest
+          // e.currentTarget.responseURL
+          var onloadRequest = e.currentTarget ;
+          var onLoadScanner = e.currentTarget.scanner ;
+          // responseBody.append(onLoadScanner.TargetSite + "<br>") ;
           
-            // Parse the XMLHttpRequest result into the new element
-            newDivElement.html(onloadRequest.responseText);
-                  
-            // search key in new element
-            var searchResults = $(onLoadScanner.SearchSelector, newDivElement);  
-            var newHash = 0    
-            var resultString  = "Nothing !";  
-            
-            if (searchResults.length != 0)
-            {
-                var index = searchResults.length-1  ;   // TODO : use onLoadScanner.searchPosition
-                var lastSearchResult = searchResults[index] ;
-                resultString = lastSearchResult.outerHTML
-                    .replace(/</g, '&lt;')
-                    .replace(/>/g, '&gt;')
-                    //.replace(/&/g, '&amp;')
-                    //.replace(/"/g, '&quot;')
-                    ;                
-                newHash = resultString.hashCode() ;                  
-            }            
- 
-            var ScannerTr = $("<tr></tr>");
-            resultTable.append(ScannerTr);
-            
-            var hashToDisplay = newHash ;
-            if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== newHash)
-                hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
-            
-            ScannerTr.append($("<td>" + onLoadScanner.SearchSelector + "</td>")) ;
-            ScannerTr.append($("<td>" + resultString   + "</td>")) ;
-            ScannerTr.append($("<td>" + newHash        + "</td>")) ;
-            ScannerTr.append($("<td>" + onLoadScanner.TargetSite     + "</td>")) ;            
-            
-            onLoadScanner.Hash = newHash ;
-            scannedCount++ ;
-            if (scannedCount == backgroundPage.Request.scannerList.length)
-            {
-                chrome.storage.sync.set({'scannerList': backgroundPage.Request.scannerList}, function (obj) 
-                {
-                    //console.log("storage set callback") ;
-                    //responseBody.append("storage set callback") ; 
-                    //ttrace.debug.send("storage set callback") ; 
-                }) ;                             
-            }
-        }        
+          // create an empty element, not stored in the document
+          var newDivElement = $('<div></div>' );
+        
+          // Parse the XMLHttpRequest result into the new element
+          newDivElement.html(onloadRequest.responseText);
+                
+          // search key in new element
+          var searchResults = $(onLoadScanner.SearchSelector, newDivElement);  
+          onLoadScanner.newHash = 0 ;  
+          onLoadScanner.resultString  = "Nothing !";  
+          
+          if (searchResults.length !== 0)
+          {
+              var index = searchResults.length-1  ;   // TODO : use onLoadScanner.searchPosition
+              var lastSearchResult = searchResults[index] ;
+              onLoadScanner.resultString = lastSearchResult.outerHTML
+                  .replace(/</g, '&lt;')
+                  .replace(/>/g, '&gt;')
+                  //.replace(/&/g, '&amp;')
+                  //.replace(/"/g, '&quot;')
+                  ;                
+              onLoadScanner.newHash = onLoadScanner.resultString.hashCode() ;                  
+          }            
+        
+          var ScannerTr = $("<tr></tr>");
+          var ScannerTd = $("<td></td>");
+          resultTable.append(ScannerTr);
+          ScannerTr.append(ScannerTd);
+          
+          var hashToDisplay = onLoadScanner.newHash ;
+          if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== onLoadScanner.newHash)
+              hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
+          
+          onLoadScanner.inputName = $("<input value='"+onLoadScanner.Name+"'>") ;
+          $(onLoadScanner.inputName).on("change keyup",function()   // change paste keyup
+          {
+              console.log($(this).val());
+              onLoadScanner.Name = $(this).val() ;
+          }) ;
+          
+          onLoadScanner.inputSearchSelector = $("<input value='"+onLoadScanner.SearchSelector+"'>") ;
+          $(onLoadScanner.inputSearchSelector).on("change keyup",function()   // change paste keyup
+          {
+              console.log($(this).val());
+              onLoadScanner.SearchSelector = $(this).val() ;
+          }) ;
+          
+          //var tdSearchSelector = $("<td></td>") ;
+          //tdSearchSelector.append(onLoadScanner.inputSearchSelector) ;
+          
+          ScannerTd.append(onLoadScanner.inputName);
+          ScannerTd.append($("<br>"));
+          ScannerTd.append(onLoadScanner.inputSearchSelector) ;
+          
+          
+          
+          //ScannerTr.append(tdSearchSelector) ;
+          
+          //ScannerTr.append($("<td>" + onLoadScanner.resultString   + "</td>")) ;
+          //ScannerTr.append($("<td>" + onLoadScanner.newHash        + "</td>")) ;
+          //ScannerTr.append($("<td>" + onLoadScanner.TargetSite     + "</td>")) ;            
+          
+          
+          
+          
+          
+          
+          onLoadScanner.Hash = onLoadScanner.newHash ;
+          scannedCount++ ;
+          if (scannedCount == backgroundPage.Request.scannerList.length)
+              saveStorage(backgroundPage) ;                            
+          
+        } ;       
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
         xhr.send(null);                     // fire onload
     }   
 }
+
+function saveStorage(backgroundPage)
+{
+   // create a copy of the scannerList to save only needed fields
+    var scannerCopyList = [] ;
+    for (var i in backgroundPage.Request.scannerList) 
+    {
+        var scanner     = backgroundPage.Request.scannerList[i] ;
+        var scannerCopy = {} ;
+        scannerCopy.Name           = scanner.Name ;
+        scannerCopy.ArraySelector  = scanner.ArraySelector ;
+        scannerCopy.Enabled        = scanner.Enabled ;
+        scannerCopy.Validated      = scanner.Validated ;
+        scannerCopy.TargetSite     = scanner.TargetSite ;
+        scannerCopy.SearchSelector = scanner.SearchSelector ; 
+        scannerCopy.Hash           = scanner.Hash ;
+        scannerCopyList.push(scannerCopy);        
+    }
+    
+    chrome.storage.sync.set({'scannerList': backgroundPage.Request.scannerList}, function (obj) 
+    {
+        //console.log("storage set callback") ;
+        //responseBody.append("storage set callback") ; 
+        //ttrace.debug.send("storage set callback") ; 
+    }) ;                             
+    
+}
+
 
 function initStorage()
 {
@@ -258,7 +310,7 @@ function initStorage()
 
 String.prototype.hashCode = function(){
     if (Array.prototype.reduce){
-        return this.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a},0);              
+        return this.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0);              
     } 
     var hash = 0;
     if (this.length === 0) return hash;
@@ -268,6 +320,6 @@ String.prototype.hashCode = function(){
         hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
-}
+} ;
 
 init();
