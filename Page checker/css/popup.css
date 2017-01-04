@@ -7,7 +7,7 @@ http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1
 /* Templates */
 
 .templates {
-  /*display: none;*/
+  display: none;
 }
 
 table, th, td {

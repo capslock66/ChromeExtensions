@@ -17,40 +17,44 @@
     <script type="text/javascript" src="components/jquery/jquery.min.js"></script>  
     <script src="js/popup.js"> </script>
     
-    <table class="templates" >
-        <col width="200">
-        <col width="580">
-        <tr >
-            <td>Name</td>            <td class="template_Name">CodeProject - Tracetool</td>
-        </tr>
-        <tr>
-            <td>Source</td>          <td class="template_Source">https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace</td>
-        </tr>
-        </tr>
-            <td>Validator</td>       <td class="template_Validator">#ctl00_ArticleTabs_CmtCnt</td>
-        </tr>
-        <tr>
-            <td>Result</td>          <td class="template_Result">some tags</td>
-        </tr>
-        <tr>
-            <td>Array Selection</td> 
-            <td >
-                <span>
-                    <input class="template_ArraySelection">
-                    <span style="display: inline-block;width:3px"> </span>
-                    <span >0=first, last=-1, use count as result = -2 </span>
-                </span>
-            </td>
-        </tr>
-    </table>
-    <div>
-    <input type="checkbox" class="template_Enabled"/> <span>Enabled</span>
-    <input type="checkbox" class="template_Validated"/> <span>Validated</span>
-    <span style="display: inline-block;width:100px"> </span>
-    <span>Checksum</span>
-    <span style="display: inline-block;width:5px"> </span>
-    <span style="color:blue" class="template_Checksum">123</span>
-    <input type="button"  value="Check now" class="template_CheckNow" />
+    <div class="templates">
+        <div class="scanner" >
+            <table >
+                <col width="200">
+                <col width="580">
+                <tr >
+                    <td>Name</td>      <td><input type="text" class="template_Name" value="CodeProject - Tracetool"></td>
+                </tr>
+                <tr>
+                    <td>Source</td>    <td><input type="text" class="template_Source" value="https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace"></td>
+                </tr>
+                </tr>
+                    <td>Validator</td> <td><input type="text" class="template_Validator" value="#ctl00_ArticleTabs_CmtCnt"></td>
+                </tr>
+                <tr>
+                    <td>Result</td>    <td class="template_Result">some tags</td>
+                </tr>
+                <tr>
+                    <td>Array Selection</td> 
+                    <td >
+                        <span>
+                            <input class="template_ArraySelection">
+                            <span style="display: inline-block;width:3px"> </span>
+                            <span >0=first, last=-1, use count as result = -2 </span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <div>
+            <input type="checkbox" class="template_Enabled"/> <span>Enabled</span>
+            <input type="checkbox" class="template_Validated"/> <span>Validated</span>
+            <span style="display: inline-block;width:100px"> </span>
+            <span>Checksum</span>
+            <span style="display: inline-block;width:5px"> </span>
+            <span style="color:blue" class="template_Checksum">123</span>
+            <input type="button"  value="Check now" class="template_CheckNow" />
+            </div>
+        </div>
     </div>
     
     </body>

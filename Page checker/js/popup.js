@@ -37,7 +37,7 @@ function doRequest()
     // http://www.w3schools.com/html/html_tables.asp
     // http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1
     
-    var resultTable = $("<table style='width:100%'></table>" );
+    var resultTable = $("<table style='width:780'></table>" );
     responseBody.append(resultTable) ;
     
     var headerTr = $("<tr></tr>");
@@ -97,14 +97,7 @@ function doRequest()
           var hashToDisplay = onLoadScanner.newHash ;
           if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== onLoadScanner.newHash)
               hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
-          
-          onLoadScanner.inputName = $("<input value='"+onLoadScanner.Name+"'>") ;
-          $(onLoadScanner.inputName).on("change keyup",function()   // change paste keyup
-          {
-              console.log($(this).val());
-              onLoadScanner.Name = $(this).val() ;
-          }) ;
-          
+                   
           onLoadScanner.inputSearchSelector = $("<input value='"+onLoadScanner.SearchSelector+"'>") ;
           $(onLoadScanner.inputSearchSelector).on("change keyup",function()   // change paste keyup
           {
@@ -119,8 +112,24 @@ function doRequest()
           //ScannerTd.append($("<br>"));
           //ScannerTd.append(onLoadScanner.inputSearchSelector) ;
           
-          var scannerView = $('.templates').clone();
-          scannerView.find('.template_Name')[0].innerText = onLoadScanner.Name ;
+          var scannerView = $('.scanner').clone().removeClass("scanner");
+          
+          // Input name
+          onLoadScanner.inputName = scannerView.find('.template_Name')[0] ;
+          onLoadScanner.inputName.value = onLoadScanner.Name ;
+          $(onLoadScanner.inputName).on("change keyup",function()   // change paste keyup
+          {
+              console.log($(this).val());
+              onLoadScanner.Name = $(this).val() ;
+          }) ;
+          
+          //template_Source
+          //template_Validator
+          //template_Result
+          //template_ArraySelection
+          //template_Enabled
+          //template_Validated
+          //template_Checksum  // innerText
           
           ScannerTd.append(scannerView) ;
           
