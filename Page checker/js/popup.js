@@ -4,13 +4,12 @@ function init()
     var BackgroundPage = chrome.extension.getBackgroundPage() ;
     var ttrace = BackgroundPage.ttrace ;
     console.log("popup init. ttrace.host : " + ttrace.host) ;    
-    //ttrace.host = "localHost:85";
     ttrace.debug.send("popup init");
 
     chrome.storage.sync.get('scannerList', function (obj) 
     { 
-       BackgroundPage.Request.scannerList = obj.scannerList;
-       console.log("storage get callback : saved scanners : \n" , BackgroundPage.Request.scannerList) ; 
+       BackgroundPage.scannerList = obj.scannerList;
+       console.log("storage get callback : saved scanners : \n" , BackgroundPage.scannerList) ; 
     }) ; 
 
     $("#check_request_button").click(function(){
@@ -24,55 +23,16 @@ function init()
 }
 
 
-/*
-Code project : search class anchorLink 
-----------------------------------------
-<div class="tabs">
-    <div class="selected">Article</div><div class="unselected"><a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a></div>
-    <div class="unselected"><a href="/script/Articles/Statistics.aspx?aid=5498">Stats</a></div>
-    <div class="unselected"><a href="/script/Articles/ListVersions.aspx?aid=5498">Revisions (33)</a></div>
-    <div class="unselected"><a href="/script/Articles/ListAlternatives.aspx?aid=5498">Alternatives</a></div>        
-    <div class="unselected">
-        <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
-        <span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
-    </div>
-</div>         
-
-XDA : search last class postCount
---------------------------------------
-<a href="showpost.php?p=69842275&amp;postcount=2373" target="new" rel="nofollow" 
-    id="postcount69842275" 
-    name="2373" 
-    class="postCount" 
-    title="Permalink to post #2373">
-    <strong>#2373</strong>
-</a>
-
-DevExpress : search id question-modified-on
-----------------------------------------------
-<dd id="question-modified-on">    
-   <abbr role="datetime" class="date" title="2016-11-15T12:26:15.160Z">15/11/2016 13:26:15</abbr>
-</dd>
-
-
-Other css selector
-http://www.w3schools.com/cssref/css_selectors.asp
-http://www.w3schools.com/cssref/sel_nth-child.asp
-http://www.w3schools.com/cssref/sel_nth-last-child.asp
-
-$('.someClass:nth-child(1)')        First
-$('.someClass:nth-last-child(1)')   Last
-
-*/
-
 function doRequest()
 {
+    var backgroundPage = chrome.extension.getBackgroundPage() ;
+    var ttrace = backgroundPage.ttrace ;
+
     console.log("doRequest") ;
     ttrace.debug.send("doRequest");
 
     var scannedCount = 0;
     var responseBody = $("#response_body") ;
-    var backgroundPage = chrome.extension.getBackgroundPage() ;
     
     // http://www.w3schools.com/html/html_tables.asp
     // http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1
@@ -88,9 +48,9 @@ function doRequest()
     //headerTr.append($("<th>hash</th>")) ;
     //headerTr.append($("<th>TargetSite</th>")) ;
     
-    for (var i in backgroundPage.Request.scannerList) 
+    for (var i in backgroundPage.scannerList) 
     {
-        var currentScanner = backgroundPage.Request.scannerList[i] ;
+        var currentScanner = backgroundPage.scannerList[i] ;
         currentScanner.index = i ;
         var url = currentScanner.TargetSite ;
         var xhr = new XMLHttpRequest();
@@ -155,10 +115,14 @@ function doRequest()
           //var tdSearchSelector = $("<td></td>") ;
           //tdSearchSelector.append(onLoadScanner.inputSearchSelector) ;
           
-          ScannerTd.append(onLoadScanner.inputName);
-          ScannerTd.append($("<br>"));
-          ScannerTd.append(onLoadScanner.inputSearchSelector) ;
+          //ScannerTd.append(onLoadScanner.inputName);
+          //ScannerTd.append($("<br>"));
+          //ScannerTd.append(onLoadScanner.inputSearchSelector) ;
           
+          var scannerView = $('.templates').clone();
+          scannerView.find('.template_Name')[0].innerText = onLoadScanner.Name ;
+          
+          ScannerTd.append(scannerView) ;
           
           
           //ScannerTr.append(tdSearchSelector) ;
@@ -174,7 +138,7 @@ function doRequest()
           
           onLoadScanner.Hash = onLoadScanner.newHash ;
           scannedCount++ ;
-          if (scannedCount == backgroundPage.Request.scannerList.length)
+          if (scannedCount == backgroundPage.scannerList.length)
               saveStorage(backgroundPage) ;                            
           
         } ;       
@@ -187,9 +151,9 @@ function saveStorage(backgroundPage)
 {
    // create a copy of the scannerList to save only needed fields
     var scannerCopyList = [] ;
-    for (var i in backgroundPage.Request.scannerList) 
+    for (var i in backgroundPage.scannerList) 
     {
-        var scanner     = backgroundPage.Request.scannerList[i] ;
+        var scanner     = backgroundPage.scannerList[i] ;
         var scannerCopy = {} ;
         scannerCopy.Name           = scanner.Name ;
         scannerCopy.ArraySelector  = scanner.ArraySelector ;
@@ -201,7 +165,7 @@ function saveStorage(backgroundPage)
         scannerCopyList.push(scannerCopy);        
     }
     
-    chrome.storage.sync.set({'scannerList': backgroundPage.Request.scannerList}, function (obj) 
+    chrome.storage.sync.set({'scannerList': backgroundPage.scannerList}, function (obj) 
     {
         //console.log("storage set callback") ;
         //responseBody.append("storage set callback") ; 
@@ -323,3 +287,46 @@ String.prototype.hashCode = function(){
 } ;
 
 init();
+
+
+
+/*
+Code project : search class anchorLink 
+----------------------------------------
+<div class="tabs">
+    <div class="selected">Article</div><div class="unselected"><a href="/script/Articles/ViewDownloads.aspx?aid=5498">Browse Code</a></div>
+    <div class="unselected"><a href="/script/Articles/Statistics.aspx?aid=5498">Stats</a></div>
+    <div class="unselected"><a href="/script/Articles/ListVersions.aspx?aid=5498">Revisions (33)</a></div>
+    <div class="unselected"><a href="/script/Articles/ListAlternatives.aspx?aid=5498">Alternatives</a></div>        
+    <div class="unselected">
+        <a href="WebControls/#_comments" id="ctl00_ArticleTabs_CommentLink" class="anchorLink">Comments 
+        <span id="ctl00_ArticleTabs_CmtCnt">(578)</span></a>
+    </div>
+</div>         
+
+XDA : search last class postCount
+--------------------------------------
+<a href="showpost.php?p=69842275&amp;postcount=2373" target="new" rel="nofollow" 
+    id="postcount69842275" 
+    name="2373" 
+    class="postCount" 
+    title="Permalink to post #2373">
+    <strong>#2373</strong>
+</a>
+
+DevExpress : search id question-modified-on
+----------------------------------------------
+<dd id="question-modified-on">    
+   <abbr role="datetime" class="date" title="2016-11-15T12:26:15.160Z">15/11/2016 13:26:15</abbr>
+</dd>
+
+
+Other css selector
+http://www.w3schools.com/cssref/css_selectors.asp
+http://www.w3schools.com/cssref/sel_nth-child.asp
+http://www.w3schools.com/cssref/sel_nth-last-child.asp
+
+$('.someClass:nth-child(1)')        First
+$('.someClass:nth-last-child(1)')   Last
+
+*/

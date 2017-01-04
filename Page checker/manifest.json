@@ -1,6 +1,6 @@
 {
     "background": {
-       "scripts": [ "components/jquery/jquery.min.js","components/tracetool/tracetool.js","js/background.js" ]
+       "page": "background.htm"
     },
     "browser_action": {
        "default_icon": "check.png",
