@@ -10,6 +10,7 @@ function init()
     { 
        BackgroundPage.scannerList = obj.scannerList;
        console.log("storage get callback : saved scanners : \n" , BackgroundPage.scannerList) ; 
+       fillScannerTable() ;
     }) ; 
 
     $("#check_request_button").click(function(){
@@ -19,7 +20,66 @@ function init()
     $("#init_storage_button").click(function () {
         initStorage();
     });
+}
 
+function fillScannerTable()
+{
+    var backgroundPage = chrome.extension.getBackgroundPage() ;
+    var ttrace = backgroundPage.ttrace ;
+    var responseBody = $("#response_body") ;
+   
+    var resultTable = $("<table style='width:780'></table>" );
+    responseBody.append(resultTable) ;
+   
+    for (var i in backgroundPage.scannerList) 
+    {
+        var currentScanner = backgroundPage.scannerList[i] ;
+        
+        var scannerTemplate = $('.scanner') ;
+        var scannerView = scannerTemplate.clone().removeClass("scanner");
+        
+        // Input name
+        currentScanner.inputName = scannerView.find('.template_Name')[0] ;
+        currentScanner.inputName.value = currentScanner.Name ;
+        $(currentScanner.inputName).on("change keyup",function()   // change paste keyup
+        {
+            console.log($(this).val());
+            currentScanner.Name = $(this).val() ;
+        }) ;
+
+        //template_Source
+        currentScanner.inputSource= scannerView.find('.template_Source')[0] ;
+        
+        //template_Validator
+        currentScanner.inputValidator= scannerView.find('.template_Validator')[0] ;
+        
+        //template_Result
+        currentScanner.inputResult= scannerView.find('.template_Result')[0] ;
+        
+        //template_ArraySelection
+        currentScanner.inputArraySelection= scannerView.find('.template_ArraySelection')[0] ;
+        
+        //template_Enabled
+        currentScanner.inputEnabled= scannerView.find('.template_Enabled')[0] ;
+        
+        //template_Validated
+        currentScanner.inputValidated= scannerView.find('.template_Validated')[0] ;
+        
+        //template_Checksum  // innerText
+        currentScanner.inputChecksum= scannerView.find('.template_Checksum')[0] ;
+        var hashToDisplay = currentScanner.newHash ;
+        if (currentScanner.Hash !== -1 && currentScanner.Hash !== currentScanner.newHash)
+            hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
+        currentScanner.inputChecksum.innerText = hashToDisplay
+        
+        var ScannerTr = $("<tr></tr>");
+        var ScannerTd = $("<td></td>");
+        ScannerTr.append(ScannerTd);
+        ScannerTd.append(scannerView) ;
+        
+        resultTable.append(ScannerTr);
+        
+    }
 }
 
 
@@ -40,13 +100,6 @@ function doRequest()
     var resultTable = $("<table style='width:780'></table>" );
     responseBody.append(resultTable) ;
     
-    var headerTr = $("<tr></tr>");
-    resultTable.append(headerTr);
-    
-    //headerTr.append($("<th>Selector</th>")) ;
-    //headerTr.append($("<th>resultString</th>")) ;
-    //headerTr.append($("<th>hash</th>")) ;
-    //headerTr.append($("<th>TargetSite</th>")) ;
     
     for (var i in backgroundPage.scannerList) 
     {
@@ -88,15 +141,12 @@ function doRequest()
                   ;                
               onLoadScanner.newHash = onLoadScanner.resultString.hashCode() ;                  
           }            
-        
+
+/*          
           var ScannerTr = $("<tr></tr>");
           var ScannerTd = $("<td></td>");
-          resultTable.append(ScannerTr);
           ScannerTr.append(ScannerTd);
           
-          var hashToDisplay = onLoadScanner.newHash ;
-          if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== onLoadScanner.newHash)
-              hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
                    
           onLoadScanner.inputSearchSelector = $("<input value='"+onLoadScanner.SearchSelector+"'>") ;
           $(onLoadScanner.inputSearchSelector).on("change keyup",function()   // change paste keyup
@@ -113,6 +163,7 @@ function doRequest()
           //ScannerTd.append(onLoadScanner.inputSearchSelector) ;
           
           var scannerView = $('.scanner').clone().removeClass("scanner");
+          console.log("scannerView",scannerView) ;
           
           // Input name
           onLoadScanner.inputName = scannerView.find('.template_Name')[0] ;
@@ -131,19 +182,23 @@ function doRequest()
           //template_Validated
           //template_Checksum  // innerText
           
+          
           ScannerTd.append(scannerView) ;
           
-          
           //ScannerTr.append(tdSearchSelector) ;
-          
           //ScannerTr.append($("<td>" + onLoadScanner.resultString   + "</td>")) ;
           //ScannerTr.append($("<td>" + onLoadScanner.newHash        + "</td>")) ;
           //ScannerTr.append($("<td>" + onLoadScanner.TargetSite     + "</td>")) ;            
           
           
+          resultTable.append(ScannerTr);
           
+*/
           
-          
+          var hashToDisplay = onLoadScanner.newHash ;
+          if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== onLoadScanner.newHash)
+              hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
+          onLoadScanner.inputChecksum.innerText = hashToDisplay
           
           onLoadScanner.Hash = onLoadScanner.newHash ;
           scannedCount++ ;
