@@ -1,24 +1,21 @@
 
 function init() 
 {
-    var BackgroundPage = chrome.extension.getBackgroundPage() ;
-    var ttrace = BackgroundPage.ttrace ;
-    console.log("popup init. ttrace.host : " + ttrace.host) ;    
-    ttrace.debug.send("popup init");
-
-    chrome.storage.sync.get('scannerList', function (obj) 
-    { 
-       BackgroundPage.scannerList = obj.scannerList;
-       console.log("storage get callback : saved scanners : \n" , BackgroundPage.scannerList) ; 
-       fillScannerTable() ;
-    }) ; 
+    var backgroundPage = chrome.extension.getBackgroundPage() ;
+    var ttrace = backgroundPage.ttrace ;
+    console.log("popup init. ttrace.host : " + ttrace.host) ;   
+    ttrace.debug.send("popup init " );
 
     $("#check_request_button").click(function(){
        doRequest();
     }); 
     
     $("#init_storage_button").click(function () {
-        initStorage();
+       initStorage();
+    });
+    
+    $(document).ready(function() {
+        fillScannerTable() ;
     });
 }
 
@@ -28,7 +25,7 @@ function fillScannerTable()
     var ttrace = backgroundPage.ttrace ;
     var responseBody = $("#response_body") ;
    
-    var resultTable = $("<table style='width:780'></table>" );
+    var resultTable = $("<table class='result_table'></table>" );
     responseBody.append(resultTable) ;
    
     for (var i in backgroundPage.scannerList) 
@@ -39,38 +36,93 @@ function fillScannerTable()
         var scannerView = scannerTemplate.clone().removeClass("scanner");
         
         // Input name
-        currentScanner.inputName = scannerView.find('.template_Name')[0] ;
+        var inputName = scannerView.find('.template_Name')[0] ;
+        inputName.scanner = currentScanner ;
+        currentScanner.inputName = inputName ;
         currentScanner.inputName.value = currentScanner.Name ;
         $(currentScanner.inputName).on("change keyup",function()   // change paste keyup
         {
             console.log($(this).val());
-            currentScanner.Name = $(this).val() ;
+            this.scanner.Name = $(this).val() ;
         }) ;
 
-        //template_Source
-        currentScanner.inputSource= scannerView.find('.template_Source')[0] ;
+        // Site
+        var inputSite = scannerView.find('.template_Site')[0] ;
+        inputSite.scanner = currentScanner ;
+        currentScanner.inputSite = inputSite ;
+        currentScanner.inputSite.value = currentScanner.Site ;
+        $(currentScanner.inputSite).on("change keyup",function()   // change paste keyup
+        {
+            console.log($(this).val());
+            this.scanner.Site = $(this).val() ;
+        }) ;
         
-        //template_Validator
-        currentScanner.inputValidator= scannerView.find('.template_Validator')[0] ;
+        // SearchSelector
+        var inputSearchSelector = scannerView.find('.template_SearchSelector')[0] ;
+        inputSearchSelector.scanner = currentScanner ;
+        currentScanner.inputSearchSelector = inputSearchSelector ;
+        currentScanner.inputSearchSelector.value = currentScanner.SearchSelector ;
+        $(currentScanner.inputSearchSelector).on("change keyup",function()   // change paste keyup
+        {
+            console.log($(this).val());
+            this.scanner.SearchSelector = $(this).val() ;
+        }) ;
         
-        //template_Result
-        currentScanner.inputResult= scannerView.find('.template_Result')[0] ;
+        // template_CheckNow
+        var inputCheckNow = scannerView.find('.template_CheckNow')[0] ;
+        inputCheckNow.scanner = currentScanner ;
+        currentScanner.inputCheckNow = inputCheckNow ;
+        $(currentScanner.inputCheckNow ).click(function(){
+            doRequest(this.scanner);
+        }); 
         
-        //template_ArraySelection
-        currentScanner.inputArraySelection= scannerView.find('.template_ArraySelection')[0] ;
+        // Result
+        var inputResult = scannerView.find('.template_Result')[0] ;
+        inputResult.scanner = currentScanner ;
+        currentScanner.inputResult = inputResult ;
+        currentScanner.inputResult.innerText = "" ;
         
-        //template_Enabled
-        currentScanner.inputEnabled= scannerView.find('.template_Enabled')[0] ;
+        // ArraySelector
+        var inputArraySelector = scannerView.find('.template_ArraySelector')[0] ;
+        inputArraySelector.scanner = currentScanner ;
+        currentScanner.inputArraySelector = inputArraySelector
+        currentScanner.inputArraySelector.value = currentScanner.ArraySelector ;
+        $(currentScanner.inputArraySelector).on("change keyup",function()   // change paste keyup
+        {
+            console.log($(this).val());
+            this.scanner.ArraySelector = $(this).val() ;
+        }) ;
         
-        //template_Validated
-        currentScanner.inputValidated= scannerView.find('.template_Validated')[0] ;
+        // Enabled
+        var inputEnabled = scannerView.find('.template_Enabled')[0] ;
+        inputEnabled.scanner = currentScanner ;
+        currentScanner.inputEnabled = inputEnabled ;
+        $(currentScanner.inputEnabled).prop('checked',currentScanner.Enabled) ;
+        $(currentScanner.inputEnabled).on("change keyup",function()   // change paste keyup
+        {
+            console.log($(this).val());
+            this.scanner.Enabled = $(this).prop('checked');
+        }) ;
         
-        //template_Checksum  // innerText
-        currentScanner.inputChecksum= scannerView.find('.template_Checksum')[0] ;
+        // Validated
+        var inputValidated = scannerView.find('.template_Validated')[0] ;
+        inputValidated.scanner = currentScanner ;
+        currentScanner.inputValidated = inputValidated ;
+        $(currentScanner.inputValidated).prop('checked',currentScanner.Validated) ;
+        $(currentScanner.inputValidated).on("change keyup",function()   // change paste keyup
+        {
+            console.log($(this).val());
+            this.scanner.Validated = $(this).prop('checked');
+        }) ;
+        
+        // Hash  
+        var inputChecksum = scannerView.find('.template_Checksum')[0] ;
+        inputChecksum.scanner = inputChecksum ;
+        currentScanner.inputChecksum = inputChecksum ;
         var hashToDisplay = currentScanner.newHash ;
         if (currentScanner.Hash !== -1 && currentScanner.Hash !== currentScanner.newHash)
-            hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
-        currentScanner.inputChecksum.innerText = hashToDisplay
+            hashToDisplay = "Updated to" + hashToDisplay ;
+        currentScanner.inputChecksum.innerText = hashToDisplay ;        
         
         var ScannerTr = $("<tr></tr>");
         var ScannerTd = $("<td></td>");
@@ -82,8 +134,7 @@ function fillScannerTable()
     }
 }
 
-
-function doRequest()
+function doRequest(specificScanner)
 {
     var backgroundPage = chrome.extension.getBackgroundPage() ;
     var ttrace = backgroundPage.ttrace ;
@@ -92,20 +143,18 @@ function doRequest()
     ttrace.debug.send("doRequest");
 
     var scannedCount = 0;
-    var responseBody = $("#response_body") ;
-    
-    // http://www.w3schools.com/html/html_tables.asp
-    // http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1
-    
-    var resultTable = $("<table style='width:780'></table>" );
-    responseBody.append(resultTable) ;
-    
+    // var responseBody = $("#response_body") ;
+    // var resultTable = $("<table></table>");
+    // responseBody.append(resultTable);
     
     for (var i in backgroundPage.scannerList) 
     {
         var currentScanner = backgroundPage.scannerList[i] ;
+        if (specificScanner != null && currentScanner !== specificScanner)
+           continue ; 
+        
         currentScanner.index = i ;
-        var url = currentScanner.TargetSite ;
+        var url = currentScanner.Site ;
         var xhr = new XMLHttpRequest();
         xhr.scanner = currentScanner ; // save to xhr for later retreival (onload callback) 
 
@@ -116,7 +165,6 @@ function doRequest()
           // e.currentTarget.responseURL
           var onloadRequest = e.currentTarget ;
           var onLoadScanner = e.currentTarget.scanner ;
-          // responseBody.append(onLoadScanner.TargetSite + "<br>") ;
           
           // create an empty element, not stored in the document
           var newDivElement = $('<div></div>' );
@@ -134,73 +182,27 @@ function doRequest()
               var index = searchResults.length-1  ;   // TODO : use onLoadScanner.searchPosition
               var lastSearchResult = searchResults[index] ;
               onLoadScanner.resultString = lastSearchResult.outerHTML
-                  .replace(/</g, '&lt;')
-                  .replace(/>/g, '&gt;')
+                  //.replace(/</g, '&lt;')
+                  //.replace(/>/g, '&gt;')
                   //.replace(/&/g, '&amp;')
                   //.replace(/"/g, '&quot;')
                   ;                
               onLoadScanner.newHash = onLoadScanner.resultString.hashCode() ;                  
           }            
 
-/*          
-          var ScannerTr = $("<tr></tr>");
-          var ScannerTd = $("<td></td>");
-          ScannerTr.append(ScannerTd);
+          // update view : result
+          onLoadScanner.inputResult.innerText = onLoadScanner.resultString ;
           
-                   
-          onLoadScanner.inputSearchSelector = $("<input value='"+onLoadScanner.SearchSelector+"'>") ;
-          $(onLoadScanner.inputSearchSelector).on("change keyup",function()   // change paste keyup
-          {
-              console.log($(this).val());
-              onLoadScanner.SearchSelector = $(this).val() ;
-          }) ;
-          
-          //var tdSearchSelector = $("<td></td>") ;
-          //tdSearchSelector.append(onLoadScanner.inputSearchSelector) ;
-          
-          //ScannerTd.append(onLoadScanner.inputName);
-          //ScannerTd.append($("<br>"));
-          //ScannerTd.append(onLoadScanner.inputSearchSelector) ;
-          
-          var scannerView = $('.scanner').clone().removeClass("scanner");
-          console.log("scannerView",scannerView) ;
-          
-          // Input name
-          onLoadScanner.inputName = scannerView.find('.template_Name')[0] ;
-          onLoadScanner.inputName.value = onLoadScanner.Name ;
-          $(onLoadScanner.inputName).on("change keyup",function()   // change paste keyup
-          {
-              console.log($(this).val());
-              onLoadScanner.Name = $(this).val() ;
-          }) ;
-          
-          //template_Source
-          //template_Validator
-          //template_Result
-          //template_ArraySelection
-          //template_Enabled
-          //template_Validated
-          //template_Checksum  // innerText
-          
-          
-          ScannerTd.append(scannerView) ;
-          
-          //ScannerTr.append(tdSearchSelector) ;
-          //ScannerTr.append($("<td>" + onLoadScanner.resultString   + "</td>")) ;
-          //ScannerTr.append($("<td>" + onLoadScanner.newHash        + "</td>")) ;
-          //ScannerTr.append($("<td>" + onLoadScanner.TargetSite     + "</td>")) ;            
-          
-          
-          resultTable.append(ScannerTr);
-          
-*/
-          
+          // update view : hash
           var hashToDisplay = onLoadScanner.newHash ;
           if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== onLoadScanner.newHash)
-              hashToDisplay = "<b>" + hashToDisplay + "</b>" ;
+              hashToDisplay = "Updated to" + hashToDisplay ;
           onLoadScanner.inputChecksum.innerText = hashToDisplay
           
+          // update model : hash
           onLoadScanner.Hash = onLoadScanner.newHash ;
+
+          // save model
           scannedCount++ ;
           if (scannedCount == backgroundPage.scannerList.length)
               saveStorage(backgroundPage) ;                            
@@ -223,7 +225,7 @@ function saveStorage(backgroundPage)
         scannerCopy.ArraySelector  = scanner.ArraySelector ;
         scannerCopy.Enabled        = scanner.Enabled ;
         scannerCopy.Validated      = scanner.Validated ;
-        scannerCopy.TargetSite     = scanner.TargetSite ;
+        scannerCopy.Site     = scanner.Site ;
         scannerCopy.SearchSelector = scanner.SearchSelector ; 
         scannerCopy.Hash           = scanner.Hash ;
         scannerCopyList.push(scannerCopy);        
@@ -254,7 +256,7 @@ function initStorage()
     scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
     scanner.Enabled = true ;
     scanner.Validated = true ;
-    scanner.TargetSite = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace";
+    scanner.Site = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace";
     scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
     scanner.Hash = -1 ;
     scannerList.push(scanner);
@@ -264,7 +266,7 @@ function initStorage()
     scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
     scanner.Enabled = true ;
     scanner.Validated = true ;
-    scanner.TargetSite = "https://www.codeproject.com/Articles/191930/Android-Usb-Port-Forwarding";
+    scanner.Site = "https://www.codeproject.com/Articles/191930/Android-Usb-Port-Forwarding";
     scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
     scanner.Hash = -1 ;
     scannerList.push(scanner);
@@ -274,7 +276,7 @@ function initStorage()
     scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
     scanner.Enabled = true ;
     scanner.Validated = true ;
-    scanner.TargetSite = "https://www.codeproject.com/Articles/6009/AidaNet-Network-resources-inventory";
+    scanner.Site = "https://www.codeproject.com/Articles/6009/AidaNet-Network-resources-inventory";
     scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
     scanner.Hash = -1 ;
     scannerList.push(scanner);
@@ -284,7 +286,7 @@ function initStorage()
     scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
     scanner.Enabled = true ;
     scanner.Validated = true ;
-    scanner.TargetSite = "http://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000";
+    scanner.Site = "http://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000";
     scanner.SearchSelector = ".postCount" ;
     scanner.Hash = -1 ;
     scannerList.push(scanner);
@@ -294,7 +296,7 @@ function initStorage()
     scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
     scanner.Enabled = true ;
     scanner.Validated = true ;
-    scanner.TargetSite = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
+    scanner.Site = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
     scanner.SearchSelector = ".postCount" ;
     scanner.Hash = -1 ;
     scannerList.push(scanner);
@@ -304,7 +306,7 @@ function initStorage()
     scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
     scanner.Enabled = true ;
     scanner.Validated = true ;
-    scanner.TargetSite = "https://www.devexpress.com/Support/Center/Question/Details/T166379";
+    scanner.Site = "https://www.devexpress.com/Support/Center/Question/Details/T166379";
     scanner.SearchSelector = "#question-modified-on" ;
     scanner.Hash = -1 ;
     scannerList.push(scanner);
@@ -314,7 +316,7 @@ function initStorage()
     scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
     scanner.Enabled = true ;
     scanner.Validated = true ;
-    scanner.TargetSite = "https://www.devexpress.com/support/center/Question/Details/T450669";
+    scanner.Site = "https://www.devexpress.com/support/center/Question/Details/T450669";
     scanner.SearchSelector = "#question-modified-on" ;
     scanner.Hash = -1 ;
     scannerList.push(scanner);
@@ -324,7 +326,7 @@ function initStorage()
     scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
     scanner.Enabled = true ;
     scanner.Validated = true ;
-    scanner.TargetSite = "https://www.devexpress.com/Support/Center/Question/Details/T455210";
+    scanner.Site = "https://www.devexpress.com/Support/Center/Question/Details/T455210";
     scanner.SearchSelector = "#question-modified-on" ;
     scanner.Hash = -1 ;
     scannerList.push(scanner);

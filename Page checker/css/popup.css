@@ -10,6 +10,18 @@ http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1
   display: none;
 }
 
+.result_table {
+    width:780;
+}
+
+.result_table tr:nth-child(odd) {
+  background-color: #FFFFFF;
+}
+
+.result_table tr:nth-child(even) {
+  background-color: #f4f4f4;
+}
+
 table, th, td {
     border: 1px solid black;
     border-collapse: collapse;
