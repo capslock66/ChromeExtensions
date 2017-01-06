@@ -9,17 +9,16 @@
     <script src="js/popup.js"> </script>
 
     <div id="actions">
-      <input type="button" id="check_request_button" value="Check"/>
+      <input type="button" id="check_request_button" value="Check all"/>
       <input type="button" id="init_storage_button" value="Init storage"/>
     </div>
     <br />
 
     <div id="response_body">
-    <!-- 
-    table will be generated here by fillScannerTable in popup.js
-    <table style='width:780'></table> 
-    -->
     </div>
+    <table class='scannerList_table'>
+    
+    </table>
     
     <!--
     http://www.w3schools.com/html/html_tables.asp 
@@ -27,11 +26,11 @@
     -->
     
     <div class="templates">
-        <div class="scanner" >
-            <table >
+        <div class="scanner_div" >
+            <table id="scanner_table" >
                 <col width="200">
                 <col width="580">
-                <tr >
+                <tr style="background-color: #f1f1c1">
                     <td>Name</td>      
                     <td><textarea class="template_Name" style="width:580">CodeProject - Tracetool</textarea></td>
                 </tr>
@@ -61,11 +60,17 @@
             <div>
             <input type="checkbox" class="template_Enabled"/> <span>Enabled</span>
             <input type="checkbox" class="template_Validated"/> <span>Validated</span>
-            <span style="display: inline-block;width:100px"> </span>
+            <span style="display: inline-block;width:15px"> </span>
+            
             <span>Checksum</span>
             <span style="display: inline-block;width:5px"> </span>
             <span style="color:blue" class="template_Checksum">123</span>
             <input type="button"  value="Check now" class="template_CheckNow" />
+            <span style="display: inline-block;width:15px"> </span>
+            
+            <span>Last time</span>
+            <span style="display: inline-block;width:5px"> </span>
+            <span style="color:blue" class="template_CheckTime">123</span>
             </div>
         </div>
     </div>

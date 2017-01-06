@@ -6,15 +6,15 @@ function init()
     console.log("popup init. ttrace.host : " + ttrace.host) ;   
     ttrace.debug.send("popup init " );
 
-    $("#check_request_button").click(function(){
-       doRequest();
-    }); 
-    
-    $("#init_storage_button").click(function () {
-       initStorage();
-    });
     
     $(document).ready(function() {
+        $("#check_request_button").click(function(){
+           doRequest();
+        }); 
+        
+        $("#init_storage_button").click(function () {
+           backgroundPage.initStorage();
+        });
         fillScannerTable() ;
     });
 }
@@ -23,17 +23,14 @@ function fillScannerTable()
 {
     var backgroundPage = chrome.extension.getBackgroundPage() ;
     var ttrace = backgroundPage.ttrace ;
-    var responseBody = $("#response_body") ;
-   
-    var resultTable = $("<table class='result_table'></table>" );
-    responseBody.append(resultTable) ;
+    var resultTable = $(".scannerList_table");  
    
     for (var i in backgroundPage.scannerList) 
     {
         var currentScanner = backgroundPage.scannerList[i] ;
         
-        var scannerTemplate = $('.scanner') ;
-        var scannerView = scannerTemplate.clone().removeClass("scanner");
+        var scannerTemplate = $('.scanner_div') ;
+        var scannerView = scannerTemplate.clone().removeClass("scanner_div");
         
         // Input name
         var inputName = scannerView.find('.template_Name')[0] ;
@@ -42,8 +39,8 @@ function fillScannerTable()
         currentScanner.inputName.value = currentScanner.Name ;
         $(currentScanner.inputName).on("change keyup",function()   // change paste keyup
         {
-            console.log($(this).val());
             this.scanner.Name = $(this).val() ;
+            backgroundPage.saveStorage();
         }) ;
 
         // Site
@@ -53,8 +50,8 @@ function fillScannerTable()
         currentScanner.inputSite.value = currentScanner.Site ;
         $(currentScanner.inputSite).on("change keyup",function()   // change paste keyup
         {
-            console.log($(this).val());
             this.scanner.Site = $(this).val() ;
+            backgroundPage.saveStorage();
         }) ;
         
         // SearchSelector
@@ -64,8 +61,8 @@ function fillScannerTable()
         currentScanner.inputSearchSelector.value = currentScanner.SearchSelector ;
         $(currentScanner.inputSearchSelector).on("change keyup",function()   // change paste keyup
         {
-            console.log($(this).val());
             this.scanner.SearchSelector = $(this).val() ;
+            backgroundPage.saveStorage();
         }) ;
         
         // template_CheckNow
@@ -89,8 +86,8 @@ function fillScannerTable()
         currentScanner.inputArraySelector.value = currentScanner.ArraySelector ;
         $(currentScanner.inputArraySelector).on("change keyup",function()   // change paste keyup
         {
-            console.log($(this).val());
             this.scanner.ArraySelector = $(this).val() ;
+            backgroundPage.saveStorage();
         }) ;
         
         // Enabled
@@ -100,8 +97,8 @@ function fillScannerTable()
         $(currentScanner.inputEnabled).prop('checked',currentScanner.Enabled) ;
         $(currentScanner.inputEnabled).on("change keyup",function()   // change paste keyup
         {
-            console.log($(this).val());
             this.scanner.Enabled = $(this).prop('checked');
+            backgroundPage.saveStorage();
         }) ;
         
         // Validated
@@ -111,8 +108,8 @@ function fillScannerTable()
         $(currentScanner.inputValidated).prop('checked',currentScanner.Validated) ;
         $(currentScanner.inputValidated).on("change keyup",function()   // change paste keyup
         {
-            console.log($(this).val());
             this.scanner.Validated = $(this).prop('checked');
+            backgroundPage.saveStorage();
         }) ;
         
         // Hash  
@@ -123,6 +120,15 @@ function fillScannerTable()
         if (currentScanner.Hash !== -1 && currentScanner.Hash !== currentScanner.newHash)
             hashToDisplay = "Updated to" + hashToDisplay ;
         currentScanner.inputChecksum.innerText = hashToDisplay ;        
+        
+        // CheckTime
+        var inputCheckTime = scannerView.find('.template_CheckTime')[0] ;
+        inputCheckTime.scanner = inputCheckTime ;
+        currentScanner.inputCheckTime = inputCheckTime ;
+        var CheckTime = currentScanner.CheckTime;
+        if (CheckTime == null)
+            CheckTime = "" ;
+        currentScanner.inputCheckTime.innerText = CheckTime ;              
         
         var ScannerTr = $("<tr></tr>");
         var ScannerTd = $("<td></td>");
@@ -175,37 +181,49 @@ function doRequest(specificScanner)
           // search key in new element
           var searchResults = $(onLoadScanner.SearchSelector, newDivElement);  
           onLoadScanner.newHash = 0 ;  
-          onLoadScanner.resultString  = "Nothing !";  
           
           if (searchResults.length !== 0)
           {
               var index = searchResults.length-1  ;   // TODO : use onLoadScanner.searchPosition
               var lastSearchResult = searchResults[index] ;
-              onLoadScanner.resultString = lastSearchResult.outerHTML
+              onLoadScanner.resultString = lastSearchResult.outerHTML           // view model : resultString
                   //.replace(/</g, '&lt;')
                   //.replace(/>/g, '&gt;')
                   //.replace(/&/g, '&amp;')
                   //.replace(/"/g, '&quot;')
-                  ;                
-              onLoadScanner.newHash = onLoadScanner.resultString.hashCode() ;                  
-          }            
+                  ;       
+              onLoadScanner.newHash = onLoadScanner.resultString.hashCode() ;   // view model : newHash                
+          } else {
+              onLoadScanner.resultString  = "Nothing !";                        // view model : resultString
+          }           
 
-          // update view : result
-          onLoadScanner.inputResult.innerText = onLoadScanner.resultString ;
+          onLoadScanner.inputResult.innerText = onLoadScanner.resultString ;    // view : result
           
-          // update view : hash
           var hashToDisplay = onLoadScanner.newHash ;
           if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== onLoadScanner.newHash)
               hashToDisplay = "Updated to" + hashToDisplay ;
-          onLoadScanner.inputChecksum.innerText = hashToDisplay
+          onLoadScanner.inputChecksum.innerText = hashToDisplay;                // view : hash          
           
-          // update model : hash
-          onLoadScanner.Hash = onLoadScanner.newHash ;
+          onLoadScanner.Hash = onLoadScanner.newHash ;                          // view model : hash
+          
+          var d = new Date ;
+          var dformat = [ d.getFullYear(),
+                         (d.getMonth()+1).padLeft(),
+                          d.getDate().padLeft()
+                        ].join('/')+ ' ' +
+                        [ d.getHours().padLeft(),
+                          d.getMinutes().padLeft(),
+                          d.getSeconds().padLeft()
+                        ].join(':');
+          
+          
+          onLoadScanner.CheckTime = Date() ;                                    // view model : CheckTime
+          onLoadScanner.inputCheckTime.innerText = onLoadScanner.CheckTime ;    // view : CheckTime
 
           // save model
           scannedCount++ ;
-          if (scannedCount == backgroundPage.scannerList.length)
-              saveStorage(backgroundPage) ;                            
+          if (scannedCount == backgroundPage.scannerList.length || specificScanner != null)
+              backgroundPage.saveStorage(backgroundPage) ;                            
           
         } ;       
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
@@ -213,132 +231,14 @@ function doRequest(specificScanner)
     }   
 }
 
-function saveStorage(backgroundPage)
+Number.prototype.padLeft = function(base,chr)
 {
-   // create a copy of the scannerList to save only needed fields
-    var scannerCopyList = [] ;
-    for (var i in backgroundPage.scannerList) 
-    {
-        var scanner     = backgroundPage.scannerList[i] ;
-        var scannerCopy = {} ;
-        scannerCopy.Name           = scanner.Name ;
-        scannerCopy.ArraySelector  = scanner.ArraySelector ;
-        scannerCopy.Enabled        = scanner.Enabled ;
-        scannerCopy.Validated      = scanner.Validated ;
-        scannerCopy.Site     = scanner.Site ;
-        scannerCopy.SearchSelector = scanner.SearchSelector ; 
-        scannerCopy.Hash           = scanner.Hash ;
-        scannerCopyList.push(scannerCopy);        
-    }
-    
-    chrome.storage.sync.set({'scannerList': backgroundPage.scannerList}, function (obj) 
-    {
-        //console.log("storage set callback") ;
-        //responseBody.append("storage set callback") ; 
-        //ttrace.debug.send("storage set callback") ; 
-    }) ;                             
-    
+   var  len = (String(base || 10).length - String(this).length)+1;
+   return len > 0? new Array(len).join(chr || '0')+this : this;
 }
 
-
-function initStorage()
+String.prototype.hashCode = function()
 {
-    // to do in each scanner : 
-    // -> enabled true/false, 
-    // -> searchPosition (-1 = last, -2 = use count), 
-    // -> afterSearchUse innerHtml/outerHtml/...
-    // -> Validated. If not a counter is displayed on the Icon
-    // -> Title
-    
-    var scannerList = [] ;
-    var scanner = {};
-    scanner.Name = "CodeProject - Tracetool" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace";
-    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.Hash = -1 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "CodeProject - Port Forwarding" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.codeproject.com/Articles/191930/Android-Usb-Port-Forwarding";
-    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.Hash = -1 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "CodeProject - AidaNet" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.codeproject.com/Articles/6009/AidaNet-Network-resources-inventory";
-    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.Hash = -1 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = " Xda - Reverse Tethering -Q&A" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "http://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000";
-    scanner.SearchSelector = ".postCount" ;
-    scanner.Hash = -1 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "Xda - Reverse Tethering - Discussion" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
-    scanner.SearchSelector = ".postCount" ;
-    scanner.Hash = -1 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "DevExpress - Does the Silverlight/WPF Dxgrid take the icon into consideration when calculating BestFit" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.devexpress.com/Support/Center/Question/Details/T166379";
-    scanner.SearchSelector = "#question-modified-on" ;
-    scanner.Hash = -1 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "DevExpress - How to show a child ExpandoObjects in TreeListControl" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.devexpress.com/support/center/Question/Details/T450669";
-    scanner.SearchSelector = "#question-modified-on" ;
-    scanner.Hash = -1 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "DevExpress - The error icon's width isn't taken into account when the BestFit operation is calculated" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.devexpress.com/Support/Center/Question/Details/T455210";
-    scanner.SearchSelector = "#question-modified-on" ;
-    scanner.Hash = -1 ;
-    scannerList.push(scanner);
-    
-    console.log ("save all scanner") ;
-    chrome.storage.sync.set({'scannerList': scannerList}, function (obj) 
-    {
-        console.log("storage set callback") ; 
-    }) ;         
-}
-
-String.prototype.hashCode = function(){
     if (Array.prototype.reduce){
         return this.split("").reduce(function(a,b){a=((a<<5)-a)+b.charCodeAt(0);return a&a;},0);              
     } 

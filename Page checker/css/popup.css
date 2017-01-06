@@ -10,27 +10,24 @@ http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1
   display: none;
 }
 
-.result_table {
-    width:780;
+.scannerList_table {
+    width:770;
 }
 
-.result_table tr:nth-child(odd) {
-  background-color: #FFFFFF;
-}
+/*
+th, td {
+.scannerList_table th, .scannerList_table td {
+.scannerList_table > th, .scannerList_table > td {
+    
+*/
 
-.result_table tr:nth-child(even) {
-  background-color: #f4f4f4;
-}
-
-table, th, td {
+.scannerList_table > tbody > tr {
     border: 1px solid black;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-radius:6px;
+    -moz-border-radius:6px;
 }
 th, td {
     padding: 5px;
     text-align: left;
-}
-table#t01 {
-    width: 100%;    
-    background-color: #f1f1c1;
 }
