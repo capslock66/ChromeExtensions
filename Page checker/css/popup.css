@@ -1,9 +1,3 @@
-/* 
-http://www.w3schools.com/html/html_tables.asp
-http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1 
-*/
-
-
 /* Templates */
 
 .templates {
@@ -11,23 +5,22 @@ http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1
 }
 
 .scannerList_table {
-    width:770;
-}
-
-/*
-th, td {
-.scannerList_table th, .scannerList_table td {
-.scannerList_table > th, .scannerList_table > td {
-    
-*/
-
-.scannerList_table > tbody > tr {
-    border: 1px solid black;
+    width:770px;
     border-collapse: separate;
-    border-radius:6px;
-    -moz-border-radius:6px;
 }
+
 th, td {
-    padding: 5px;
+    /* padding: 5px; */
     text-align: left;
+}
+
+.scanner_div2 { 
+    padding: 5px;
+    border: 1px solid black;
+    border-radius:6px;
+    background-color: #f1f1c1;
+}
+
+.template_Result {
+    border: 1px solid black;
 }
