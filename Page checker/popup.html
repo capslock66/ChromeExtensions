@@ -1,82 +1,81 @@
-<html style="min-width:1000px;>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+﻿<html >  <!--style="min-width:700px;"-->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <link rel="stylesheet" type="text/css" href="css/popup.css" />
-  </head>
-  <body>
-	<!-- popup reuse tracetool from background <script type="text/javascript" src="components/tracetool/tracetool.js"></script> -->
-    <script type="text/javascript" src="components/jquery/jquery.min.js"></script>  
+</head>
+<body>
+    <!-- popup reuse tracetool from background <script type="text/javascript" src="components/tracetool/tracetool.js"></script> -->
+    <script type="text/javascript" src="components/jquery/jquery.min.js"></script>
     <script src="js/popup.js"> </script>
 
     <div id="actions">
-      <input type="button" id="check_request_button" value="Check all"/>
-      <input type="button" id="init_storage_button" value="Init storage"/>
+        <input type="button" id="check_request_button" value="Check all" />
+        <input type="button" id="init_storage_button" value="Init storage" />
     </div>
     <br />
 
-    <div id="response_body">
-        <!-- <table class='scannerList_table'> -->
-    
-        <!-- </table> -->
-   </div>
-    
     <!--
-    http://www.w3schools.com/html/html_tables.asp 
-    http://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_id1 
-    -->
-    
-    <!-- <div class="templates"> -->
-        <!-- <div class="scanner_div" >  <!-- scanner_div will be replaced by scanner_div2 --> -->
-            <!-- <table id="scanner_table" > -->
-                <!-- <col width="200"> -->
-                <!-- <col width="580"> -->
-                <!-- <tr > <!--style="background-color: #f1f1c1"--> -->
-                    <!-- <td>Name</td>       -->
-                    <!-- <td><textarea class="template_Name" style="width:580">CodeProject - Tracetool</textarea></td> -->
-                <!-- </tr> -->
-                <!-- <tr> -->
-                    <!-- <td>Site</td>     -->
-                    <!-- <td><textarea class="template_Site" style="width:580">https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace</textarea></td> -->
-                <!-- </tr> -->
-                <!-- <tr> -->
-                    <!-- <td>Search Selector</td>  -->
-                    <!-- <td><textarea  class="template_SearchSelector" style="width:580">#ctl00_ArticleTabs_CmtCnt</textarea></td> -->
-                <!-- </tr> -->
-                <!-- <tr> -->
-                    <!-- <td> -->
-                        <!-- <span>Search result</span > -->
-                        <!-- <span style="display: inline-block;width:5px"> </span> -->
-                    <!-- </td> -->
-                    <!-- <td class="template_Result">some tags</td> -->
-                <!-- </tr> -->
-                <!-- <tr> -->
-                    <!-- <td>Array Selection</td>  -->
-                    <!-- <td > -->
-                        <!-- <span> -->
-                            <!-- <input class="template_ArraySelector"  style="width:50"> -->
-                            <!-- <span style="display: inline-block;width:3px"> </span> -->
-                            <!-- <span >0=first, last=-1, use count as result = -2 </span> -->
-                        <!-- </span> -->
-                    <!-- </td> -->
-                <!-- </tr> -->
-            <!-- </table> -->
-            <!-- <div> -->
-            <!-- <input type="checkbox" class="template_Enabled"/> <span>Enabled</span> -->
-            <!-- <input type="checkbox" class="template_Validated"/> <span>Validated</span> -->
-            <!-- <span style="display: inline-block;width:15px"> </span> -->
-            
-            <!-- <span>Checksum</span> -->
-            <!-- <span style="display: inline-block;width:5px"> </span> -->
-            <!-- <span style="color:blue" class="template_Checksum">123</span> -->
-            <!-- <input type="button"  value="Check now" class="template_CheckNow" /> -->
-            <!-- <span style="display: inline-block;width:15px"> </span> -->
-            
-            <!-- <span>Last time</span> -->
-            <!-- <span style="display: inline-block;width:5px"> </span> -->
-            <!-- <span style="color:blue" class="template_CheckTime">123</span> -->
-            <!-- </div> -->
-        <!-- </div> -->
-    <!-- </div> -->
-    
-    </body>
+    <div id="response_body"></div>
+     -->
+
+    <table class='scannerList_table'>
+        <!--
+        <tbody>
+            <tr><td> <div class="scanner_div2"> </td></tr>
+            ...
+        </tbody>
+        -->
+    </table>
+
+    <div class="templates">
+        <div class="scanner_div">
+            <!-- scanner_div will be replaced by scanner_div2 -->
+            <table id="scanner_table">
+                <tr>
+                    <td width="200px">Name</td>
+                    <td width="580px"><textarea class="template_Name" style="width:580px">CodeProject - Tracetool</textarea></td>
+                </tr>
+                <tr>
+                    <td>Site</td>
+                    <td><textarea class="template_Site" style="width:580px">https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace</textarea></td>
+                </tr>
+                <tr>
+                    <td>Search Selector</td>
+                    <td><textarea class="template_SearchSelector" style="width:580px">#ctl00_ArticleTabs_CmtCnt</textarea></td>
+                </tr>
+                <tr>
+                    <td><span>Search result</span></td>
+                    <td class="template_Result">some tags</td>
+                </tr>
+                <tr>
+                    <td>Array Selection</td>
+                    <td>
+                        <span>
+                            <input class="template_ArraySelector" style="width:50px">
+                            <span style="display: inline-block;width:3px"> </span>
+                            <span>0=first, last=-1, use count as result = -2 </span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <div>
+                <input type="checkbox" class="template_Enabled" /> <span>Enabled</span>
+                <input type="checkbox" class="template_Validated" /> <span>Validated</span>
+                <span style="display: inline-block;width:15px"> </span>
+
+                <span>Checksum</span>
+                <span style="display: inline-block;width:5px"> </span>
+                <span style="color:blue" class="template_Checksum">123</span>
+                <input type="button" value="Check now" class="template_CheckNow" />
+                <span style="display: inline-block;width:15px"> </span>
+
+                <span>Last time</span>
+                <span style="display: inline-block;width:5px"> </span>
+                <span style="color:blue" class="template_CheckTime">123</span>
+            </div>
+        </div>
+    </div>
+
+
+</body>
 </html>
