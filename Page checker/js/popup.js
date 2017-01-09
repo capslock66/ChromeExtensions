@@ -1,10 +1,11 @@
+var ttrace ;
 
 function init() 
 {
     var backgroundPage = chrome.extension.getBackgroundPage() ;
-    var ttrace = backgroundPage.ttrace ;
-    console.log("popup init. ttrace.host : " + ttrace.host) ;   
-    ttrace.debug.send("popup init " );
+    ttrace = backgroundPage.ttrace ;
+    //console.log("popup init") ;   
+    //ttrace.debug.send("popup init " );
 
     
     $(document).ready(function() 
