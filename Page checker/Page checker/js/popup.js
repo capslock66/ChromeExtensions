@@ -50,8 +50,10 @@ function fillScannerTable()
 }
 
 // called by fillScannerTable or when a new scanner is added
-function CloneScannerTemplate(currentScanner) {
+function CloneScannerTemplate(currentScanner)
+{
    var scannerTemplate = $(".scanner_div");
+   // ReSharper disable once UnknownCssClass
    var scannerView = scannerTemplate.clone().removeClass("scanner_div").addClass("scanner_div2");
 
    // Input name

@@ -3,25 +3,25 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "ChromeExtensions", ".", "{BF80F1B1-7D17-47DF-AE5A-74C3EA53470E}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Page checker", "Page checker\", "{D77B147C-B004-4C66-89EB-62A567CB5B8B}"
 	ProjectSection(WebsiteProperties) = preProject
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		Debug.AspNetCompiler.VirtualPath = "/localhost_65247"
-		Debug.AspNetCompiler.PhysicalPath = "..\ChromeExtensions\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_65247\"
+		Debug.AspNetCompiler.VirtualPath = "/localhost_16662"
+		Debug.AspNetCompiler.PhysicalPath = "Page checker\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_16662\"
 		Debug.AspNetCompiler.Updateable = "true"
 		Debug.AspNetCompiler.ForceOverwrite = "true"
 		Debug.AspNetCompiler.FixedNames = "false"
 		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/localhost_65247"
-		Release.AspNetCompiler.PhysicalPath = "..\ChromeExtensions\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_65247\"
+		Release.AspNetCompiler.VirtualPath = "/localhost_16662"
+		Release.AspNetCompiler.PhysicalPath = "Page checker\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\localhost_16662\"
 		Release.AspNetCompiler.Updateable = "true"
 		Release.AspNetCompiler.ForceOverwrite = "true"
 		Release.AspNetCompiler.FixedNames = "false"
 		Release.AspNetCompiler.Debug = "False"
-		VWDPort = "65247"
-		SlnRelativePath = "..\ChromeExtensions\"
+		VWDPort = "16662"
+		SlnRelativePath = "Page checker\"
 	EndProjectSection
 EndProject
 Global
@@ -29,8 +29,8 @@ Global
 		Debug|Any CPU = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BF80F1B1-7D17-47DF-AE5A-74C3EA53470E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BF80F1B1-7D17-47DF-AE5A-74C3EA53470E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D77B147C-B004-4C66-89EB-62A567CB5B8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D77B147C-B004-4C66-89EB-62A567CB5B8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
