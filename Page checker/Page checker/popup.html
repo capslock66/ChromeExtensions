@@ -9,24 +9,23 @@
     <script type="text/javascript" src="components/jquery/jquery.min.js"></script>
     <script src="js/popup.js"> </script>
 
-    <div id="actions">
+    <div id="actions" class="scanner_actions">
         <input type="button" id="check_request_button" value="Check all" />
         <input type="button" id="init_storage_button" value="Init storage" />
+        <input type="button" id="add_page_button" value="Add current Page" />
     </div>
     <br />
 
-    <!--
-    <div id="response_body"></div>
-     -->
-
-    <table class='scannerList_table'>
-        <!--
-        <tbody>
-            <tr><td> <div class="scanner_div2"> </td></tr>
-            ...
-        </tbody>
-        -->
-    </table>
+    <div class="scannerList_div">
+        <table class="scannerList_table">
+            <!--
+            <tbody>
+                <tr><td> <div class="scanner_div2"> </td></tr>
+                ...
+            </tbody>
+            -->
+        </table>
+    </div>
 
     <div class="templates">
         <div class="scanner_div">
@@ -59,6 +58,20 @@
                     </td>
                 </tr>
             </table>
+
+            <div>
+                <span>Polling interval</span>
+                <input class="template_PollingInterval (hours)" style="width:80px">
+                <span style="display: inline-block;width:5px"> </span>
+
+                <span>Last time</span>
+                <span style="display: inline-block;width:5px"> </span>
+                <span style="color:blue" class="template_CheckTime">123</span>
+
+                <span style="display: inline-block;width:5px"> </span>
+                <input type="button" value="Check now" class="template_CheckNow" />
+            </div>
+
             <div>
                 <input type="checkbox" class="template_Enabled" /> <span>Enabled</span>
                 <input type="checkbox" class="template_Validated" /> <span>Validated</span>
@@ -67,12 +80,10 @@
                 <span>Checksum</span>
                 <span style="display: inline-block;width:5px"> </span>
                 <span style="color:blue" class="template_Checksum">123</span>
-                <input type="button" value="Check now" class="template_CheckNow" />
                 <span style="display: inline-block;width:15px"> </span>
 
-                <span>Last time</span>
-                <span style="display: inline-block;width:5px"> </span>
-                <span style="color:blue" class="template_CheckTime">123</span>
+                <input type="button" value="Open" class="template_Open" />
+                <input type="button" value="Delete" class="template_Delete" />
             </div>
         </div>
     </div>

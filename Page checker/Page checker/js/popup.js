@@ -8,10 +8,9 @@ function init()
     backgroundPage = chrome.extension.getBackgroundPage() ;
     ttrace = backgroundPage.ttrace;
 
-   // don't use the popup console. Use the backgroundPage console
+   // don't use the popup console (can de destroyed). Use the backgroundPage console
     backgroundPage.console.log("popup init");
     //ttrace.debug.send("popup init " );
-
     
     $(document).ready(function() 
     {
@@ -23,6 +22,11 @@ function init()
         $("#init_storage_button").click(function ()
         {
             backgroundPage.initStorage();
+        });
+
+        $("#add_page_button").click(function () {
+            backgroundPage.console.log("Add Page");
+            //backgroundPage....
         });
 
         addEventListener("unload", function (event)
@@ -56,54 +60,72 @@ function CloneScannerTemplate(currentScanner)
    // ReSharper disable once UnknownCssClass
    var scannerView = scannerTemplate.clone().removeClass("scanner_div").addClass("scanner_div2");
 
-   // Input name
+   // Name : Edit
    var inputName = scannerView.find(".template_Name")[0];
    inputName.scanner = currentScanner;
    currentScanner.inputName = inputName;
    currentScanner.inputName.value = currentScanner.Name;
 
-   // Site
+   // Site : Edit
    var inputSite = scannerView.find(".template_Site")[0];
    inputSite.scanner = currentScanner;
    currentScanner.inputSite = inputSite;
    currentScanner.inputSite.value = currentScanner.Site;
 
-   // SearchSelector
+   // SearchSelector : Edit
    var inputSearchSelector = scannerView.find(".template_SearchSelector")[0];
    inputSearchSelector.scanner = currentScanner;
    currentScanner.inputSearchSelector = inputSearchSelector;
    currentScanner.inputSearchSelector.value = currentScanner.SearchSelector;
 
-   // template_CheckNow
+   // CheckNow : Button
    var inputCheckNow = scannerView.find(".template_CheckNow")[0];
    inputCheckNow.scanner = currentScanner;
    currentScanner.inputCheckNow = inputCheckNow;
 
-   // Result
+    // Open : Button
+   var inputOpen = scannerView.find(".template_Open")[0];
+   inputOpen.scanner = currentScanner;
+   currentScanner.inputOpen = inputOpen;
+
+    // Delete : Button
+   var inputDelete = scannerView.find(".template_Delete")[0];
+   inputDelete.scanner = currentScanner;
+   currentScanner.inputDelete = inputDelete;
+
+   // Result : Text
    var inputResult = scannerView.find(".template_Result")[0];
    inputResult.scanner = currentScanner;
    currentScanner.inputResult = inputResult;
    currentScanner.inputResult.innerText = "";
 
-   // ArraySelector
+   // ArraySelector : Edit
    var inputArraySelector = scannerView.find(".template_ArraySelector")[0];
    inputArraySelector.scanner = currentScanner;
    currentScanner.inputArraySelector = inputArraySelector;
    currentScanner.inputArraySelector.value = currentScanner.ArraySelector;
 
-   // Enabled
+    // PollingInterval : Edit
+   var inputPollingInterval = scannerView.find(".template_PollingInterval")[0];
+   inputPollingInterval.scanner = currentScanner;
+   if (inputPollingInterval === undefined)
+       inputPollingInterval = 1;
+   currentScanner.inputPollingInterval = inputPollingInterval;
+   currentScanner.inputPollingInterval.value = currentScanner.PollingInterval;
+
+    // Enabled : Checkbox
    var inputEnabled = scannerView.find(".template_Enabled")[0];
    inputEnabled.scanner = currentScanner;
    currentScanner.inputEnabled = inputEnabled;
    $(currentScanner.inputEnabled).prop("checked", currentScanner.Enabled);
 
-   // Validated
+   // Validated : Checkbox
    var inputValidated = scannerView.find(".template_Validated")[0];
    inputValidated.scanner = currentScanner;
    currentScanner.inputValidated = inputValidated;
    $(currentScanner.inputValidated).prop("checked", currentScanner.Validated);
 
-   // Hash  
+   // Hash : Text
    var inputChecksum = scannerView.find(".template_Checksum")[0];
    inputChecksum.scanner = inputChecksum;
    currentScanner.inputChecksum = inputChecksum;
@@ -112,7 +134,7 @@ function CloneScannerTemplate(currentScanner)
       hashToDisplay = "" + currentScanner.newHash;
    currentScanner.inputChecksum.innerText = hashToDisplay;
 
-   // CheckTime
+   // CheckTime : Text
    var inputCheckTime = scannerView.find(".template_CheckTime")[0];
    inputCheckTime.scanner = inputCheckTime;
    currentScanner.inputCheckTime = inputCheckTime;
@@ -130,6 +152,15 @@ function CloneScannerTemplate(currentScanner)
 
 function SetScannerEvents(currentScanner)
 {
+    // click on <td width="200px">Name</td> :
+    // Collapse - expand
+    // $('.scanner_div2').each((index,element) => {if(index===1){$(element).fadeToggle();} });
+
+    //.collapsed legend::after {
+    //    content: " [...]";
+    //}
+
+
    // Input name
    $(currentScanner.inputName).on("change keyup", function ()   // change paste keyup
    {
@@ -151,9 +182,28 @@ function SetScannerEvents(currentScanner)
       backgroundPage.saveStorage();
    });
 
-   // template_CheckNow
+   // CheckNow
    $(currentScanner.inputCheckNow).click(function () {
       backgroundPage.doRequest(this.scanner);
+   });
+
+   // PollingInterval
+   $(currentScanner.inputPollingInterval).on("change keyup", function ()   // change paste keyup
+   {
+       this.scanner.PollingInterval = $(this).val();
+       backgroundPage.saveStorage();
+   });
+
+   // Open
+   $(currentScanner.inputOpen).click(function () {
+       //backgroundPage....
+       backgroundPage.console.log("Open...");
+   });
+
+   // Delete
+   $(currentScanner.inputDelete).click(function () {
+       //backgroundPage....
+       backgroundPage.console.log("Delete...");
    });
 
    // Result 
@@ -169,7 +219,7 @@ function SetScannerEvents(currentScanner)
    // Enabled
    $(currentScanner.inputEnabled).on("change keyup", function ()   // change paste keyup
    {
-      this.scanner.Enabled = $(this).prop('checked');
+      this.scanner.Enabled = $(this).prop("checked");
       backgroundPage.saveStorage();
       // display number of unvalidated (and enabled) scanner 
       backgroundPage.countUnValided();
@@ -179,7 +229,7 @@ function SetScannerEvents(currentScanner)
    // Validated
    $(currentScanner.inputValidated).on("change keyup", function ()   // change paste keyup
    {
-      this.scanner.Validated = $(this).prop('checked');
+      this.scanner.Validated = $(this).prop("checked");
       backgroundPage.saveStorage();
       // display number of unvalidated (and enabled) scanner 
       backgroundPage.countUnValided();
@@ -191,7 +241,6 @@ function SetScannerEvents(currentScanner)
 
    // CheckTime
    // no event...
-
 }
 
 init();

@@ -17,7 +17,7 @@ function main()
     //ttrace.debug.send("background init");
 
     // ReSharper disable once UseOfImplicitGlobalInFunctionScope
-    chrome.storage.sync.get('scannerList', function (obj) 
+    chrome.storage.sync.get("scannerList", function (obj) 
     { 
        scannerList = obj.scannerList;
        //console.log("get storage done : scanners : \n" , scannerList) ;
@@ -37,14 +37,15 @@ function saveStorage()
     {
         var scanner = scannerList[i] ;
         var scannerCopy = {} ;
-        scannerCopy.Name           = scanner.Name ;
-        scannerCopy.ArraySelector  = scanner.ArraySelector ;
-        scannerCopy.Enabled        = scanner.Enabled ;
-        scannerCopy.Validated      = scanner.Validated ;
-        scannerCopy.Site           = scanner.Site ;
-        scannerCopy.SearchSelector = scanner.SearchSelector ; 
-        scannerCopy.Hash           = scanner.Hash ;
-        scannerCopy.CheckTime      = scanner.CheckTime ;
+        scannerCopy.Name            = scanner.Name ;
+        scannerCopy.ArraySelector   = scanner.ArraySelector ;
+        scannerCopy.Enabled         = scanner.Enabled ;
+        scannerCopy.Validated       = scanner.Validated ;
+        scannerCopy.Site            = scanner.Site ;
+        scannerCopy.SearchSelector  = scanner.SearchSelector ; 
+        scannerCopy.Hash            = scanner.Hash ;
+        scannerCopy.CheckTime       = scanner.CheckTime;
+        scannerCopy.PollingInterval = scanner.PollingInterval;
         scannerCopyList.push(scannerCopy);        
     }
     

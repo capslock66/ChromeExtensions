@@ -1,15 +1,36 @@
-/*body {
+/*
+    body {
     min-width:700px;
-}*/
-
-/* Templates */
-
-.templates {
-  display: none;
 }
 
+*/
+
+/*
+    Height : 600 = action(20) + table(548) + marge (32)
+
+*/
+
+html {
+    width: 800px;
+    height: 600px;
+}
+
+
+.scanner_actions {
+    height:20px;    
+}
+
+.scannerList_div {
+    width:auto;
+    height:548px;
+    overflow: auto;
+    overflow-x: hidden;
+}
+
+
 .scannerList_table {
-    width:770px;
+    width:auto;
+    height:auto;
     border-collapse: separate;
 }
 
@@ -17,6 +38,13 @@ th, td {
     /* padding: 5px; */
     text-align: left;
 }
+
+/* Templates */
+
+.templates {
+  display: none;
+}
+
 
 .scanner_div2 { 
     padding: 5px;
