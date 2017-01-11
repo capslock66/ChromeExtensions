@@ -10,19 +10,19 @@ var scannedCount ;              // number of scanner already checked
 var needToBeSaved;              // flag indicate if the scanner list need to be saved after all scan
 var ttrace;                     // tracetool library
 
-// jquery is not needed for now on background
+// JQuery is needed by requestCallback to parse result
 // Tracetool is defined only once on background 
 
-//requirejs(["../components/jquery/jquery.min"], function (jquery)
-//{
-//    console.log("jquery loaded",jquery);
+requirejs(["../components/jquery/jquery.min"], function (jquery)
+{
+    console.log("jquery loaded",jquery);
     requirejs(["../components/tracetool/tracetool"], function (tracetool)
     {
         ttrace = tracetool.ttrace;
         console.log("tracetool loaded", tracetool);
         backgroundInit();
     });
-//});
+});
 
 
 function backgroundInit()

@@ -2,7 +2,8 @@ var ttrace ;
 var resultTable;                // jquery for scannerList_table element
 var backgroundPage;
 
-
+// tracetool is not loaded. We can use backgroundPage.ttrace
+// jquery is needed to generate popup scanner list
 requirejs(["../components/jquery/jquery.min"], function (jquery) {
     popupInit();
 });
