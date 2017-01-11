@@ -1,26 +1,4 @@
 
-//requirejs.config({
-//    baseUrl: 'components',
-//    paths: {
-//        jquery: 'jquery/jquery.min',
-//        tracetool: 'tracetool/tracetool'
-//    }
-//});
-
-
-requirejs(["../components/jquery/jquery.min"], function (jquery)
-{
-    console.log("jquery loaded",jquery);
-    requirejs(["../components/tracetool/tracetool"], function (tracetool)
-    {
-        console.log("tracetool loaded", tracetool);
-        backgroundInit();
-    });
-});
-
-
-
-
 var scannerList = [] ;          // array of scanner
 var pollInterval = 1000 * 600;  // poll interval : 600 sec (10 minutes)
 var timerId ;                   // poll interval timer
@@ -29,14 +7,30 @@ var resultTable;                // jquery for scannerList_table element
 // used by doRequest, requestCallBack
 var toScanCount ;               // number of csanner to check
 var scannedCount ;              // number of scanner already checked
-var needToBeSaved ;             // flag indicate if the scanner list need to be saved after all scan
+var needToBeSaved;              // flag indicate if the scanner list need to be saved after all scan
+var ttrace;                     // tracetool library
+
+// jquery is not needed for now on background
+// Tracetool is defined only once on background 
+
+//requirejs(["../components/jquery/jquery.min"], function (jquery)
+//{
+//    console.log("jquery loaded",jquery);
+    requirejs(["../components/tracetool/tracetool"], function (tracetool)
+    {
+        ttrace = tracetool.ttrace;
+        console.log("tracetool loaded", tracetool);
+        backgroundInit();
+    });
+//});
+
 
 function backgroundInit()
 {
     console.log("backgroundInit start");
     this.ttrace = ttrace ;
     ttrace.host = "localHost:85";
-    //ttrace.debug.send("background init");
+    ttrace.debug.send("background init");
 
     // ReSharper disable once UseOfImplicitGlobalInFunctionScope
     chrome.storage.sync.get("scannerList", function (obj) 
