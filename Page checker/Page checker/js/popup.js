@@ -2,7 +2,13 @@ var ttrace ;
 var resultTable;                // jquery for scannerList_table element
 var backgroundPage;
 
-function init() 
+
+requirejs(["../components/jquery/jquery.min"], function (jquery) {
+    popupInit();
+});
+
+
+function popupInit()
 {
     // ReSharper disable once UseOfImplicitGlobalInFunctionScope
     backgroundPage = chrome.extension.getBackgroundPage() ;
@@ -242,7 +248,4 @@ function SetScannerEvents(currentScanner)
    // CheckTime
    // no event...
 }
-
-init();
-
 

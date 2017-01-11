@@ -1,4 +1,26 @@
 
+//requirejs.config({
+//    baseUrl: 'components',
+//    paths: {
+//        jquery: 'jquery/jquery.min',
+//        tracetool: 'tracetool/tracetool'
+//    }
+//});
+
+
+requirejs(["../components/jquery/jquery.min"], function (jquery)
+{
+    console.log("jquery loaded",jquery);
+    requirejs(["../components/tracetool/tracetool"], function (tracetool)
+    {
+        console.log("tracetool loaded", tracetool);
+        backgroundInit();
+    });
+});
+
+
+
+
 var scannerList = [] ;          // array of scanner
 var pollInterval = 1000 * 600;  // poll interval : 600 sec (10 minutes)
 var timerId ;                   // poll interval timer
@@ -9,9 +31,9 @@ var toScanCount ;               // number of csanner to check
 var scannedCount ;              // number of scanner already checked
 var needToBeSaved ;             // flag indicate if the scanner list need to be saved after all scan
 
-function main()
+function backgroundInit()
 {
-    console.log("background main start" );
+    console.log("backgroundInit start");
     this.ttrace = ttrace ;
     ttrace.host = "localHost:85";
     //ttrace.debug.send("background init");
@@ -25,7 +47,7 @@ function main()
        countUnValided();
     }) ; 
 
-    console.log("background main end");
+    console.log("backgroundInit end");
 }
 
 // save scanner list
@@ -368,4 +390,4 @@ function hashCode (src)
     return hash;
 } ;
 
-main();
+
