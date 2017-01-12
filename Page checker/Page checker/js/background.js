@@ -46,6 +46,7 @@ function backgroundInit()
 // save scanner list
 function saveStorage()
 {
+   ttrace.debug.send("saveStorage");
     // create a copy of the scannerList to save only needed fields
     var scannerCopyList = [] ;
     for (let i = 0; i < scannerList.length;i++)
@@ -108,36 +109,39 @@ function countUnValided() {
 // progressEvent.currentTarget.responseURL
 function requestCallBack (progressEvent)
 {
-    var onloadRequest = progressEvent.currentTarget ;
-    var onLoadScanner = progressEvent.currentTarget.scanner ;
+    var request = progressEvent.currentTarget ;
+    var scanner = progressEvent.currentTarget.scanner ;
     
+
+    $(scanner.scannerView).css("background-color", "#f1f1c1");
+
     // create an empty element, not stored in the document
     var newDivElement = $('<div></div>' );
   
     // Parse the XMLHttpRequest result into the new element
-    newDivElement.html(onloadRequest.responseText);
+    newDivElement.html(request.responseText);
           
     // search key in new element
     var searchResult ;
-    var searchResults = $(onLoadScanner.SearchSelector, newDivElement);  
-    onLoadScanner.newHash = 0 ;  
+    var searchResults = $(scanner.SearchSelector, newDivElement);  
+    scanner.newHash = 0 ;  
     
     if (searchResults.length !== 0)
     {
-        var arraySelector = Number(onLoadScanner.ArraySelector) ;
+        var arraySelector = Number(scanner.ArraySelector) ;
         
         if (searchResults.length === 1)
-            onLoadScanner.resultString = "1 result" ;
+            scanner.resultString = "1 result" ;
         else
-            onLoadScanner.resultString = "" + searchResults.length + " results. Specify Array Selection " ;
+            scanner.resultString = "" + searchResults.length + " results. Specify Array Selection " ;
         
         for (var j = 0; j < searchResults.length; j++  )
         {
             // print first 3 , the selected and the last one
             if (j < 3 || j === searchResults.length-1 || j === arraySelector)                
-                onLoadScanner.resultString = onLoadScanner.resultString + "\n" + "[" + j + "]" + searchResults[j].outerHTML ;
+                scanner.resultString = scanner.resultString + "\n" + "[" + j + "]" + searchResults[j].outerHTML ;
             else if (j === 3)
-                onLoadScanner.resultString = onLoadScanner.resultString + "\n" + "..." ;
+                scanner.resultString = scanner.resultString + "\n" + "..." ;
         }
           
         if (arraySelector === -1) 
@@ -153,62 +157,111 @@ function requestCallBack (progressEvent)
             if (arraySelector < 0 || arraySelector >= searchResults.length)
             {
                 searchResult = "Out of range" ;
-                onLoadScanner.resultString = onLoadScanner.resultString + "\n" + arraySelector + " : Out of range" ;
+                scanner.resultString = scanner.resultString + "\n" + arraySelector + " : Out of range" ;
             } else {
                 searchResult = searchResults[arraySelector].outerHTML  ;
             }
         }  
     } else {
         searchResult = "Nothing !"; 
-        onLoadScanner.resultString  = "Nothing !";                        // view model : resultString
+        scanner.resultString  = "Nothing !";                        // view model : resultString
     }           
   
-    onLoadScanner.newHash = hashCode(searchResult) ;   // view model : newHash                
+    scanner.newHash = hashCode(searchResult) ;   // view model : newHash                
     
-    var hashToDisplay = onLoadScanner.newHash ;
-    if (onLoadScanner.Hash !== -1 && onLoadScanner.Hash !== onLoadScanner.newHash)
+    var hashToDisplay = scanner.newHash ;
+    if (scanner.Hash !== -1 && scanner.Hash !== scanner.newHash)
     {
-        onLoadScanner.Validated = false;
-        if (onLoadScanner.inputValidated !== undefined)
-            $(onLoadScanner.inputValidated).prop('checked',false) ;              
-        hashToDisplay = "" + onLoadScanner.newHash ;
-        onLoadScanner.resultString = onLoadScanner.resultString + "\n" + "Page changed !!!" ;
+        scanner.Validated = false;
+        if (scanner.inputValidated !== undefined)
+            $(scanner.inputValidated).prop('checked',false) ;              
+        hashToDisplay = "" + scanner.newHash ;
+        scanner.resultString = scanner.resultString + "\n" + "Page changed !!!" ;
         needToBeSaved = true ;
     }
 
-    if (onLoadScanner.inputChecksum !== undefined)
-        onLoadScanner.inputChecksum.innerText = hashToDisplay;                // view : hash     
+    if (scanner.inputChecksum !== undefined)
+        scanner.inputChecksum.innerText = hashToDisplay;                // view : hash     
 
-    if (onLoadScanner.inputResult !== undefined)
-        onLoadScanner.inputResult.innerText = onLoadScanner.resultString;     // view : result
+    if (scanner.inputResult !== undefined)
+        scanner.inputResult.innerText = scanner.resultString;     // view : result
     
-    onLoadScanner.Hash = onLoadScanner.newHash ;                          // view model : hash
+    scanner.Hash = scanner.newHash ;                          // view model : hash
     
-    var d = new Date() ;
-    var dformat = [ d.getFullYear(),
-                   padLeft(d.getMonth()+1),
-                   padLeft(d.getDate())
-                  ].join('/')+ ' ' +
-                  [ padLeft(d.getHours()),
-                    padLeft(d.getMinutes()),
-                    padLeft(d.getSeconds())
-                  ].join(':');
-    
-    
-    onLoadScanner.CheckTime = dformat ;                                   // view model : CheckTime
-    if (onLoadScanner.inputCheckTime !== undefined)
-        onLoadScanner.inputCheckTime.innerText = onLoadScanner.CheckTime;    // view : CheckTime
-  
-    // save model
-    scannedCount++ ;
-    if (scannedCount === toScanCount )   // || specificScanner !== undefined
-    {
-        if (needToBeSaved)  
-            saveStorage() ;  
-        // display number of unvalidated (and enabled) scanner 
-        countUnValided() ;
-    }
+    afterScan(scanner);
 }
+
+// progressEvent.currentTarget : XMLHttpRequest
+// progressEvent.currentTarget.responseURL
+function requestOnError(progressEvent)
+{
+   //ttrace.debug.sendValue("xhr.onerror progressEvent", progressEvent);
+
+   var request = progressEvent.currentTarget;
+   var scanner = request.scanner;
+
+   $(scanner.scannerView).css("background-color", "#eea29a");
+
+   if (scanner.inputChecksum !== undefined)
+      scanner.inputChecksum.innerText = "" ;                // view : hash     
+
+   if (scanner.inputResult !== undefined)
+      scanner.inputResult.innerText = "Error loading page !";     // view : result
+
+   scanner.Validated = false;
+   needToBeSaved = true;
+   if (scanner.inputValidated !== undefined)
+      $(scanner.inputValidated).prop('checked', false);
+   afterScan(scanner);
+}
+
+function afterScan(scanner)
+{
+   var d = new Date();
+   var dformat = [d.getFullYear(),
+                  padLeft(d.getMonth() + 1),
+                  padLeft(d.getDate())
+   ].join('/') + ' ' +
+                 [padLeft(d.getHours()),
+                   padLeft(d.getMinutes()),
+                   padLeft(d.getSeconds())
+                 ].join(':');
+
+
+   scanner.CheckTime = dformat;                                   // view model : CheckTime
+   if (scanner.inputCheckTime !== undefined)
+      scanner.inputCheckTime.innerText = scanner.CheckTime;    // view : CheckTime
+
+   // save model
+   scannedCount++;
+   if (scannedCount === toScanCount)   // || specificScanner !== undefined
+   {
+      if (needToBeSaved)
+         saveStorage();
+      // display number of unvalidated (and enabled) scanner 
+      countUnValided();
+   }
+
+}
+
+// progressEvent.currentTarget : XMLHttpRequest
+// progressEvent.currentTarget.responseURL
+
+//function requestOnreadystatechange(event)
+//{
+//   var request = event.currentTarget;
+//   var scanner = request.scanner;
+//   ttrace.debug.sendValue("xhr.onreadystatechange event", event);
+//   if (request.readyState === 4) {   //if complete
+//      if (request.status === 200) {  //check if "OK" (200)
+//         //success
+//      } else {
+//         if (scanner.inputResult !== undefined)
+//            scanner.inputResult.innerText += "error " + request.status;     // view : result
+//      }
+//   }
+//}
+
 
 // Check all scanners or a specific one.
 // Asynchrone. requestCallBack will be called for each one
@@ -244,36 +297,12 @@ function doRequest(specificScanner)
         var xhr = new XMLHttpRequest();
         xhr.scanner = currentScanner ; // save to xhr for later retreival (onload callback) 
 
-        xhr.onerror = function (progressEvent) {   
-            if (currentScanner.inputResult !== undefined)
-                currentScanner.inputResult.innerText += ", onerror";     // view : result
+        //xhr.onreadystatechange = requestOnreadystatechange;
+        xhr.onerror = requestOnError;
+        xhr.onload = requestCallBack;
 
-        };
-        xhr.onreadystatechange = function (event) {
-            // currentTarget : XMLHttpRequest
-            // srcElement : XMLHttpRequest
-            //    . status
-            //    . status text
-            //    . readyState
-            // eventPhase : 1
-
-            if (xhr.readyState === 4) {   //if complete
-                if (xhr.status === 200) {  //check if "OK" (200)
-                    //success
-                } else {
-                    if (currentScanner.inputResult !== undefined)
-                        currentScanner.inputResult.innerText += "error " + xhr.status;     // view : result
-                }
-            }
-        }
-        try {
-            xhr.onload = requestCallBack;
-            xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
-            xhr.send(null);                     // fire onload
-        } catch (e) {
-            if (currentScanner.inputResult !== undefined)
-                currentScanner.inputResult.innerText = e;     // view : result
-        }
+        xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
+        xhr.send(null);                     // fire onload
 
     }   
 }

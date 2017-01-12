@@ -98,94 +98,96 @@ function fillScannerTable()
 }
 
 // called by fillScannerTable or when a new scanner is added
-function CloneScannerTemplate(currentScanner)
+function CloneScannerTemplate(scanner)
 {
    var scannerTemplate = $(".scanner_div");
    // ReSharper disable once UnknownCssClass
    var scannerView = scannerTemplate.clone().removeClass("scanner_div").addClass("scanner_div2");
 
+   scanner.scannerView = scannerView;
+
    // Name : Edit
    var inputName = scannerView.find(".template_Name")[0];
-   inputName.scanner = currentScanner;
-   currentScanner.inputName = inputName;
-   currentScanner.inputName.value = currentScanner.Name;
+   inputName.scanner = scanner;
+   scanner.inputName = inputName;
+   scanner.inputName.value = scanner.Name;
 
    // Site : Edit
    var inputSite = scannerView.find(".template_Site")[0];
-   inputSite.scanner = currentScanner;
-   currentScanner.inputSite = inputSite;
-   currentScanner.inputSite.value = currentScanner.Site;
+   inputSite.scanner = scanner;
+   scanner.inputSite = inputSite;
+   scanner.inputSite.value = scanner.Site;
 
    // SearchSelector : Edit
    var inputSearchSelector = scannerView.find(".template_SearchSelector")[0];
-   inputSearchSelector.scanner = currentScanner;
-   currentScanner.inputSearchSelector = inputSearchSelector;
-   currentScanner.inputSearchSelector.value = currentScanner.SearchSelector;
+   inputSearchSelector.scanner = scanner;
+   scanner.inputSearchSelector = inputSearchSelector;
+   scanner.inputSearchSelector.value = scanner.SearchSelector;
 
    // CheckNow : Button
    var inputCheckNow = scannerView.find(".template_CheckNow")[0];
-   inputCheckNow.scanner = currentScanner;
-   currentScanner.inputCheckNow = inputCheckNow;
+   inputCheckNow.scanner = scanner;
+   scanner.inputCheckNow = inputCheckNow;
 
     // Open : Button
    var inputOpen = scannerView.find(".template_Open")[0];
-   inputOpen.scanner = currentScanner;
-   currentScanner.inputOpen = inputOpen;
+   inputOpen.scanner = scanner;
+   scanner.inputOpen = inputOpen;
 
     // Delete : Button
    var inputDelete = scannerView.find(".template_Delete")[0];
-   inputDelete.scanner = currentScanner;
-   currentScanner.inputDelete = inputDelete;
+   inputDelete.scanner = scanner;
+   scanner.inputDelete = inputDelete;
 
    // Result : Text
    var inputResult = scannerView.find(".template_Result")[0];
-   inputResult.scanner = currentScanner;
-   currentScanner.inputResult = inputResult;
-   currentScanner.inputResult.innerText = "";
+   inputResult.scanner = scanner;
+   scanner.inputResult = inputResult;
+   scanner.inputResult.innerText = "";
 
    // ArraySelector : Edit
    var inputArraySelector = scannerView.find(".template_ArraySelector")[0];
-   inputArraySelector.scanner = currentScanner;
-   currentScanner.inputArraySelector = inputArraySelector;
-   currentScanner.inputArraySelector.value = currentScanner.ArraySelector;
+   inputArraySelector.scanner = scanner;
+   scanner.inputArraySelector = inputArraySelector;
+   scanner.inputArraySelector.value = scanner.ArraySelector;
 
     // PollingInterval : Edit
    var inputPollingInterval = scannerView.find(".template_PollingInterval")[0];
-   inputPollingInterval.scanner = currentScanner;
+   inputPollingInterval.scanner = scanner;
    if (inputPollingInterval === undefined)
        inputPollingInterval = 1;
-   currentScanner.inputPollingInterval = inputPollingInterval;
-   currentScanner.inputPollingInterval.value = currentScanner.PollingInterval;
+   scanner.inputPollingInterval = inputPollingInterval;
+   scanner.inputPollingInterval.value = scanner.PollingInterval;
 
     // Enabled : Checkbox
    var inputEnabled = scannerView.find(".template_Enabled")[0];
-   inputEnabled.scanner = currentScanner;
-   currentScanner.inputEnabled = inputEnabled;
-   $(currentScanner.inputEnabled).prop("checked", currentScanner.Enabled);
+   inputEnabled.scanner = scanner;
+   scanner.inputEnabled = inputEnabled;
+   $(scanner.inputEnabled).prop("checked", scanner.Enabled);
 
    // Validated : Checkbox
    var inputValidated = scannerView.find(".template_Validated")[0];
-   inputValidated.scanner = currentScanner;
-   currentScanner.inputValidated = inputValidated;
-   $(currentScanner.inputValidated).prop("checked", currentScanner.Validated);
+   inputValidated.scanner = scanner;
+   scanner.inputValidated = inputValidated;
+   $(scanner.inputValidated).prop("checked", scanner.Validated);
 
    // Hash : Text
    var inputChecksum = scannerView.find(".template_Checksum")[0];
    inputChecksum.scanner = inputChecksum;
-   currentScanner.inputChecksum = inputChecksum;
-   var hashToDisplay = currentScanner.Hash;
-   if (currentScanner.newHash !== "undefined" && currentScanner.Hash !== currentScanner.newHash)
-      hashToDisplay = "" + currentScanner.newHash;
-   currentScanner.inputChecksum.innerText = hashToDisplay;
+   scanner.inputChecksum = inputChecksum;
+   var hashToDisplay = scanner.Hash;
+   if (scanner.newHash !== "undefined" && scanner.Hash !== scanner.newHash)
+      hashToDisplay = "" + scanner.newHash;
+   scanner.inputChecksum.innerText = hashToDisplay;
 
    // CheckTime : Text
    var inputCheckTime = scannerView.find(".template_CheckTime")[0];
    inputCheckTime.scanner = inputCheckTime;
-   currentScanner.inputCheckTime = inputCheckTime;
-   var checkTime = currentScanner.CheckTime;
+   scanner.inputCheckTime = inputCheckTime;
+   var checkTime = scanner.CheckTime;
    if (checkTime === null || checkTime === undefined)
       checkTime = "";
-   currentScanner.inputCheckTime.innerText = checkTime;
+   scanner.inputCheckTime.innerText = checkTime;
 
    var scannerTr = $("<tr></tr>");
    var scannerTd = $("<td></td>");
