@@ -1,6 +1,7 @@
 var ttrace ;
 var resultTable;                // jquery for scannerList_table element
 var backgroundPage;
+var chrome;                     // remove warning about undeclared chrome var
 
 // tracetool is not loaded. We can use backgroundPage.ttrace
 // jquery is needed to generate popup scanner list
@@ -32,8 +33,7 @@ function popupInit()
         });
 
         $("#add_page_button").click(function () {
-            backgroundPage.console.log("Add Page");
-            //backgroundPage....
+            AddCurrentPage();
         });
 
         addEventListener("unload", function (event)
@@ -44,6 +44,43 @@ function popupInit()
         fillScannerTable();
     });
 }
+
+function AddCurrentPage()
+{
+    // https://developer.chrome.com/extensions/tabs#method-query
+
+    // note that if the debugger for the popup is opened, this is not the lastFocusedWindow
+    chrome.tabs.query({ 'active': true, 'lastFocusedWindow': true }, function (tabs)
+    {
+        debugger;   // while the debugger is opened and paused, click now on the page and try again. The lastFocusedWindows will be again ok
+
+        if (tabs.length === 0) 
+            return ;
+        var url = tabs[0].url;
+        backgroundPage.console.log("current page : ", url);
+
+        resultTable = $(".scannerList_table");
+        var scanner = {};
+
+        scanner.Name = tabs[0].title;
+        scanner.ArraySelector = -1;  // 0 = first, n , -1 = last, -2 = use result array count as hash
+        scanner.Enabled = true;
+        scanner.Validated = true;
+        scanner.Site = tabs[0].url;
+        scanner.SearchSelector = "Body";
+        scanner.Hash = -1;
+        scanner.CheckTime = 10;
+        backgroundPage.scannerList.push(scanner);
+
+        var scannerTr = CloneScannerTemplate(scanner);
+        SetScannerEvents(scanner);
+        resultTable.append(scannerTr);
+
+        backgroundPage.saveStorage();
+
+    });
+}
+
 
 function fillScannerTable()
 {
@@ -204,6 +241,7 @@ function SetScannerEvents(currentScanner)
    // Open
    $(currentScanner.inputOpen).click(function () {
        //backgroundPage....
+       chrome.tabs.create({ url: this.scanner.Site });
        backgroundPage.console.log("Open...");
    });
 

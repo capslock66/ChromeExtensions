@@ -11,7 +11,7 @@ var needToBeSaved;              // flag indicate if the scanner list need to be 
 var ttrace;                     // tracetool library
 
 // JQuery is needed by requestCallback to parse result
-// Tracetool is defined only once on background 
+// Tracetool is defined only on background 
 
 requirejs(["../components/jquery/jquery.min"], function (jquery)
 {
@@ -23,7 +23,6 @@ requirejs(["../components/jquery/jquery.min"], function (jquery)
         backgroundInit();
     });
 });
-
 
 function backgroundInit()
 {
@@ -86,15 +85,31 @@ function stopRequest()
     window.clearTimeout(timerId);
 }
 
+function countUnValided() {
+    var unvalidatedScanner = 0;
+    for (let k = 0; k < scannerList.length; k++) {
+        var checkScanner = scannerList[k];
+        if (checkScanner.Validated === false && checkScanner.Enabled === true)
+            unvalidatedScanner++;
+    }
+    if (unvalidatedScanner === 0) {
+        // ReSharper disable once UseOfImplicitGlobalInFunctionScope
+        chrome.browserAction.setBadgeText({ text: "" });
+    } else {
+        // ReSharper disable once UseOfImplicitGlobalInFunctionScope
+        chrome.browserAction.setBadgeText({ text: "" + unvalidatedScanner });
+    }
+}
+
 // callback is called by XMLHttpRequest.OnLoad
 // callback use theses 3 vars : toScanCount, scannedCount, needToBeSaved 
-// parameter e : ProgressEvent
-// e.currentTarget : XMLHttpRequest
-// e.currentTarget.responseURL
-function requestCallBack (e)
+
+// progressEvent.currentTarget : XMLHttpRequest
+// progressEvent.currentTarget.responseURL
+function requestCallBack (progressEvent)
 {
-    var onloadRequest = e.currentTarget ;
-    var onLoadScanner = e.currentTarget.scanner ;
+    var onloadRequest = progressEvent.currentTarget ;
+    var onLoadScanner = progressEvent.currentTarget.scanner ;
     
     // create an empty element, not stored in the document
     var newDivElement = $('<div></div>' );
@@ -195,24 +210,6 @@ function requestCallBack (e)
     }
 }
 
-function countUnValided()
-{
-    var unvalidatedScanner = 0 ;
-    for (let k = 0; k < scannerList.length;k++)
-    {
-        var checkScanner = scannerList[k] ;
-        if (checkScanner.Validated === false && checkScanner.Enabled === true)
-            unvalidatedScanner++ ;
-    }
-    if (unvalidatedScanner === 0) {
-        // ReSharper disable once UseOfImplicitGlobalInFunctionScope
-        chrome.browserAction.setBadgeText({ text: "" });
-    } else {
-        // ReSharper disable once UseOfImplicitGlobalInFunctionScope
-        chrome.browserAction.setBadgeText({ text: "" + unvalidatedScanner });
-    }
-}
-
 // Check all scanners or a specific one.
 // Asynchrone. requestCallBack will be called for each one
 function doRequest(specificScanner)
@@ -238,16 +235,46 @@ function doRequest(specificScanner)
             toScanCount-- ;
             continue ; 
         }        
-        
+        if (currentScanner.inputResult !== undefined)
+            currentScanner.inputResult.innerText = "";     // view : result
+
         currentScanner.index = i ;
         var url = currentScanner.Site ;
         // ReSharper disable once InconsistentNaming
         var xhr = new XMLHttpRequest();
         xhr.scanner = currentScanner ; // save to xhr for later retreival (onload callback) 
 
-        xhr.onload = requestCallBack ;
-        xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
-        xhr.send(null);                     // fire onload
+        xhr.onerror = function (progressEvent) {   
+            if (currentScanner.inputResult !== undefined)
+                currentScanner.inputResult.innerText += ", onerror";     // view : result
+
+        };
+        xhr.onreadystatechange = function (event) {
+            // currentTarget : XMLHttpRequest
+            // srcElement : XMLHttpRequest
+            //    . status
+            //    . status text
+            //    . readyState
+            // eventPhase : 1
+
+            if (xhr.readyState === 4) {   //if complete
+                if (xhr.status === 200) {  //check if "OK" (200)
+                    //success
+                } else {
+                    if (currentScanner.inputResult !== undefined)
+                        currentScanner.inputResult.innerText += "error " + xhr.status;     // view : result
+                }
+            }
+        }
+        try {
+            xhr.onload = requestCallBack;
+            xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
+            xhr.send(null);                     // fire onload
+        } catch (e) {
+            if (currentScanner.inputResult !== undefined)
+                currentScanner.inputResult.innerText = e;     // view : result
+        }
+
     }   
 }
 

@@ -56,3 +56,11 @@ th, td {
 .template_Result {
     border: 1px solid black;
 }
+
+span.span-group {
+    border: 1px solid; 
+    padding-left:5px;
+    padding-right: 5px;
+    padding-bottom:4px;
+    margin-right: 3px;
+}
