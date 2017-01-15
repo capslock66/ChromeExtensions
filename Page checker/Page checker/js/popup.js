@@ -1,11 +1,12 @@
-var ttrace ;
-var resultTable;                // jquery for scannerList_table element
+// This popup "View" is recreated each time the user click the extension button
+
+var ttrace;
 var backgroundPage;
 var chrome;                     // remove warning about undeclared chrome var
 
 // tracetool is not loaded. We can use backgroundPage.ttrace
-// jquery is needed to generate popup scanner list
-requirejs(["../components/jquery/jquery.min"], function (jquery) {
+// jquery is needed in this context to generate popup scanner list
+requirejs(["../components/jquery.min"], function () {
     popupInit();
 });
 
@@ -22,16 +23,11 @@ function popupInit()
     
     $(document).ready(function() 
     {
-        $("#check_request_button").click(function ()
+        $("#check_all_button").click(function ()
         {
-            backgroundPage.doRequest();
+            backgroundPage.CheckScanners();
         }); 
          
-        $("#init_storage_button").click(function ()
-        {
-            backgroundPage.initStorage();
-        });
-
         $("#add_page_button").click(function () {
             AddCurrentPage();
         });
@@ -59,7 +55,7 @@ function AddCurrentPage()
         var url = tabs[0].url;
         backgroundPage.console.log("current page : ", url);
 
-        resultTable = $(".scannerList_table");
+        var resultTable = $(".scannerList_table");
         var scanner = {};
 
         scanner.Name = tabs[0].title;
@@ -69,7 +65,9 @@ function AddCurrentPage()
         scanner.Site = tabs[0].url;
         scanner.SearchSelector = "Body";
         scanner.Hash = -1;
-        scanner.CheckTime = 10;
+        scanner.CheckTime = 60;  // 60 minutes
+        scanner.id = "scannerTr" + backgroundPage.scannerNextId;
+        backgroundPage.scannerNextId++;
         backgroundPage.scannerList.push(scanner);
 
         var scannerTr = CloneScannerTemplate(scanner);
@@ -81,20 +79,32 @@ function AddCurrentPage()
     });
 }
 
+function deleteScanner(scanner)
+{
+   // remove from View 
+   $("#" + scanner.id).remove();
+
+   // remove from View Model : 
+   var index = backgroundPage.scannerList.indexOf(scanner);
+   backgroundPage.scannerList.splice(index, 1);
+
+   // save Model
+   backgroundPage.saveStorage();
+}
 
 function fillScannerTable()
 {
-    //var responseBody = $("#response_body");
-    resultTable = $(".scannerList_table");
+    var resultTable = $(".scannerList_table");
  
-    for (let i = 0; i < backgroundPage.scannerList.length; i++)
+    for (var i = 0; i < backgroundPage.scannerList.length; i++)
     {
-        var currentScanner = backgroundPage.scannerList[i];
-        var scannerTr = CloneScannerTemplate(currentScanner);
-        SetScannerEvents(currentScanner);
+        var scanner = backgroundPage.scannerList[i];
+        scanner.id = "scannerTr" + i;
+
+        var scannerTr = CloneScannerTemplate(scanner);
+        SetScannerEvents(scanner);
         resultTable.append(scannerTr);
     }
-    //responseBody.append(resultTable);
 }
 
 // called by fillScannerTable or when a new scanner is added
@@ -193,6 +203,11 @@ function CloneScannerTemplate(scanner)
    var scannerTd = $("<td></td>");
    scannerTr.append(scannerTd);
    scannerTd.append(scannerView);
+
+   // set row id
+   $(scannerTr).attr({ id: scanner.id });
+
+   scannerTr.scanner = scanner;
    return scannerTr;
 }
 
@@ -228,11 +243,6 @@ function SetScannerEvents(currentScanner)
       backgroundPage.saveStorage();
    });
 
-   // CheckNow
-   $(currentScanner.inputCheckNow).click(function () {
-      backgroundPage.doRequest(this.scanner);
-   });
-
    // PollingInterval
    $(currentScanner.inputPollingInterval).on("change keyup", function ()   // change paste keyup
    {
@@ -241,16 +251,21 @@ function SetScannerEvents(currentScanner)
    });
 
    // Open
-   $(currentScanner.inputOpen).click(function () {
-       //backgroundPage....
+   $(currentScanner.inputOpen).click(function ()
+   {
        chrome.tabs.create({ url: this.scanner.Site });
-       backgroundPage.console.log("Open...");
    });
 
    // Delete
-   $(currentScanner.inputDelete).click(function () {
-       //backgroundPage....
-       backgroundPage.console.log("Delete...");
+   $(currentScanner.inputDelete).click(function ()
+   {
+       deleteScanner(this.scanner);
+   });
+
+   // CheckNow
+   $(currentScanner.inputCheckNow).click(function ()
+   {
+      backgroundPage.CheckScanners(this.scanner);
    });
 
    // Result 

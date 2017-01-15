@@ -1,26 +1,33 @@
+// "View Model" extension
 
-var scannerList = [] ;          // array of scanner
-var pollInterval = 1000 * 600;  // poll interval : 600 sec (10 minutes)
+var scannerList = [];          // array of scanner
+var scannerNextId;
+var pollInterval = 1000 * 60;  // poll interval : 60 sec (1 minute)
 var timerId ;                   // poll interval timer
-var resultTable;                // jquery for scannerList_table element
 
-// used by doRequest, requestCallBack
+// used by CheckScanners, requestCallBack
 var toScanCount ;               // number of csanner to check
 var scannedCount ;              // number of scanner already checked
 var needToBeSaved;              // flag indicate if the scanner list need to be saved after all scan
-var ttrace;                     // tracetool library
+
+// libraries (jquery add itself to global)
+var ttrace;                    
+var moment;
 
 // JQuery is needed by requestCallback to parse result
 // Tracetool is defined only on background 
 
-requirejs(["../components/jquery/jquery.min"], function (jquery)
+requirejs(["../components/jquery.min"], function ()
 {
-    console.log("jquery loaded",jquery);
-    requirejs(["../components/tracetool/tracetool"], function (tracetool)
+    requirejs(["../components/moment.min"], function (mo)
     {
-        ttrace = tracetool.ttrace;
-        console.log("tracetool loaded", tracetool);
-        backgroundInit();
+        moment = mo;
+        requirejs(["../components/tracetool"], function (tracetool)
+        {
+            ttrace = tracetool.ttrace;
+            console.log("tracetool loaded", tracetool);
+            backgroundInit();
+        });
     });
 });
 
@@ -29,12 +36,15 @@ function backgroundInit()
     console.log("backgroundInit start");
     this.ttrace = ttrace ;
     ttrace.host = "localHost:85";
-    ttrace.debug.send("background init");
+    //ttrace.debug.send("background init");
 
     // ReSharper disable once UseOfImplicitGlobalInFunctionScope
     chrome.storage.sync.get("scannerList", function (obj) 
-    { 
-       scannerList = obj.scannerList;
+    {
+       // scannerList is the "Model"
+       scannerList = obj.scannerList;           // length = 10 : 0..9
+       scannerNextId = scannerList.length;      // next id : 10
+
        //console.log("get storage done : scanners : \n" , scannerList) ;
        timerId = window.setTimeout(startRequest, pollInterval);
        countUnValided();
@@ -46,8 +56,8 @@ function backgroundInit()
 // save scanner list
 function saveStorage()
 {
-   ttrace.debug.send("saveStorage");
-    // create a copy of the scannerList to save only needed fields
+   //ttrace.debug.send("saveStorage");
+    // create a copy of the scannerList to save only needed fields => Model
     var scannerCopyList = [] ;
     for (let i = 0; i < scannerList.length;i++)
     {
@@ -76,7 +86,7 @@ function saveStorage()
 // called when poll interval is done
 function startRequest() 
 {
-    doRequest();
+    CheckScanners();
     timerId = window.setTimeout(startRequest, pollInterval);
 }
 
@@ -194,7 +204,7 @@ function requestCallBack (progressEvent)
 // progressEvent.currentTarget.responseURL
 function requestOnError(progressEvent)
 {
-   //ttrace.debug.sendValue("xhr.onerror progressEvent", progressEvent);
+   //ttrace.error.sendValue("xhr.onerror progressEvent", progressEvent);
 
    var request = progressEvent.currentTarget;
    var scanner = request.scanner;
@@ -216,15 +226,16 @@ function requestOnError(progressEvent)
 
 function afterScan(scanner)
 {
-   var d = new Date();
-   var dformat = [d.getFullYear(),
-                  padLeft(d.getMonth() + 1),
-                  padLeft(d.getDate())
-   ].join('/') + ' ' +
-                 [padLeft(d.getHours()),
-                   padLeft(d.getMinutes()),
-                   padLeft(d.getSeconds())
-                 ].join(':');
+   var dformat = moment().format("YYYY/MM/DD HH:mm:ss");
+
+   //var dformat = [d.getFullYear(),
+   //               padLeft(d.getMonth() + 1),
+   //               padLeft(d.getDate())
+   //].join('/') + ' ' +
+   //              [padLeft(d.getHours()),
+   //                padLeft(d.getMinutes()),
+   //                padLeft(d.getSeconds())
+   //              ].join(':');
 
 
    scanner.CheckTime = dformat;                                   // view model : CheckTime
@@ -263,11 +274,11 @@ function afterScan(scanner)
 
 
 // Check all scanners or a specific one.
-// Asynchrone. requestCallBack will be called for each one
-function doRequest(specificScanner)
+// Asynchrone. requestCallBack or requestOnError will be called for each one
+function CheckScanners(specificScanner)
 {
-    console.log("doRequest") ;
-    //ttrace.debug.send("doRequest");
+    console.log("CheckScanners") ;
+    //ttrace.debug.send("CheckScanners");
 
     toScanCount = scannerList.length ;
     if (specificScanner !== undefined)
@@ -277,24 +288,43 @@ function doRequest(specificScanner)
     needToBeSaved = false ;
     for (let i = 0; i < scannerList.length; i++)
     {
-        var currentScanner = scannerList[i] ;
-        if (specificScanner !== undefined && currentScanner !== specificScanner)
+        var scanner = scannerList[i] ;
+        if (specificScanner !== undefined && scanner !== specificScanner)
             continue ; 
         
         // if specific scanner is used, don't check for enabled
-        if (specificScanner === undefined && currentScanner.Enabled === false)
+        if (specificScanner === undefined && scanner.Enabled === false)
         {
             toScanCount-- ;
             continue ; 
-        }        
-        if (currentScanner.inputResult !== undefined)
-            currentScanner.inputResult.innerText = "";     // view : result
+        }
 
-        currentScanner.index = i ;
-        var url = currentScanner.Site ;
+        if (specificScanner === undefined)
+        {
+            // compare last checktime with polling interval
+           if (scanner.CheckTime === undefined)
+              scanner.CheckTime = moment().format("YYYY/MM/DD HH:mm:ss");
+
+           if (scanner.PollingInterval === undefined)
+              scanner.PollingInterval = 60;
+
+            var m = moment(scanner.CheckTime, "YYYY/MM/DD HH:mm:ss");
+            m.add(scanner.PollingInterval, 'minutes');
+            if (m.isAfter(moment())) 
+            {
+               toScanCount-- ;
+               continue ; 
+            }
+        }
+
+        if (scanner.inputResult !== undefined)
+            scanner.inputResult.innerText = "";     // view : result
+
+        scanner.index = i ;
+        var url = scanner.Site ;
         // ReSharper disable once InconsistentNaming
         var xhr = new XMLHttpRequest();
-        xhr.scanner = currentScanner ; // save to xhr for later retreival (onload callback) 
+        xhr.scanner = scanner ; // save to xhr for later retreival (onload callback) 
 
         //xhr.onreadystatechange = requestOnreadystatechange;
         xhr.onerror = requestOnError;
@@ -304,115 +334,6 @@ function doRequest(specificScanner)
         xhr.send(null);                     // fire onload
 
     }   
-}
-
-// test purpose.
-// TODO : remove
-function initStorage()
-{
-    // to do in each scanner : 
-    // -> enabled true/false, 
-    // -> searchPosition (-1 = last, -2 = use count), 
-    // -> afterSearchUse innerHtml/outerHtml/...
-    // -> Validated. If not a counter is displayed on the Icon
-    // -> Title
-    
-    var scannerList = [] ;
-    var scanner = {};
-    scanner.Name = "CodeProject - Tracetool" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace";
-    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.Hash = -1 ;
-    scanner.CheckTime = 0 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "CodeProject - Port Forwarding" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.codeproject.com/Articles/191930/Android-Usb-Port-Forwarding";
-    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.Hash = -1 ;
-    scanner.CheckTime = 0 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "CodeProject - AidaNet" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.codeproject.com/Articles/6009/AidaNet-Network-resources-inventory";
-    scanner.SearchSelector = "#ctl00_ArticleTabs_CmtCnt" ;
-    scanner.Hash = -1 ;
-    scanner.CheckTime = 0 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = " Xda - Reverse Tethering -Q&A" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "http://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000";
-    scanner.SearchSelector = ".postCount" ;
-    scanner.Hash = -1 ;
-    scanner.CheckTime = 0 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "Xda - Reverse Tethering - Discussion" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "http://forum.xda-developers.com/showthread.php?t=1371345&page=3000";
-    scanner.SearchSelector = ".postCount" ;
-    scanner.Hash = -1 ;
-    scanner.CheckTime = 0 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "DevExpress - Does the Silverlight/WPF Dxgrid take the icon into consideration when calculating BestFit" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.devexpress.com/Support/Center/Question/Details/T166379";
-    scanner.SearchSelector = "#question-modified-on" ;
-    scanner.Hash = -1 ;
-    scanner.CheckTime = 0 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "DevExpress - How to show a child ExpandoObjects in TreeListControl" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.devexpress.com/support/center/Question/Details/T450669";
-    scanner.SearchSelector = "#question-modified-on" ;
-    scanner.Hash = -1 ;
-    scanner.CheckTime = 0 ;
-    scannerList.push(scanner);
-    
-    scanner = {};
-    scanner.Name = "DevExpress - The error icon's width isn't taken into account when the BestFit operation is calculated" ;
-    scanner.ArraySelector = -1 ;  // 0 = first, n , -1 = last, -2 = use result array count as hash
-    scanner.Enabled = true ;
-    scanner.Validated = true ;
-    scanner.Site = "https://www.devexpress.com/Support/Center/Question/Details/T455210";
-    scanner.SearchSelector = "#question-modified-on" ;
-    scanner.Hash = -1 ;
-    scanner.CheckTime = 0 ;
-    scannerList.push(scanner);
-    
-    console.log ("save all scanner") ;
-     // ReSharper disable once UseOfImplicitGlobalInFunctionScope
-    chrome.storage.sync.set({'scannerList': scannerList}, function () //obj
-    {
-        //console.log("initStorage done") ;
-        //ttrace.debug.send("initStorage done") ; 
-    }) ;         
 }
 
 // Helper
