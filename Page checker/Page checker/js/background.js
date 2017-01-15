@@ -112,8 +112,7 @@ function requestCallBack (progressEvent)
     var request = progressEvent.currentTarget ;
     var scanner = progressEvent.currentTarget.scanner ;
     
-
-    $(scanner.scannerView).css("background-color", "#f1f1c1");
+    $(scanner.scannerView).attr('class', 'scanner_div_ok');
 
     // create an empty element, not stored in the document
     var newDivElement = $('<div></div>' );
@@ -137,8 +136,8 @@ function requestCallBack (progressEvent)
         
         for (var j = 0; j < searchResults.length; j++  )
         {
-            // print first 3 , the selected and the last one
-            if (j < 3 || j === searchResults.length-1 || j === arraySelector)                
+           // limit the number of result : take first 3 , the user chose (arraySelector) and the last one
+            if (j < 3 || j === arraySelector || j === searchResults.length-1 )                
                 scanner.resultString = scanner.resultString + "\n" + "[" + j + "]" + searchResults[j].outerHTML ;
             else if (j === 3)
                 scanner.resultString = scanner.resultString + "\n" + "..." ;
@@ -200,7 +199,7 @@ function requestOnError(progressEvent)
    var request = progressEvent.currentTarget;
    var scanner = request.scanner;
 
-   $(scanner.scannerView).css("background-color", "#eea29a");
+   $(scanner.scannerView).attr('class', 'scanner_div_err');
 
    if (scanner.inputChecksum !== undefined)
       scanner.inputChecksum.innerText = "" ;                // view : hash     

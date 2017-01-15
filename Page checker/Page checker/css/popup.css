@@ -46,11 +46,26 @@ th, td {
 }
 
 
-.scanner_div2 { 
+.scanner_div_ok { 
     padding: 5px;
     border: 1px solid black;
     border-radius:6px;
     background-color: #f1f1c1;
+}
+
+/* 
+   https://24ways.org/2011/css3-patterns-explained 
+   http://dabblet.com/gist/1481808
+   http://codepen.io/anon/pen/NdRrNQ
+*/
+.scanner_div_err { 
+    padding: 5px;
+    border: 3px solid red;
+    border-radius:6px;
+    background: repeating-linear-gradient(
+        135deg, 
+        red, red .07%, 
+        #f1f1c1 .1%, #f1f1c1 .75%);
 }
 
 .template_Result {

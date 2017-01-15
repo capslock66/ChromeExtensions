@@ -102,7 +102,7 @@ function CloneScannerTemplate(scanner)
 {
    var scannerTemplate = $(".scanner_div");
    // ReSharper disable once UnknownCssClass
-   var scannerView = scannerTemplate.clone().removeClass("scanner_div").addClass("scanner_div2");
+   var scannerView = scannerTemplate.clone().removeClass("scanner_div").addClass("scanner_div_ok");
 
    scanner.scannerView = scannerView;
 
@@ -200,7 +200,7 @@ function SetScannerEvents(currentScanner)
 {
     // click on <td width="200px">Name</td> :
     // Collapse - expand
-    // $('.scanner_div2').each((index,element) => {if(index===1){$(element).fadeToggle();} });
+    // $('.scanner_div_ok').each((index,element) => {if(index===1){$(element).fadeToggle();} });
 
     //.collapsed legend::after {
     //    content: " [...]";
