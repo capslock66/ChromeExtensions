@@ -43,6 +43,8 @@ function backgroundInit()
     {
        // scannerList is the "Model"
        scannerList = obj.scannerList;           // length = 10 : 0..9
+       if (scannerList === undefined)
+           scannerList = []; 
        scannerNextId = scannerList.length;      // next id : 10
 
        //console.log("get storage done : scanners : \n" , scannerList) ;
