@@ -30,65 +30,70 @@
     </div>
 
     <div class="templates">
+        <!-- scanner_div class will be replaced by scanner_div2 class -->
         <div class="scanner_div">
-            <!-- scanner_div will be replaced by scanner_div2 -->
-            <table id="scanner_table">
-                <tr>
-                    <td width="200px">Name</td>
-                    <td width="580px"><textarea class="template_Name" style="width:580px">CodeProject - Tracetool</textarea></td>
-                </tr>
-                <tr>
-                    <td>Site</td>
-                    <td><textarea class="template_Site" style="width:580px">https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace</textarea></td>
-                </tr>
-                <tr>
-                    <td>Search Selector</td>
-                    <td><textarea class="template_SearchSelector" style="width:580px">#ctl00_ArticleTabs_CmtCnt</textarea></td>
-                </tr>
-                <tr>
-                    <td><span>Search result</span></td>
-                    <td class="template_Result">some tags</td>
-                </tr>
-                <tr>
-                    <td>Array Selection</td>
-                    <td>
+            <div>
+                <span class="span-left">Name</span>
+                <span class="span-right"><textarea class="template_Name">CodeProject - Tracetool</textarea></span>
+            </div>
+
+            <!-- colapse on/off-->
+            <div >
+                <div>
+                    <span class="span-left">Site</span>
+                    <span class="span-right"><textarea class="template_Site">https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace</textarea></span>
+                </div>
+
+                <div>
+                    <span class="span-left">Search Selector</span>
+                    <span class="span-right"><textarea class="template_SearchSelector">#ctl00_ArticleTabs_CmtCnt</textarea></span>
+                </div>
+
+                <div>
+                    <span class="span-left"><span>Search result</span></span>
+                    <span class="template_Result">some tags</span>
+                </div>
+
+                <div>
+                    <span class="span-left">Array Selection</span>
+                    <span class="span-right">
                         <span>
                             <input class="template_ArraySelector" style="width:50px">
                             <span style="display: inline-block;width:3px"> </span>
                             <span>0=first, last=-1, use count as result = -2 </span>
                         </span>
-                    </td>
-                </tr>
-            </table>
+                    </span>
+                </div>
 
-            <div style="height: 35px">
-                <span class="span-group">
-                    <span>Polling interval</span>
-                    <input class="template_PollingInterval (hours)" style="width:80px">
-                    <span>minutes</span>
-                </span>
-                <span class="span-group">
-                    <span>Last check time</span>
-                    <span style="display: inline-block;width:5px"> </span>
-                    <span style="color:blue" class="template_CheckTime">123</span>
-                </span>
-                <span class="span-group">
-                    <span>Checksum</span>
-                    <span style="display: inline-block;width:5px"> </span>
-                    <span style="color:blue" class="template_Checksum">123</span>
-                </span>
-            </div>
+                <div style="height: 35px;padding-top: 3px;">
+                    <span class="span-group" style="width: 240px;">
+                        <span>Polling interval</span>
+                        <input class="template_PollingInterval" style="width:60px">
+                        <span>minutes</span>
+                    </span>
+                    <span class="span-group" style="width: 270px;">
+                        <span>Last check time</span>
+                        <span style="display: inline-block;width:5px"> </span>
+                        <span style="color:blue" class="template_CheckTime">123</span>
+                    </span>
+                    <span class="span-group" style="width: 190px;">
+                        <span>Checksum</span>
+                        <span style="display: inline-block;width:5px"> </span>
+                        <span style="color:blue" class="template_Checksum">123</span>
+                    </span>
+                </div>
 
-            <div>
-                <input type="checkbox" class="template_Enabled" /> <span>Enabled</span>
-                <span style="display: inline-block;width:15px"> </span>
-                <input type="checkbox" class="template_Validated" /> <span>Validated</span>
-                <span style="display: inline-block;width:15px"> </span>
-                <input type="button" value="Check now" class="template_CheckNow" />
-                <span style="display: inline-block;width:15px"> </span>
-                <input type="button" value="Open" class="template_Open" />
-                <span style="display: inline-block;width:15px"> </span>
-                <input type="button" value="Delete" class="template_Delete" />
+                <div>
+                    <input type="checkbox" class="template_Enabled" /> <span>Enabled</span>
+                    <span style="display: inline-block; width: 15px"> </span>
+                    <input type="checkbox" class="template_Validated" /> <span>Validated</span>
+                    <span style="display: inline-block; width: 15px"> </span>
+                    <input type="button" value="Check now" class="template_CheckNow" />
+                    <span style="display: inline-block; width: 15px"> </span>
+                    <input type="button" value="Open" class="template_Open" />
+                    <span style="display: inline-block; width: 15px"> </span>
+                    <input type="button" value="Delete" class="template_Delete" />
+                </div>
             </div>
         </div>
     </div>
