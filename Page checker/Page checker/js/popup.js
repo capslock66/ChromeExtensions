@@ -122,6 +122,16 @@ function CloneScannerTemplate(scanner)
    scanner.inputName = inputName;
    scanner.inputName.value = scanner.Name;
 
+   // Name : Label
+   var labelName = scannerView.find(".span-Name")[0];
+   labelName.scanner = scanner;
+   scanner.labelName = labelName;
+
+   // collapse-block : div to collapse
+   var divCollapeBlock = scannerView.find(".collapse-block")[0];
+   divCollapeBlock.scanner = scanner;
+   scanner.divCollapeBlock = divCollapeBlock;
+
    // Site : Edit
    var inputSite = scannerView.find(".template_Site")[0];
    inputSite.scanner = scanner;
@@ -248,6 +258,26 @@ function SetScannerEvents(currentScanner)
    {
        this.scanner.PollingInterval = $(this).val();
        backgroundPage.saveStorage();
+   });
+
+   // label name click 
+   $(currentScanner.labelName).click(function ()
+   {
+      // <div>
+      //     <span class="span-left span-Name">Name</span> ===>  CLICK : fadeToggle div with class "collapse-block"
+      //     <span class="span-right"><textarea class="template_Name">CodeProject - Tracetool</textarea></span>
+      // </div>
+      // <div class="collapse-block"> ...
+
+
+      // fadeToggle is a jquery method
+      var $labelName = $(this);
+      var domLabelName = $labelName[0];
+      var $divCollapeBlock = $(domLabelName.scanner.divCollapeBlock) ;
+      $divCollapeBlock.fadeToggle();
+
+
+      //$($(this)[0].scanner.scannerView).children(".collapse-block").fadeToggle();
    });
 
    // Open

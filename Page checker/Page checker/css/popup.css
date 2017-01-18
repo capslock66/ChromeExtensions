@@ -90,6 +90,11 @@ span.span-right {
     width:600px;
 }
 
+
+.span-Name {
+    text-decoration: underline;
+}
+
 .template_Name {
     width: 600px;
 }
