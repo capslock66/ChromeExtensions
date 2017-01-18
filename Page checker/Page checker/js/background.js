@@ -133,8 +133,13 @@ function requestCallBack (progressEvent)
     newDivElement.html(request.responseText);
           
     // search key in new element
-    var searchResult ;
-    var searchResults = $(scanner.SearchSelector, newDivElement);  
+    var searchResult;
+    var searchResults;
+
+    if (scanner.SearchSelector === '')
+        searchResults = newDivElement;
+    else
+        searchResults = $(scanner.SearchSelector, newDivElement);
     scanner.newHash = 0 ;  
     
     if (searchResults.length !== 0)

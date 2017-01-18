@@ -63,7 +63,7 @@ function AddCurrentPage()
         scanner.Enabled = true;
         scanner.Validated = true;
         scanner.Site = tabs[0].url;
-        scanner.SearchSelector = "Body";
+        scanner.SearchSelector = "";    // whole page
         scanner.Hash = -1;
         scanner.CheckTime = 60;  // 60 minutes
         scanner.id = "scannerTr" + backgroundPage.scannerNextId;
