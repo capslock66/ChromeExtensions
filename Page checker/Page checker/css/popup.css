@@ -93,8 +93,15 @@ span.span-right {
 
 .span-Name {
     text-decoration: underline;
-    font-family: 'Glyphicons Halflings';
-    /*http://stackoverflow.com/questions/18325779/bootstrap-3-collapse-show-state-with-chevron-icon*/
+    cursor: pointer;
+}
+
+.span-Name:before {
+    content: "\25B2"; /* Up arrow */
+}
+
+.span-Name.collapsed:before { 
+    content: "\25BC"; /* Down arrow */
 }
 
 .template_Name {

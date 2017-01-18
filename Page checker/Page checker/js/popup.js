@@ -272,6 +272,8 @@ function SetScannerEvents(currentScanner)
 
       // fadeToggle is a jquery method
       var $labelName = $(this);
+      $labelName.toggleClass("collapsed");
+
       var domLabelName = $labelName[0];
       var $divCollapeBlock = $(domLabelName.scanner.divCollapeBlock) ;
       $divCollapeBlock.fadeToggle();
