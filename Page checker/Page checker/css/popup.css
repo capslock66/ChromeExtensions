@@ -93,6 +93,8 @@ span.span-right {
 
 .span-Name {
     text-decoration: underline;
+    font-family: 'Glyphicons Halflings';
+    /*http://stackoverflow.com/questions/18325779/bootstrap-3-collapse-show-state-with-chevron-icon*/
 }
 
 .template_Name {
