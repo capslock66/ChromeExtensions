@@ -129,6 +129,8 @@ function countUnValided() {
 // progressEvent.currentTarget.responseURL
 function requestCallBack (progressEvent)
 {
+    console.log("requestCallBack");
+
     var request = progressEvent.currentTarget ;
     var scanner = progressEvent.currentTarget.scanner ;
     
@@ -196,7 +198,10 @@ function requestCallBack (progressEvent)
     var hashToDisplay = scanner.newHash ;
     if (scanner.Hash !== -1 && scanner.Hash !== scanner.newHash)
     {
-        scanner.Validated = false;
+
+        if (request.isManualCheck === false)
+            scanner.Validated = false;
+
         if (scanner.inputValidated !== undefined)
             $(scanner.inputValidated).prop('checked',false) ;              
         hashToDisplay = "" + scanner.newHash ;
@@ -339,7 +344,15 @@ function CheckScanners(specificScanner)
         var url = scanner.Site ;
         // ReSharper disable once InconsistentNaming
         var xhr = new XMLHttpRequest();
-        xhr.scanner = scanner ; // save to xhr for later retreival (onload callback) 
+        xhr.scanner = scanner; // save to xhr for later retreival (onload callback) 
+
+
+        console.log("CheckScanner " + scanner.id);
+
+        if (scanner === specificScanner)
+            xhr.isManualCheck = true;
+        else
+            xhr.isManualCheck = false;
 
         //xhr.onreadystatechange = requestOnreadystatechange;
         xhr.onerror = requestOnError;
@@ -347,7 +360,6 @@ function CheckScanners(specificScanner)
 
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
         xhr.send(null);                     // fire onload
-
     }   
 }
 

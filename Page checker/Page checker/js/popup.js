@@ -51,14 +51,13 @@ function popupInit()
 
 function CollapseAll()
 {
-    // fadeIn(), 
     for (var i = 0; i < backgroundPage.scannerList.length; i++)
     {
         var scanner = backgroundPage.scannerList[i];
         scanner.Collapsed = true;
 
         var $labelName = $(scanner.labelName);
-        $labelName.addClass("collapsed");
+        $labelName.addClass("collapsed");   // change icon
 
         var $divCollapeBlock = $(scanner.divCollapeBlock);
         $divCollapeBlock.fadeOut();
@@ -68,13 +67,12 @@ function CollapseAll()
 
 function ExpandAll()
 {
-    // fadeOut()
     for (var i = 0; i < backgroundPage.scannerList.length; i++)
     {
         var scanner = backgroundPage.scannerList[i];
         scanner.Collapsed = false;
         var $labelName = $(scanner.labelName);
-        $labelName.removeClass("collapsed");
+        $labelName.removeClass("collapsed");  // change icon
 
         var $divCollapeBlock = $(scanner.divCollapeBlock);
         $divCollapeBlock.fadeIn();
