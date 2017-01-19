@@ -32,16 +32,54 @@ function popupInit()
             AddCurrentPage();
         });
 
+        $("#collapse_all_button").click(function () {
+            CollapseAll();
+        });
+
+        $("#expand_all_button").click(function () {
+            ExpandAll();
+        });
+
         addEventListener("unload", function (event)
         {
            backgroundPage.console.log(event.type);
         }, true);
 
-
-        // TODO : collapse all :  fadeIn(), expand all : fadeOut()
-
         fillScannerTable();
     });
+}
+
+function CollapseAll()
+{
+    // fadeIn(), 
+    for (var i = 0; i < backgroundPage.scannerList.length; i++)
+    {
+        var scanner = backgroundPage.scannerList[i];
+        scanner.Collapsed = true;
+
+        var $labelName = $(scanner.labelName);
+        $labelName.addClass("collapsed");
+
+        var $divCollapeBlock = $(scanner.divCollapeBlock);
+        $divCollapeBlock.fadeOut();
+    }
+    backgroundPage.saveStorage();
+}
+
+function ExpandAll()
+{
+    // fadeOut()
+    for (var i = 0; i < backgroundPage.scannerList.length; i++)
+    {
+        var scanner = backgroundPage.scannerList[i];
+        scanner.Collapsed = false;
+        var $labelName = $(scanner.labelName);
+        $labelName.removeClass("collapsed");
+
+        var $divCollapeBlock = $(scanner.divCollapeBlock);
+        $divCollapeBlock.fadeIn();
+    }
+    backgroundPage.saveStorage();
 }
 
 function AddCurrentPage()
