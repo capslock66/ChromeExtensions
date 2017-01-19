@@ -25,7 +25,7 @@ function popupInit()
     {
         $("#check_all_button").click(function ()
         {
-            backgroundPage.CheckScanners();
+            backgroundPage.CheckScanners(null, true);
         }); 
          
         $("#add_page_button").click(function () {
@@ -336,7 +336,7 @@ function SetScannerEvents(currentScanner)
    // CheckNow
    $(currentScanner.inputCheckNow).click(function ()
    {
-      backgroundPage.CheckScanners(this.scanner);
+      backgroundPage.CheckScanners(this.scanner, true);
    });
 
    // Result 

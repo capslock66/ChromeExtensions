@@ -96,7 +96,7 @@ function saveStorage()
 // called when poll interval is done
 function startRequest() 
 {
-    CheckScanners();
+    CheckScanners(null, false);
     timerId = window.setTimeout(startRequest, pollInterval);
 }
 
@@ -129,7 +129,7 @@ function countUnValided() {
 // progressEvent.currentTarget.responseURL
 function requestCallBack (progressEvent)
 {
-    console.log("requestCallBack");
+    //console.log("requestCallBack");
 
     var request = progressEvent.currentTarget ;
     var scanner = progressEvent.currentTarget.scanner ;
@@ -199,12 +199,14 @@ function requestCallBack (progressEvent)
     if (scanner.Hash !== -1 && scanner.Hash !== scanner.newHash)
     {
 
-        if (request.isManualCheck === false)
-            scanner.Validated = false;
+       if (request.isManualCheck === false)
+       {
+          scanner.Validated = false;
 
-        if (scanner.inputValidated !== undefined)
-            $(scanner.inputValidated).prop('checked',false) ;              
-        hashToDisplay = "" + scanner.newHash ;
+          if (scanner.inputValidated !== undefined)
+             $(scanner.inputValidated).prop('checked', false);
+       }
+       hashToDisplay = "" + scanner.newHash ;
         scanner.resultString = scanner.resultString + "\n" + "Page changed !!!" ;
         needToBeSaved = true ;
     }
@@ -295,9 +297,9 @@ function afterScan(scanner)
 
 // Check all scanners or a specific one.
 // Asynchrone. requestCallBack or requestOnError will be called for each one
-function CheckScanners(specificScanner)
+function CheckScanners(specificScanner, ignoreTime)
 {
-    console.log("CheckScanners") ;
+    //console.log("CheckScanners") ;
     //ttrace.debug.send("CheckScanners");
 
     toScanCount = scannerList.length ;
@@ -309,17 +311,17 @@ function CheckScanners(specificScanner)
     for (let i = 0; i < scannerList.length; i++)
     {
         var scanner = scannerList[i] ;
-        if (specificScanner !== undefined && scanner !== specificScanner)
+        if (specificScanner !== null && scanner !== specificScanner)
             continue ; 
         
         // if specific scanner is used, don't check for enabled
-        if (specificScanner === undefined && scanner.Enabled === false)
+        if (specificScanner === null && scanner.Enabled === false)
         {
             toScanCount-- ;
             continue ; 
         }
 
-        if (specificScanner === undefined)
+        if (specificScanner === null && ignoreTime === false)
         {
             // compare last checktime with polling interval
            if (scanner.CheckTime === undefined)
@@ -347,9 +349,9 @@ function CheckScanners(specificScanner)
         xhr.scanner = scanner; // save to xhr for later retreival (onload callback) 
 
 
-        console.log("CheckScanner " + scanner.id);
+        //console.log("CheckScanner " + scanner.id);
 
-        if (scanner === specificScanner)
+        if (scanner === specificScanner || ignoreTime === true)
             xhr.isManualCheck = true;
         else
             xhr.isManualCheck = false;
