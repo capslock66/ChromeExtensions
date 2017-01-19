@@ -44,7 +44,13 @@ function backgroundInit()
        // scannerList is the "Model"
        scannerList = obj.scannerList;           // length = 10 : 0..9
        if (scannerList === undefined)
-           scannerList = []; 
+           scannerList = [];
+
+       for (var i = 0; i < scannerList.length; i++)
+       {
+           var scanner = scannerList[i];
+           scanner.id = "scannerTr" + i;
+       }
        scannerNextId = scannerList.length;      // next id : 10
 
        //console.log("get storage done : scanners : \n" , scannerList) ;
@@ -74,6 +80,8 @@ function saveStorage()
         scannerCopy.Hash            = scanner.Hash ;
         scannerCopy.CheckTime       = scanner.CheckTime;
         scannerCopy.PollingInterval = scanner.PollingInterval;
+        scannerCopy.Collapsed       = scanner.Collapsed;
+
         scannerCopyList.push(scannerCopy);        
     }
     

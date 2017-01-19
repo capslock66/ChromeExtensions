@@ -37,6 +37,9 @@ function popupInit()
            backgroundPage.console.log(event.type);
         }, true);
 
+
+        // TODO : collapse all :  fadeIn(), expand all : fadeOut()
+
         fillScannerTable();
     });
 }
@@ -99,8 +102,6 @@ function fillScannerTable()
     for (var i = 0; i < backgroundPage.scannerList.length; i++)
     {
         var scanner = backgroundPage.scannerList[i];
-        scanner.id = "scannerTr" + i;
-
         var scannerTr = CloneScannerTemplate(scanner);
         SetScannerEvents(scanner);
         resultTable.append(scannerTr);
@@ -131,6 +132,8 @@ function CloneScannerTemplate(scanner)
    var divCollapeBlock = scannerView.find(".collapse-block")[0];
    divCollapeBlock.scanner = scanner;
    scanner.divCollapeBlock = divCollapeBlock;
+   if (scanner.Collapsed === true)
+       setTimeout(function () { $(divCollapeBlock).fadeOut(); }, 100);  // must be done when template is attached to scannerList_table
 
    // Site : Edit
    var inputSite = scannerView.find(".template_Site")[0];
@@ -275,11 +278,11 @@ function SetScannerEvents(currentScanner)
       $labelName.toggleClass("collapsed");
 
       var domLabelName = $labelName[0];
-      var $divCollapeBlock = $(domLabelName.scanner.divCollapeBlock) ;
+      var $divCollapeBlock = $(domLabelName.scanner.divCollapeBlock);
+      domLabelName.scanner.Collapsed = $divCollapeBlock.is(":visible");
+
       $divCollapeBlock.fadeToggle();
-
-
-      //$($(this)[0].scanner.scannerView).children(".collapse-block").fadeToggle();
+      backgroundPage.saveStorage();
    });
 
    // Open
