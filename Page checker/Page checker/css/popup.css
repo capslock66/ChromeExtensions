@@ -117,10 +117,12 @@ span.span-right {
 }
 
 .template_Result {
+    border: 1px solid black;
     display: inline-block;
     width: 598px;
-    border: 1px solid black;
-    min-height: 30px;
+    min-height: 22px;   
+    max-height: 110px;  /* 5 lines   */
+    overflow: auto;     /* scrollbar */
 }
 
 .template_ArraySelector {
@@ -128,6 +130,8 @@ span.span-right {
 }
 
 /*
+    Other element that can be styled
+
     template_PollingInterval
     template_CheckTime
     template_Checksum
