@@ -368,25 +368,25 @@ function CheckScanners(specificScanner, ignoreTime)
 // Helper
 function padLeft (src,base,chr)
 {
-   var len = (String(base || 10).length - String(src).length) + 1;
-   var result = len > 0 ? new Array(len).join(chr || '0') + src : src;
+   var len = String(base || 10).length - String(src).length + 1;
+   var result = len > 0 ? new Array(len).join(chr || "0") + src : src;
    return result ;
-};
+}
 
 // Helper
 function hashCode (src)
 {
     if (Array.prototype.reduce){
-       return src.split("").reduce(function (a, b) { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0);
+       return src.split("").reduce(function (a, b) { a = (a << 5) - a + b.charCodeAt(0); return a & a; }, 0);
     } 
     var hash = 0;
     if (src.length === 0) return hash;
     for (var i = 0; i < src.length; i++) {
         var character = src.charCodeAt(i);
-        hash  = ((hash<<5)-hash)+character;
+        hash  = (hash<<5)-hash+character;
         hash = hash & hash; // Convert to 32bit integer
     }
     return hash;
-} ;
+} 
 
 

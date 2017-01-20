@@ -87,8 +87,6 @@ function AddCurrentPage()
     // note that if the debugger for the popup is opened, this is not the lastFocusedWindow
     chrome.tabs.query({ 'active': true, 'lastFocusedWindow': true }, function (tabs)
     {
-        debugger;   // while the debugger is opened and paused, click now on the page and try again. The lastFocusedWindows will be again ok
-
         if (tabs.length === 0) 
             return ;
         var url = tabs[0].url;

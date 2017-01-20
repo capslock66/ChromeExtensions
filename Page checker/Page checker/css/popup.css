@@ -71,7 +71,7 @@ th, td {
 }
 
 
-span.span-group {
+.span-group {
     border: 1px solid; 
     padding-left:5px;
     padding-right: 5px;
@@ -81,13 +81,13 @@ span.span-group {
     display: inline-block;
 }
 
-span.span-left {
+.span-left {
     display: inline-block;
     width:130px;
     vertical-align: top;
 }
 
-span.span-right {
+.span-right {
     display: inline-block;
     width:600px;
 }
