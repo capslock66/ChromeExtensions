@@ -18,6 +18,8 @@ html {
 
 .scanner_actions {
     height:20px;    
+    padding-left:10px;
+    padding-bottom:3px;
 }
 
 .scannerList_div {
