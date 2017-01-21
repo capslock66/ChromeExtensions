@@ -1,0 +1,52 @@
+{
+	"scannerList": [
+		{
+			"ArraySelector": -1,
+			"CheckTime": "2017/01/20 09:47:11",
+			"Collapsed": true,
+			"Enabled": true,
+			"Hash": 1194299446,
+			"Name": "debugging - Delphi trace tool - Stack Overflow",
+			"PollingInterval": 60,
+			"SearchSelector": ".subheader h2",
+			"Site": "http://stackoverflow.com/questions/1969719/delphi-trace-tool",
+			"Validated": true
+		},
+		{
+			"ArraySelector": -1,
+			"CheckTime": "2017/01/20 09:49:16",
+			"Collapsed": true,
+			"Enabled": true,
+			"Hash": -1923917302,
+			"Name": "TraceTool 12.7: The Swiss-Army Knife of Trace - CodeProject",
+			"PollingInterval": 60,
+			"SearchSelector": "#ctl00_ArticleTabs_CommentLink span",
+			"Site": "https://www.codeproject.com/articles/5498/tracetool-the-swiss-army-knife-of-trace#_comments",
+			"Validated": true
+		},
+		{
+			"ArraySelector": "-1",
+			"CheckTime": "2017/01/20 09:51:21",
+			"Collapsed": true,
+			"Enabled": true,
+			"Hash": -889514470,
+			"Name": "Android Reverse Tethering 3.19 - Q&A",
+			"PollingInterval": "60",
+			"SearchSelector": ".postCount",
+			"Site": "https://forum.xda-developers.com/android/help/qa-android-reverse-tethering-3-19-t2908241/page3000",
+			"Validated": true
+		},
+		{
+			"ArraySelector": -1,
+			"CheckTime": "2017/01/20 09:53:34",
+			"Collapsed": true,
+			"Enabled": true,
+			"Hash": -190112444,
+			"Name": "Android Reverse Tethering 3.19 - Article",
+			"PollingInterval": 60,
+			"SearchSelector": ".postCount",
+			"Site": "https://forum.xda-developers.com/showthread.php?t=1371345&page=3000",
+			"Validated": true
+		}
+	]
+}

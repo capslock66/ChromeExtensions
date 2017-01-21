@@ -60,7 +60,7 @@ function CollapseAll()
         $labelName.addClass("collapsed");   // change icon
 
         var $divCollapeBlock = $(scanner.divCollapeBlock);
-        $divCollapeBlock.fadeOut();
+        $divCollapeBlock.fadeOut(100);
     }
     backgroundPage.saveStorage();
 }
@@ -75,7 +75,7 @@ function ExpandAll()
         $labelName.removeClass("collapsed");  // change icon
 
         var $divCollapeBlock = $(scanner.divCollapeBlock);
-        $divCollapeBlock.fadeIn();
+        $divCollapeBlock.fadeIn(100);
     }
     backgroundPage.saveStorage();
 }
@@ -167,7 +167,7 @@ function CloneScannerTemplate(scanner)
    divCollapeBlock.scanner = scanner;
    scanner.divCollapeBlock = divCollapeBlock;
    if (scanner.Collapsed === true)
-       setTimeout(function () { $(divCollapeBlock).fadeOut(); }, 100);  // must be done when template is attached to scannerList_table
+       setTimeout(function () { $(divCollapeBlock).fadeOut(100); }, 100);  // must be done when template is attached to scannerList_table
 
    // Site : Edit
    var inputSite = scannerView.find(".template_Site")[0];
@@ -315,7 +315,7 @@ function SetScannerEvents(currentScanner)
       var $divCollapeBlock = $(domLabelName.scanner.divCollapeBlock);
       domLabelName.scanner.Collapsed = $divCollapeBlock.is(":visible");
 
-      $divCollapeBlock.fadeToggle();
+      $divCollapeBlock.fadeToggle(100);
       backgroundPage.saveStorage();
    });
 
