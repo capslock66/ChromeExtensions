@@ -17,9 +17,20 @@ html {
 
 
 .scanner_actions {
-    height:20px;    
+    height:22px;    
     padding-left:10px;
     padding-bottom:3px;
+}
+
+.scanner_action {
+    vertical-align: top;
+}
+
+.span-waiting {
+    display: inline-block;
+    background:url('waiting.gif') repeat;  /* repeat-x left*/
+    width: 25px;
+    height: 25px;
 }
 
 .scannerList_div {
@@ -86,6 +97,7 @@ th, td {
     width:130px;
     vertical-align: top;
 }
+
 
 .span-right {
     display: inline-block;

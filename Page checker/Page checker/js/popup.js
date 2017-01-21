@@ -23,6 +23,7 @@ function popupInit()
     
     $(document).ready(function() 
     {
+        backgroundPage.currentPopup = this;
         $("#check_all_button").click(function ()
         {
             backgroundPage.CheckScanners(null, true);
@@ -43,6 +44,7 @@ function popupInit()
         addEventListener("unload", function (event)
         {
            backgroundPage.console.log(event.type);
+           backgroundPage.currentPopup = null;
         }, true);
 
         fillScannerTable();
