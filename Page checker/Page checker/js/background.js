@@ -3,12 +3,13 @@
 var currentPopup = null;         // displayed popup (can be null of no popup)
 var scannerList = [];            // array of scanner
 var scannerNextId;
-var pollInterval = 1000 * 60;    // poll interval : 60 sec (1 minute)
+var pollInterval = 1000 * 3;     // poll interval 
 var timerId ;                    // poll interval timer
 
 // used by CheckScanners, requestCallBack
 var toScanCount ;                // number of csanner to check
-var scannedCount ;               // number of scanner already checked
+var scannedCount;                // number of scanner already checked
+var totalScannedCount=0;         // number of scan performed
 var needToBeSaved;               // flag indicate if the scanner list need to be saved after all scan
 
 // libraries (jquery add itself to global)
@@ -56,7 +57,7 @@ function backgroundInit()
 
        //console.log("get storage done : scanners : \n" , scannerList) ;
        timerId = window.setTimeout(startRequest, pollInterval);
-       countUnValided();
+       nextScanTime();
     }) ; 
 
     console.log("backgroundInit end");
@@ -107,50 +108,7 @@ function stopRequest()
     window.clearTimeout(timerId);
 }
 
-// called by backgroundInit() and afterScan()
-function countUnValided() {
-    var unvalidatedScanner = 0;
-    for (let k = 0; k < scannerList.length; k++) 
-    {
-        var checkScanner = scannerList[k];
-        if (checkScanner.Validated === false && checkScanner.Enabled === true)
-            unvalidatedScanner++;
-    }
-    if (unvalidatedScanner === 0) 
-    {
-        // ReSharper disable once UseOfImplicitGlobalInFunctionScope
-        chrome.browserAction.setBadgeText({ text: "" });
-    } else {
-        // ReSharper disable once UseOfImplicitGlobalInFunctionScope
-        chrome.browserAction.setBadgeText({ text: "" + unvalidatedScanner });
-    }
-}
 
-
-function nextScanTime()
-{
-   for (let k = 0; k < scannerList.length; k++) 
-   {
-      var checkScanner = scannerList[k];
-      if (checkScanner.Enabled === false)
-         continue;
-
-      
-   }
-//   chrome.browserAction.setTitle({ title: "Last scan : \n" + dformat });
-
-}
-
-/*
-            var m = moment(scanner.CheckTime, "YYYY/MM/DD HH:mm:ss");
-            m.add(scanner.PollingInterval, 'minutes');
-            if (m.isAfter(moment())) 
-            {
-               toScanCount-- ;
-               continue ; 
-            }
-
- * /
 
 /* 
  * @param {} progressEvent 
@@ -300,13 +258,12 @@ function afterScan(scanner)
 
    // save model
    scannedCount++;
-   console.log("" + scannedCount + "/" + toScanCount);
+   //console.log("afterScan " + scannedCount + "/" + toScanCount);
    if (scannedCount === toScanCount)   // || specificScanner !== undefined
    {
       if (needToBeSaved)
          saveStorage();
-      // display number of unvalidated (and enabled) scanner 
-      countUnValided();
+      // display number of unvalidated (and enabled) scanner
 
       nextScanTime();
       if (currentPopup !== null)
@@ -314,6 +271,62 @@ function afterScan(scanner)
    
    }
 }
+
+
+
+function nextScanTime()
+{
+   var diffFormat;
+   var now = moment();
+   //console.log("now " + now.format("YYYY/MM/DD HH:mm:ss"));
+   var lowerDiff = -1;
+   var isFirst = true;
+
+   var unvalidatedScanner = 0;
+   for (let k = 0; k < scannerList.length; k++)
+   {
+      var checkScanner = scannerList[k];
+      if (checkScanner.Enabled === false)
+         continue;
+
+      if (checkScanner.Validated === false)
+         unvalidatedScanner++;
+
+      var m = moment(checkScanner.CheckTime, "YYYY/MM/DD HH:mm:ss");
+      m.add(checkScanner.PollingInterval, 'minutes');
+      var ms = m.diff(now); // http://momentjs.com/docs/#/displaying/difference
+
+      if (isFirst === true) {
+         isFirst = false;
+         lowerDiff = ms;
+      }  else if (ms < lowerDiff)
+         lowerDiff = ms;
+   }
+
+   if (unvalidatedScanner === 0) {
+      // ReSharper disable once UseOfImplicitGlobalInFunctionScope
+      chrome.browserAction.setBadgeText({ text: "" });
+   } else {
+      // ReSharper disable once UseOfImplicitGlobalInFunctionScope
+      chrome.browserAction.setBadgeText({ text: "" + unvalidatedScanner });
+   }
+
+   if (isFirst === true)
+      chrome.browserAction.setTitle({ title: "Next scan : Not scheduled" });
+   else {
+      diffFormat = moment.utc(lowerDiff).format("HH:mm:ss");
+      //console.log("Next scan in " + diffFormat);
+      chrome.browserAction.setTitle({
+         title:
+            "Next scan in " + diffFormat + "\n" +
+            "Total scanned page count : " + totalScannedCount + "\n" +
+            "Not validated page count : " + unvalidatedScanner 
+      });
+   }
+}
+
+
+
 
 // Check all scanners or a specific one.
 // Asynchrone. requestCallBack or requestOnError will be called for each one
@@ -325,7 +338,7 @@ function CheckScanners(specificScanner, ignoreTime)
     if (specificScanner !== null)
         toScanCount = 1 ;    
     
-    console.log("CheckScanners start " + toScanCount);
+    //console.log("CheckScanners start " + toScanCount);
     scannedCount = 0 ;
     needToBeSaved = false ;
     for (let i = 0; i < scannerList.length; i++)
@@ -338,7 +351,7 @@ function CheckScanners(specificScanner, ignoreTime)
         if (specificScanner === null && scanner.Enabled === false)
         {
            toScanCount--;
-           console.log("CheckScanners not enabled" + toScanCount);
+           //console.log("CheckScanners not enabled" + toScanCount);
            continue;
         }
 
@@ -356,7 +369,7 @@ function CheckScanners(specificScanner, ignoreTime)
             if (m.isAfter(moment())) 
             {
                toScanCount-- ;
-               console.log("CheckScanners not time" + toScanCount);
+               //console.log("CheckScanners not time" + toScanCount);
                continue;
             }
         }
@@ -381,16 +394,16 @@ function CheckScanners(specificScanner, ignoreTime)
         if (currentPopup !== null)
            $(currentPopup).find("#span-waiting").addClass("span-waiting");
 
-        console.log("CheckScanners run " + toScanCount);
+        totalScannedCount++;   // total number of page scanned
 
-        //xhr.onreadystatechange = requestOnreadystatechange;
         xhr.onerror = requestOnError;
         xhr.onload = requestCallBack;
 
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
         xhr.send(null);                     // fire onload
     }   
-    console.log("CheckScanners loop end " + toScanCount);
+    if (toScanCount === 0)
+       nextScanTime();    
  }
 
 // Helper
