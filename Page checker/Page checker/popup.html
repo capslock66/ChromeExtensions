@@ -11,13 +11,39 @@
     
     <script data-main="js/popup" src="components/require.js"> </script>
     
+<style>
+#scannerListUl {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /*background-color: #333333;*/
+}
+#scannerListUl li a {
+    display: block;
+    color: black;
+    text-align: left;
+    padding: 5px;
+    text-decoration: none;
+}
+#scannerListUl li a:hover {
+    background-color: #4CAF50;  /* green*/
+}
+</style>
 
     <div id="actions" class="scanner_actions">
         <input type="button" class="scanner_action" id="check_all_button"    value="Check all" />
         <input type="button" class="scanner_action" id="add_page_button"     value="Add current Page" />
-        <input type="button" class="scanner_action" id="collapse_all_button" value="Collapse all" />
-        <input type="button" class="scanner_action" id="expand_all_button"   value="Expand all"/>
-        <span id="span-waiting"></span> <!--class="span-waiting"-->
+        <!-- <input type="button" class="scanner_action" id="collapse_all_button" value="Collapse all" /> -->
+        <!-- <input type="button" class="scanner_action" id="expand_all_button"   value="Expand all"/> -->
+        <span id="span-waiting"></span> <!-- span-waiting class will by toggled while parsing some pages-->
+        <ul id=scannerListUl>
+          <li><a href="#home">Home</a></li>
+          <li><a href="#news">News</a></li>
+          <li><a href="#contact">Contact</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+        
     </div>
 
     <div class="scannerList_div">

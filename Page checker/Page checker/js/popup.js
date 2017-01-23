@@ -141,12 +141,32 @@ function fillScannerTable()
         var scannerTr = CloneScannerTemplate(scanner);
         SetScannerEvents(scanner);
         resultTable.append(scannerTr);
+        
+        AddToscannerListUl(scanner) ;
     }
+}
+
+function AddToscannerListUl(scanner)
+{
+   var $anchor = $("<a>" + scanner.Name + "</a>") ;   
+   var anchor = $anchor[0];
+   anchor.scanner = scanner ;
+   var $li = $("<li></li>");
+   $li.append($anchor);
+   $("#scannerListUl").append($li) ;
+   
+   $anchor.click(function ()
+   {
+       console.log(this) ;          // <a>
+       console.log(this.scanner) ;  // scanner
+   });
+
 }
 
 // called by fillScannerTable or when a new scanner is added
 function CloneScannerTemplate(scanner)
 {
+    
    var scannerTemplate = $(".scanner_div");
    // ReSharper disable once UnknownCssClass
    var scannerView = scannerTemplate.clone().removeClass("scanner_div").addClass("scanner_div_ok");

@@ -17,9 +17,12 @@ html {
 
 
 .scanner_actions {
-    height:22px;    
-    padding-left:10px;
-    padding-bottom:3px;
+    /* height:22px;     */
+    width:300px;
+    height:548px;
+    float:left;
+    /* padding-left:10px; */
+    /* padding-bottom:3px; */
 }
 
 .scanner_action {
@@ -33,11 +36,33 @@ html {
     height: 25px;
 }
 
+#scannerListUl {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /*background-color: #333333;*/
+}
+#scannerListUl li a {
+    display: block;
+    color: black;
+    text-align: left;
+    padding: 5px;
+    text-decoration: none;
+}
+#scannerListUl li a:hover {
+    background-color: #4CAF50;  /* green*/
+}
+
+
 .scannerList_div {
-    width:auto;
-    height:548px;
-    overflow: auto;
-    overflow-x: hidden;
+    /* width:auto; */
+    width:480px;
+    /* height:548px; */
+    height:590px;
+    overflow: auto; 
+    overflow-x: hidden; 
+    float:left;
 }
 
 
