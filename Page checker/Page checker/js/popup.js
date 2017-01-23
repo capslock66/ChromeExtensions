@@ -33,13 +33,13 @@ function popupInit()
             AddCurrentPage();
         });
 
-        $("#collapse_all_button").click(function () {
-            CollapseAll();
-        });
+        //$("#collapse_all_button").click(function () {
+        //    CollapseAll();
+        //});
 
-        $("#expand_all_button").click(function () {
-            ExpandAll();
-        });
+        //$("#expand_all_button").click(function () {
+        //    ExpandAll();
+        //});
 
         addEventListener("unload", function (event)
         {
@@ -51,36 +51,36 @@ function popupInit()
     });
 }
 
-function CollapseAll()
-{
-    for (var i = 0; i < backgroundPage.scannerList.length; i++)
-    {
-        var scanner = backgroundPage.scannerList[i];
-        scanner.Collapsed = true;
+//function CollapseAll()
+//{
+//    for (var i = 0; i < backgroundPage.scannerList.length; i++)
+//    {
+//        var scanner = backgroundPage.scannerList[i];
+//        scanner.Collapsed = true;
 
-        var $labelName = $(scanner.labelName);
-        $labelName.addClass("collapsed");   // change icon
+//        var $labelName = $(scanner.labelName);
+//        $labelName.addClass("collapsed");   // change icon
 
-        var $divCollapeBlock = $(scanner.divCollapeBlock);
-        $divCollapeBlock.fadeOut(100);
-    }
-    backgroundPage.saveStorage();
-}
+//        var $divCollapeBlock = $(scanner.divCollapeBlock);
+//        $divCollapeBlock.fadeOut(100);
+//    }
+//    backgroundPage.saveStorage();
+//}
 
-function ExpandAll()
-{
-    for (var i = 0; i < backgroundPage.scannerList.length; i++)
-    {
-        var scanner = backgroundPage.scannerList[i];
-        scanner.Collapsed = false;
-        var $labelName = $(scanner.labelName);
-        $labelName.removeClass("collapsed");  // change icon
+//function ExpandAll()
+//{
+//    for (var i = 0; i < backgroundPage.scannerList.length; i++)
+//    {
+//        var scanner = backgroundPage.scannerList[i];
+//        scanner.Collapsed = false;
+//        var $labelName = $(scanner.labelName);
+//        $labelName.removeClass("collapsed");  // change icon
 
-        var $divCollapeBlock = $(scanner.divCollapeBlock);
-        $divCollapeBlock.fadeIn(100);
-    }
-    backgroundPage.saveStorage();
-}
+//        var $divCollapeBlock = $(scanner.divCollapeBlock);
+//        $divCollapeBlock.fadeIn(100);
+//    }
+//    backgroundPage.saveStorage();
+//}
 
 function AddCurrentPage()
 {
@@ -138,9 +138,9 @@ function fillScannerTable()
     for (var i = 0; i < backgroundPage.scannerList.length; i++)
     {
         var scanner = backgroundPage.scannerList[i];
-        var scannerTr = CloneScannerTemplate(scanner);
-        SetScannerEvents(scanner);
-        resultTable.append(scannerTr);
+        //var scannerTr = CloneScannerTemplate(scanner);
+        //SetScannerEvents(scanner);
+        //resultTable.append(scannerTr);
         
         AddToscannerListUl(scanner) ;
     }
@@ -157,12 +157,27 @@ function AddToscannerListUl(scanner)
    
    $anchor.click(function ()
    {
-       console.log(this) ;          // <a>
-       console.log(this.scanner) ;  // scanner
+      $("#scannerListUl li a").removeClass("selected");     // remove "selected" class to all <a>
+      $(this).addClass('selected');                         // set the selected class to the <a>
+      MapScannerValuesToEditors(this.scanner);
    });
-
 }
 
+function MapScannerValuesToEditors(scanner)
+{
+   $("#template_Name")[0].value = scanner.Name;
+   $("#template_Site")[0].value = scanner.Site;
+   $("#template_SearchSelector")[0].value = scanner.SearchSelector;
+   //$("#template_Result")[0].value = scanner.?;
+   $("#template_ArraySelector")[0].value = scanner.ArraySelector;
+   $("#template_PollingInterval")[0].value = scanner.PollingInterval;
+   $("#template_Enabled").prop("checked",scanner.Enabled);
+   $("#template_Validated").prop("checked",scanner.Validated);
+   $("#template_Checksum")[0].value = scanner.newHash;
+   $("#template_CheckTime")[0].value = scanner.CheckTime;
+}
+
+/*
 // called by fillScannerTable or when a new scanner is added
 function CloneScannerTemplate(scanner)
 {
@@ -279,17 +294,9 @@ function CloneScannerTemplate(scanner)
    scannerTr.scanner = scanner;
    return scannerTr;
 }
-
+*/
 function SetScannerEvents(currentScanner)
 {
-    // click on <td width="200px">Name</td> :
-    // Collapse - expand
-    // $('.scanner_div_ok').each((index,element) => {if(index===1){$(element).fadeToggle();} });
-
-    //.collapsed legend::after {
-    //    content: " [...]";
-    //}
-
 
    // Input name
    $(currentScanner.inputName).on("change keyup", function ()   // change paste keyup

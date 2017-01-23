@@ -16,13 +16,24 @@ html {
 }
 
 
-.scanner_actions {
-    /* height:22px;     */
+.div-left {
     width:300px;
     height:548px;
     float:left;
-    /* padding-left:10px; */
-    /* padding-bottom:3px; */
+}
+
+.div-right {
+    width:460px;
+    height:570px;
+    overflow: auto; 
+    overflow-x: hidden; 
+    float:left;
+    padding: 8px;
+
+    background-color: #CBF7F7;
+    border: 1px solid black;
+    border-radius:6px;
+
 }
 
 .scanner_action {
@@ -41,9 +52,10 @@ html {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    /*background-color: #333333;*/
+
 }
 #scannerListUl li a {
+    border: 1px solid black;
     display: block;
     color: black;
     text-align: left;
@@ -54,15 +66,9 @@ html {
     background-color: #4CAF50;  /* green*/
 }
 
-
-.scannerList_div {
-    /* width:auto; */
-    width:480px;
-    /* height:548px; */
-    height:590px;
-    overflow: auto; 
-    overflow-x: hidden; 
-    float:left;
+.selected{
+    border: 1px solid #4CAF50;
+    background-color: #CBF7F7;
 }
 
 
@@ -72,24 +78,7 @@ html {
     border-collapse: separate;
 }
 
-th, td {
-    /* padding: 5px; */
-    text-align: left;
-}
 
-/* Templates */
-
-.templates {
-  display: none;
-}
-
-
-.scanner_div_ok { 
-    padding: 5px;
-    border: 1px solid black;
-    border-radius:6px;
-    background-color: #CBF7F7;
-}
 
 /* 
    https://24ways.org/2011/css3-patterns-explained 
@@ -105,6 +94,9 @@ th, td {
         red, red .07%, 
         #f1f1c1 .1%, #f1f1c1 .75%);
 }
+
+
+
 
 
 .span-group {
@@ -126,7 +118,7 @@ th, td {
 
 .span-right {
     display: inline-block;
-    width:600px;
+    width:460px;
 }
 
 
