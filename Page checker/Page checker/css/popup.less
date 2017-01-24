@@ -1,0 +1,130 @@
+﻿/* 
+   https://24ways.org/2011/css3-patterns-explained 
+   http://dabblet.com/gist/1481808
+   http://codepen.io/anon/pen/NdRrNQ
+
+    Height : 600 = action(20) + table(548) + marge (32)
+
+*/
+
+// Color variables
+@colorGreen: #4caf50;
+@colorBackground: #cbf7f7; 
+
+// Width variables
+@widthLeft: 300px; 
+@widthRight: 460px; 
+
+// Height variables
+@heightPopup: 570px; 
+
+
+html {
+    height: 600px;
+    width: 800px;
+}
+
+.div-left {
+    width:@widthLeft;
+    height:@heightPopup;
+    float:left;
+}
+
+.div-right {
+    width:@widthRight;
+    height:@heightPopup;
+    float:left;
+    overflow: auto;     // scrollbar
+    overflow-x: hidden;
+    background-color: @colorBackground;
+    border-radius:6px;
+    border: 1px solid black;
+    padding: 8px;
+}
+
+.scanner_action {
+    vertical-align: top;
+}
+
+.span-waiting {
+    background:url('waiting.gif') repeat;
+    display: inline-block;
+    height: 25px;
+    width: 25px;
+}
+
+#scannerListUl {
+    list-style-type: none;
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+    li {
+        a {
+            border: 1px solid black;
+            color: black;
+            display: block;
+            padding: 5px;
+            text-align: left;
+            text-decoration: none;
+            &:hover {
+                background-color: @colorGreen;
+            }
+        }
+        a.selected {
+            background-color: @colorBackground;
+            border: 1px solid @colorGreen;
+        }
+    }
+}
+.scannerList_table {
+    border-collapse: separate;
+    height:auto;
+    width:auto;
+}
+
+.scanner_div_err {
+    background: repeating-linear-gradient( 
+        135deg, 
+        red, red .07%, 
+        #f1f1c1 .1%, 
+        #f1f1c1 .75%);
+    border-radius:6px;
+    border: 3px solid red;
+    padding: 5px;
+}
+
+.span-group {
+    border: 1px solid;
+    display: inline-block;
+    height: 22px;
+    margin-right: 3px;
+    padding-bottom:4px;
+    padding-left:5px;
+    padding-right: 5px;
+}
+.span-left {
+    display: inline-block;
+    vertical-align: top;
+    width:130px;
+}
+
+.span-right {
+    display: inline-block;
+    width:@widthRight;
+}
+
+.template_Result {
+    &:extend(.span-right);
+    border: 1px solid black;
+    max-height: 110px;
+    min-height: 22px;
+    overflow: auto;
+}
+
+#template_ArraySelector {
+    width: 50px;
+}
+
+p {
+    font-weight: bold;
+}
