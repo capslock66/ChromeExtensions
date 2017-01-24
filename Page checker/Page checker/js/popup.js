@@ -35,13 +35,12 @@ function popupInit()
             AddCurrentPage();
         });
 
-        //$("#collapse_all_button").click(function () {
-        //    CollapseAll();
-        //});
+        id="template_CheckNow" />
 
-        //$("#expand_all_button").click(function () {
-        //    ExpandAll();
-        //});
+        id="template_Open" />
+
+        id="template_Delete" />
+
 
         addEventListener("unload", function (event)
         {
@@ -116,7 +115,10 @@ function fillScannerTable()
         AddToscannerListUl(scanner) ;
     }
     if (selectedScanner !== null)
+    {
+      $(selectedScanner.anchor).addClass('selected');                         // set the selected class to the <a>
       MapScannerPropertiesToView(selectedScanner);
+    }
 }
 
 function AddToscannerListUl(scanner)
@@ -124,6 +126,7 @@ function AddToscannerListUl(scanner)
    var $anchor = $("<a>" + scanner.Name + "</a>") ;   
    var anchor = $anchor[0];
    anchor.scanner = scanner ;
+   scanner.anchor = anchor ;
    var $li = $("<li></li>");
    $li.append($anchor);
    $("#scannerListUl").append($li) ;

@@ -72,6 +72,7 @@ html {
   display: inline-block;
   height: 22px;
   margin-right: 3px;
+  margin-top: 3px;
   padding-bottom: 4px;
   padding-left: 5px;
   padding-right: 5px;
@@ -97,4 +98,5 @@ html {
 }
 p {
   font-weight: bold;
+  margin: 2px;
 }
