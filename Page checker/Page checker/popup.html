@@ -14,8 +14,6 @@
     <div id="actions" class="div-left">
         <input type="button" class="scanner_action" id="check_all_button"    value="Check all" />
         <input type="button" class="scanner_action" id="add_page_button"     value="Add current Page" />
-        <!-- <input type="button" class="scanner_action" id="collapse_all_button" value="Collapse all" /> -->
-        <!-- <input type="button" class="scanner_action" id="expand_all_button"   value="Expand all"/> -->
         <span id="span-waiting"></span> <!-- span-waiting class will by toggled while parsing some pages-->
         <ul id=scannerListUl>
         </ul>
@@ -23,61 +21,57 @@
     </div>
 
     <div class="div-right">
-        <p class="span-left span-Name">Name</p>
+        <p class="span-Name">Name</p>
         <textarea id="template_Name" class="span-right">my name</textarea>
 
-        <p class="span-left">Site</p>
+        <p>Site</p>
         <textarea id="template_Site" class="span-right">https://blabla</textarea>
 
-        <p class="span-left">Search Selector</p>
+        <p>Search Selector</p>
         <textarea id="template_SearchSelector" class="span-right">#ctl00_ArticleTabs_CmtCnt</textarea>
 
 
-        <p class="span-left">Search result</p>
+        <p>Search result</p>
         <span id="template_Result" class="span-right">some tags</span>
 
+        <p>Array Selection</p>
+        <span class="span-right">
+            <span>
+                <input id="template_ArraySelector" style="width:50px">
+                <span style="display: inline-block;width:3px"> </span>
+                <span>0=first, last=-1, use count as result = -2 </span>
+            </span>
+        </span>
 
-        <div>
-            <span class="span-left">Array Selection</span>
-            <span class="span-right">
-                <span>
-                    <input id="template_ArraySelector" style="width:50px">
-                    <span style="display: inline-block;width:3px"> </span>
-                    <span>0=first, last=-1, use count as result = -2 </span>
-                </span>
-            </span>
-        </div>
-
-        <!-- bottom button bar -->
-        <div style="height: 35px;padding-top: 3px;">
-            <span class="span-group" style="width: 230px;">
-                <span>Polling interval</span>
-                <input id="template_PollingInterval" style="width:60px">
-                <span>minutes</span>
-            </span>
-            <span class="span-group" style="width: 270px;">
-                <span>Last check time</span>
-                <span style="display: inline-block;width:5px"> </span>
-                <span style="color:blue" id="template_CheckTime">123</span>
-            </span>
-            <span class="span-group" style="width: 185px;">
-                <span>Checksum</span>
-                <span style="display: inline-block;width:5px"> </span>
-                <span style="color:blue" id="template_Checksum">123</span>
-            </span>
-        </div>
+        <span class="span-group" style="width: 230px;">
+            <span>Polling interval</span>
+            <input id="template_PollingInterval" style="width:60px">
+            <span>minutes</span>
+        </span>
+        <span class="span-group" style="width: 270px;">
+            <span>Last check time</span>
+            <span style="display: inline-block;width:5px"> </span>
+            <span style="color:blue" id="template_CheckTime">123</span>
+        </span>
+        <span class="span-group" style="width: 185px;">
+            <span>Checksum</span>
+            <span style="display: inline-block;width:5px"> </span>
+            <span style="color:blue" id="template_Checksum">123</span>
+        </span>
 
         <div>
             <input type="checkbox" id="template_Enabled" /> <span>Enabled</span>
             <span style="display: inline-block; width: 15px"> </span>
             <input type="checkbox" id="template_Validated" /> <span>Validated</span>
-            <span style="display: inline-block; width: 15px"> </span>
-            <input type="button" value="Check now" id="template_CheckNow" />
-            <span style="display: inline-block; width: 15px"> </span>
-            <input type="button" value="Open" id="template_Open" />
-            <span style="display: inline-block; width: 15px"> </span>
-            <input type="button" value="Delete" id="template_Delete" />
         </div>
+
+        <input type="button" value="Check now" id="template_CheckNow" />
+        <span style="display: inline-block; width: 15px"> </span>
+
+        <input type="button" value="Open" id="template_Open" />
+        <span style="display: inline-block; width: 15px"> </span>
+        
+        <input type="button" value="Delete" id="template_Delete" />
 
     </div>
 

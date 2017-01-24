@@ -4,6 +4,8 @@ var ttrace;
 var backgroundPage;
 var chrome;                     // remove warning about undeclared chrome var
 
+var selectedScanner = null ;
+
 // tracetool is not loaded. We can use backgroundPage.ttrace
 // jquery is needed in this context to generate popup scanner list
 requirejs(["../components/jquery.min"], function () {
@@ -51,36 +53,6 @@ function popupInit()
     });
 }
 
-//function CollapseAll()
-//{
-//    for (var i = 0; i < backgroundPage.scannerList.length; i++)
-//    {
-//        var scanner = backgroundPage.scannerList[i];
-//        scanner.Collapsed = true;
-
-//        var $labelName = $(scanner.labelName);
-//        $labelName.addClass("collapsed");   // change icon
-
-//        var $divCollapeBlock = $(scanner.divCollapeBlock);
-//        $divCollapeBlock.fadeOut(100);
-//    }
-//    backgroundPage.saveStorage();
-//}
-
-//function ExpandAll()
-//{
-//    for (var i = 0; i < backgroundPage.scannerList.length; i++)
-//    {
-//        var scanner = backgroundPage.scannerList[i];
-//        scanner.Collapsed = false;
-//        var $labelName = $(scanner.labelName);
-//        $labelName.removeClass("collapsed");  // change icon
-
-//        var $divCollapeBlock = $(scanner.divCollapeBlock);
-//        $divCollapeBlock.fadeIn(100);
-//    }
-//    backgroundPage.saveStorage();
-//}
 
 function AddCurrentPage()
 {
@@ -94,7 +66,6 @@ function AddCurrentPage()
         var url = tabs[0].url;
         backgroundPage.console.log("current page : ", url);
 
-        var resultTable = $(".scannerList_table");
         var scanner = {};
 
         scanner.Name = tabs[0].title;
@@ -109,9 +80,10 @@ function AddCurrentPage()
         backgroundPage.scannerNextId++;
         backgroundPage.scannerList.push(scanner);
 
-        var scannerTr = CloneScannerTemplate(scanner);
-        SetScannerEvents(scanner);
-        resultTable.append(scannerTr);
+///        var resultTable = $(".scannerList_table");
+///        var scannerTr = CloneScannerTemplate(scanner);
+///        SetScannerEvents(scanner);
+///        resultTable.append(scannerTr);
 
         backgroundPage.saveStorage();
 
@@ -135,15 +107,16 @@ function fillScannerTable()
 {
     var resultTable = $(".scannerList_table");
  
+    selectedScanner = null ;
     for (var i = 0; i < backgroundPage.scannerList.length; i++)
     {
         var scanner = backgroundPage.scannerList[i];
-        //var scannerTr = CloneScannerTemplate(scanner);
-        //SetScannerEvents(scanner);
-        //resultTable.append(scannerTr);
-        
+        if (i === 0)
+            selectedScanner = scanner ;
         AddToscannerListUl(scanner) ;
     }
+    if (selectedScanner !== null)
+      MapScannerPropertiesToView(selectedScanner);
 }
 
 function AddToscannerListUl(scanner)
@@ -159,22 +132,23 @@ function AddToscannerListUl(scanner)
    {
       $("#scannerListUl li a").removeClass("selected");     // remove "selected" class to all <a>
       $(this).addClass('selected');                         // set the selected class to the <a>
-      MapScannerValuesToEditors(this.scanner);
+      MapScannerPropertiesToView(this.scanner);
    });
 }
 
-function MapScannerValuesToEditors(scanner)
+// bind scanner properties to the view
+function MapScannerPropertiesToView(scanner)
 {
-   $("#template_Name")[0].value = scanner.Name;
-   $("#template_Site")[0].value = scanner.Site;
-   $("#template_SearchSelector")[0].value = scanner.SearchSelector;
-   //$("#template_Result")[0].value = scanner.?;
-   $("#template_ArraySelector")[0].value = scanner.ArraySelector;
-   $("#template_PollingInterval")[0].value = scanner.PollingInterval;
-   $("#template_Enabled").prop("checked",scanner.Enabled);
-   $("#template_Validated").prop("checked",scanner.Validated);
-   $("#template_Checksum")[0].value = scanner.newHash;
-   $("#template_CheckTime")[0].value = scanner.CheckTime;
+   $("#template_Name")           [0].value =     scanner.Name;              // textarea
+   $("#template_Site")           [0].value =     scanner.Site;              // textarea
+   $("#template_SearchSelector") [0].value =     scanner.SearchSelector;    // textarea
+   $("#template_Result")         [0].innerText = scanner.resultString;      // span
+   $("#template_ArraySelector")  [0].value =     scanner.ArraySelector;     // input
+   $("#template_PollingInterval")[0].value =     scanner.PollingInterval;   // input
+   $("#template_Enabled")        .prop("checked",scanner.Enabled);          // input checkbox
+   $("#template_Validated")      .prop("checked",scanner.Validated);        // input checkbox
+   $("#template_Checksum")       [0].innerText = scanner.newHash;           // span
+   $("#template_CheckTime")      [0].innerText = scanner.CheckTime;         // span
 }
 
 /*

@@ -1,11 +1,8 @@
-/*
-    body {
-    min-width:700px;
-}
+/* 
+   https://24ways.org/2011/css3-patterns-explained 
+   http://dabblet.com/gist/1481808
+   http://codepen.io/anon/pen/NdRrNQ
 
-*/
-
-/*
     Height : 600 = action(20) + table(548) + marge (32)
 
 */
@@ -18,14 +15,14 @@ html {
 
 .div-left {
     width:300px;
-    height:548px;
+    height:570px;
     float:left;
 }
 
 .div-right {
     width:460px;
     height:570px;
-    overflow: auto; 
+    overflow: auto;             
     overflow-x: hidden; 
     float:left;
     padding: 8px;
@@ -33,7 +30,6 @@ html {
     background-color: #CBF7F7;
     border: 1px solid black;
     border-radius:6px;
-
 }
 
 .scanner_action {
@@ -66,7 +62,7 @@ html {
     background-color: #4CAF50;  /* green*/
 }
 
-.selected{
+#scannerListUl li a.selected{
     border: 1px solid #4CAF50;
     background-color: #CBF7F7;
 }
@@ -80,11 +76,7 @@ html {
 
 
 
-/* 
-   https://24ways.org/2011/css3-patterns-explained 
-   http://dabblet.com/gist/1481808
-   http://codepen.io/anon/pen/NdRrNQ
-*/
+
 .scanner_div_err { 
     padding: 5px;
     border: 3px solid red;
@@ -94,10 +86,6 @@ html {
         red, red .07%, 
         #f1f1c1 .1%, #f1f1c1 .75%);
 }
-
-
-
-
 
 .span-group {
     border: 1px solid; 
@@ -134,6 +122,8 @@ html {
 .span-Name.collapsed:before { 
     content: "\25BC"; /* Down arrow */
 }
+
+/* Templates */
 
 .template_Name {
     width: 600px;
