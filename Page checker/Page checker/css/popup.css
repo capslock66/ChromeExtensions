@@ -110,18 +110,23 @@ html {
 }
 
 
-.span-Name {
+p {
+    font-weight: bold;
+}
+
+/*.span-Name {
     text-decoration: underline;
     cursor: pointer;
 }
 
 .span-Name:before {
-    content: "\25B2"; /* Up arrow */
+    content: "\25B2"; // Up arrow 
 }
 
 .span-Name.collapsed:before { 
-    content: "\25BC"; /* Down arrow */
+    content: "\25BC"; // Down arrow 
 }
+*/
 
 /* Templates */
 
@@ -140,7 +145,7 @@ html {
 .template_Result {
     border: 1px solid black;
     display: inline-block;
-    width: 598px;
+    width: 460px;
     min-height: 22px;   
     max-height: 110px;  /* 5 lines   */
     overflow: auto;     /* scrollbar */
