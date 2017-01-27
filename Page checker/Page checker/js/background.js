@@ -7,14 +7,14 @@ var pollInterval = 1000 * 3;     // poll interval
 var timerId ;                    // poll interval timer
 
 // used by CheckScanners, requestCallBack
-var toScanCount ;                // number of csanner to check
-var scannedCount;                // number of scanner already checked
-var totalScannedCount=0;         // number of scan performed
-var needToBeSaved;               // flag indicate if the scanner list need to be saved after all scan
+var toScanCount = 0 ;             // number of csanner to check
+var scannedCount = 0 ;            // number of scanner already checked
+var totalScannedCount = 0 ;       // number of scan performed
+var needToBeSaved = false ;       // flag indicate if the scanner list need to be saved after all scan
 
 // libraries (jquery add itself to global)
-var ttrace;                    
-var moment;
+var ttrace = null ;                    
+var moment = null ;
 
 // JQuery is needed by requestCallback to parse result
 // Tracetool is defined only on background 
@@ -192,25 +192,13 @@ function requestCallBack (progressEvent)
     {
 
        if (request.isManualCheck === false)
-       {
           scanner.Validated = false;
 
-          if (scanner.inputValidated !== undefined)
-             $(scanner.inputValidated).prop('checked', false);
-       }
        hashToDisplay = "" + scanner.newHash ;
        scanner.resultString = scanner.resultString + "\n" + "Page changed !!!" ;
        needToBeSaved = true ;
     }
-
-    if (scanner.inputChecksum !== undefined)
-        scanner.inputChecksum.innerText = hashToDisplay;                // view : hash     
-
-    if (scanner.inputResult !== undefined)
-        scanner.inputResult.innerText = scanner.resultString;     // view : result
-    
-    scanner.Hash = scanner.newHash ;                          // view model : hash
-    
+    scanner.Hash = scanner.newHash ;             // view model :  Hash           
     afterScan(scanner);
 }
 
@@ -219,42 +207,21 @@ function requestCallBack (progressEvent)
 function requestOnError(progressEvent)
 {
    //ttrace.error.sendValue("xhr.onerror progressEvent", progressEvent);
+   needToBeSaved = true;
 
    var request = progressEvent.currentTarget;
    var scanner = request.scanner;
 
-   $(scanner.scannerView).attr('class', 'scanner_div_err');
-
-   if (scanner.inputChecksum !== undefined)
-      scanner.inputChecksum.innerText = "" ;                // view : hash     
-
-   if (scanner.inputResult !== undefined)
-      scanner.inputResult.innerText = "Error loading page !";     // view : result
-
+   scanner.resultString = "Error loading page !";
+   scanner.newHash = "" ;
    scanner.Validated = false;
-   needToBeSaved = true;
-   if (scanner.inputValidated !== undefined)
-      $(scanner.inputValidated).prop('checked', false);
    afterScan(scanner);
 }
 
 function afterScan(scanner)
 {
    var dformat = moment().format("YYYY/MM/DD HH:mm:ss");
-
-   //var dformat = [d.getFullYear(),
-   //               padLeft(d.getMonth() + 1),
-   //               padLeft(d.getDate())
-   //].join('/') + ' ' +
-   //              [padLeft(d.getHours()),
-   //                padLeft(d.getMinutes()),
-   //                padLeft(d.getSeconds())
-   //              ].join(':');
-
-
-   scanner.CheckTime = dformat;                                   // view model : CheckTime
-   if (scanner.inputCheckTime !== undefined)
-      scanner.inputCheckTime.innerText = scanner.CheckTime;    // view : CheckTime
+   scanner.CheckTime = dformat;                // view model : CheckTime
 
    // save model
    scannedCount++;
@@ -263,16 +230,17 @@ function afterScan(scanner)
    {
       if (needToBeSaved)
          saveStorage();
-      // display number of unvalidated (and enabled) scanner
 
+      // display number of unvalidated (and enabled) scanner
       nextScanTime();
       if (currentPopup !== null)
-         $(currentPopup).find("#span-waiting").removeClass("span-waiting");
-   
+      {
+          $(currentPopup).find("#span-waiting").removeClass("span-waiting");
+          currentPopup.RefreshView() ; // refresh selected Scanner
+
+      }
    }
 }
-
-
 
 function nextScanTime()
 {
@@ -320,7 +288,8 @@ function nextScanTime()
          title:
             "Next scan in " + diffFormat + "\n" +
             "Total scanned page count : " + totalScannedCount + "\n" +
-            "Not validated page count : " + unvalidatedScanner 
+            "Not validated page count : " + unvalidatedScanner +"\n" + 
+            "Waiting : " + toScanCount
       });
    }
 }
@@ -373,9 +342,6 @@ function CheckScanners(specificScanner, ignoreTime)
                continue;
             }
         }
-
-        if (scanner.inputResult !== undefined)
-            scanner.inputResult.innerText = "";     // view : result
 
         scanner.index = i ;
         var url = scanner.Site ;

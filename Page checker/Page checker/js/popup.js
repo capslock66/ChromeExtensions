@@ -4,6 +4,23 @@ var ttrace;
 var backgroundPage;
 var chrome;                     // remove warning about undeclared chrome var
 
+var $inputCheckAll        ;
+var $inputAddPage         ;
+var $inputCheckNow        ;
+var $inputOpen            ;
+var $inputDelete          ;
+var $inputName            ;
+var $inputSite            ;
+var $inputSearchSelector  ;
+var $inputResult          ;
+var $inputArraySelector   ;
+var $inputPollingInterval ;
+var $inputCheckTime       ;
+var $inputChecksum        ;
+var $inputEnabled         ;
+var $inputValidated       ;
+         
+
 var selectedScanner = null ;
 
 // tracetool is not loaded. We can use backgroundPage.ttrace
@@ -19,28 +36,14 @@ function popupInit()
     backgroundPage = chrome.extension.getBackgroundPage() ;
     ttrace = backgroundPage.ttrace;
 
-   // don't use the popup console (can de destroyed). Use the backgroundPage console
+    // don't use the popup console (can de destroyed). Use the backgroundPage console
     backgroundPage.console.log("popup init");
     //ttrace.debug.send("popup init " );
     
     $(document).ready(function() 
     {
         backgroundPage.currentPopup = this;
-        $("#check_all_button").click(function ()
-        {
-            backgroundPage.CheckScanners(null, true);
-        }); 
-         
-        $("#add_page_button").click(function () {
-            AddCurrentPage();
-        });
-
-        id="template_CheckNow" />
-
-        id="template_Open" />
-
-        id="template_Delete" />
-
+        backgroundPage.currentPopup.RefreshView = RefreshView ;
 
         addEventListener("unload", function (event)
         {
@@ -48,10 +51,138 @@ function popupInit()
            backgroundPage.currentPopup = null;
         }, true);
 
+        $inputCheckAll        = $("#check_all_button") ;
+        $inputAddPage         = $("#add_page_button") ;
+        $inputCheckNow        = $("#template_CheckNow");
+        $inputOpen            = $("#template_Open") ;
+        $inputDelete          = $("#template_Delete") ;
+        $inputName            = $("#template_Name") ;
+        $inputSite            = $("#template_Site") ;
+        $inputSearchSelector  = $("#template_SearchSelector") ;
+        $inputResult          = $("#template_Result") ;
+        $inputArraySelector   = $("#template_ArraySelector") ;
+        $inputPollingInterval = $("#template_PollingInterval") ;
+        $inputCheckTime       = $("#template_CheckTime") ;
+        $inputChecksum        = $("#template_Checksum") ;
+        $inputEnabled         = $("#template_Enabled") ;
+        $inputValidated       = $("#template_Validated") ;
+
+        // check all button
+        $inputCheckAll.click(function ()
+        {
+            backgroundPage.CheckScanners(null, true);
+        }); 
+        
+        // add current page button
+        $inputAddPage.click(function () {
+            AddCurrentPage();
+        });
+
+        // check selected scanner button
+        $inputCheckNow.click(function () 
+        {
+            if (selectedScanner === null)
+                return ;
+            backgroundPage.CheckScanners(selectedScanner, true);
+        });
+
+        // open selected page button
+        $inputOpen.click(function () 
+        {
+            if (selectedScanner === null)
+                return ;
+            chrome.tabs.create({ url: selectedScanner.Site });
+        });
+
+        // delete selected scanner button
+        $inputDelete.click(function () 
+        {
+            if (selectedScanner === null)
+                return ;
+
+            // remove from View 
+            $("#" + selectedScanner.id).remove();
+ 
+            // remove from View Model : 
+            var index = backgroundPage.scannerList.indexOf(selectedScanner);
+            backgroundPage.scannerList.splice(index, 1);
+ 
+            // save Model
+            backgroundPage.saveStorage();
+        });
+
+        // Input name
+        $inputName.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+           selectedScanner.Name = $(this).val();
+           backgroundPage.saveStorage();
+        });
+ 
+        // Site
+        $inputSite.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+           selectedScanner.Site = $(this).val();
+           backgroundPage.saveStorage();
+        });
+ 
+        // SearchSelector
+        $inputSearchSelector.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+           selectedScanner.SearchSelector = $(this).val();
+           backgroundPage.saveStorage();
+        });
+ 
+        // PollingInterval
+        $inputPollingInterval.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+            selectedScanner.PollingInterval = $(this).val();
+            backgroundPage.saveStorage();
+        });
+ 
+        // ArraySelector
+        $inputArraySelector.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+           selectedScanner.ArraySelector = $(this).val();
+           backgroundPage.saveStorage();
+        });
+ 
+        // Enabled
+        $inputEnabled.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+           selectedScanner.Enabled = $(this).prop("checked");
+           backgroundPage.saveStorage();
+           // display number of unvalidated (and enabled) scanner 
+           backgroundPage.countUnValided();
+           backgroundPage.console.log("popup inputEnabled changed");
+        });
+ 
+        // Validated
+        $inputValidated.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+           selectedScanner.Validated = $(this).prop("checked");
+           backgroundPage.saveStorage();
+           // display number of unvalidated (and enabled) scanner 
+           backgroundPage.countUnValided();
+           backgroundPage.console.log("popup inputValidated changed");
+        });
+ 
         fillScannerTable();
     });
 }
-
 
 function AddCurrentPage()
 {
@@ -65,8 +196,8 @@ function AddCurrentPage()
         var url = tabs[0].url;
         backgroundPage.console.log("current page : ", url);
 
+        // create model
         var scanner = {};
-
         scanner.Name = tabs[0].title;
         scanner.ArraySelector = -1;  // 0 = first, n , -1 = last, -2 = use result array count as hash
         scanner.Enabled = true;
@@ -78,305 +209,66 @@ function AddCurrentPage()
         scanner.id = "scannerTr" + backgroundPage.scannerNextId;
         backgroundPage.scannerNextId++;
         backgroundPage.scannerList.push(scanner);
-
-///        var resultTable = $(".scannerList_table");
-///        var scannerTr = CloneScannerTemplate(scanner);
-///        SetScannerEvents(scanner);
-///        resultTable.append(scannerTr);
-
         backgroundPage.saveStorage();
 
+        // create view mapped to model
+        AddScannerToListUl(scanner) ;
     });
-}
-
-function deleteScanner(scanner)
-{
-   // remove from View 
-   $("#" + scanner.id).remove();
-
-   // remove from View Model : 
-   var index = backgroundPage.scannerList.indexOf(scanner);
-   backgroundPage.scannerList.splice(index, 1);
-
-   // save Model
-   backgroundPage.saveStorage();
 }
 
 function fillScannerTable()
 {
-    var resultTable = $(".scannerList_table");
- 
     selectedScanner = null ;
     for (var i = 0; i < backgroundPage.scannerList.length; i++)
     {
         var scanner = backgroundPage.scannerList[i];
         if (i === 0)
             selectedScanner = scanner ;
-        AddToscannerListUl(scanner) ;
+        AddScannerToListUl(scanner) ;
     }
     if (selectedScanner !== null)
     {
       $(selectedScanner.anchor).addClass('selected');                         // set the selected class to the <a>
-      MapScannerPropertiesToView(selectedScanner);
+      RefreshView();
     }
 }
 
-function AddToscannerListUl(scanner)
+function AddScannerToListUl(scanner)
 {
-   var $anchor = $("<a>" + scanner.Name + "</a>") ;   
+   var $anchor = $("<a>" + scanner.Name + "</a>") ;     // create view <a>
    var anchor = $anchor[0];
-   anchor.scanner = scanner ;
+   anchor.scanner = scanner ;                           // link model to view
    scanner.anchor = anchor ;
-   var $li = $("<li></li>");
-   $li.append($anchor);
-   $("#scannerListUl").append($li) ;
+   var $li = $("<li></li>");                            // create view <li>
+   $li.attr({ id: scanner.id });                        // set row id
+   $li.append($anchor);                                 // attach the 2 views <li><a> together
+
+   $("#scannerListUl").append($li) ;                    // append to parent view
    
-   $anchor.click(function ()
+   $anchor.click(function ()                                // view click    
    {
       $("#scannerListUl li a").removeClass("selected");     // remove "selected" class to all <a>
       $(this).addClass('selected');                         // set the selected class to the <a>
-      MapScannerPropertiesToView(this.scanner);
+      selectedScanner = scanner ;
+      RefreshView();
    });
 }
 
 // bind scanner properties to the view
-function MapScannerPropertiesToView(scanner)
+function RefreshView()
 {
-   $("#template_Name")           [0].value =     scanner.Name;              // textarea
-   $("#template_Site")           [0].value =     scanner.Site;              // textarea
-   $("#template_SearchSelector") [0].value =     scanner.SearchSelector;    // textarea
-   $("#template_Result")         [0].innerText = scanner.resultString;      // span
-   $("#template_ArraySelector")  [0].value =     scanner.ArraySelector;     // input
-   $("#template_PollingInterval")[0].value =     scanner.PollingInterval;   // input
-   $("#template_Enabled")        .prop("checked",scanner.Enabled);          // input checkbox
-   $("#template_Validated")      .prop("checked",scanner.Validated);        // input checkbox
-   $("#template_Checksum")       [0].innerText = scanner.newHash;           // span
-   $("#template_CheckTime")      [0].innerText = scanner.CheckTime;         // span
+   $inputName           [0].value =     selectedScanner.Name;              // textarea
+   $inputSite           [0].value =     selectedScanner.Site;              // textarea
+   $inputSearchSelector [0].value =     selectedScanner.SearchSelector;    // textarea
+   $inputResult         [0].innerText = selectedScanner.resultString;      // span
+   $inputArraySelector  [0].value =     selectedScanner.ArraySelector;     // input
+   $inputPollingInterval[0].value =     selectedScanner.PollingInterval;   // input
+   $inputCheckTime      [0].innerText = selectedScanner.CheckTime;         // span
+   $inputChecksum       [0].innerText = selectedScanner.newHash;           // span
+   $inputEnabled        .prop("checked",selectedScanner.Enabled);          // input checkbox
+   $inputValidated      .prop("checked",selectedScanner.Validated);        // input checkbox
+
+   // todo : $(scanner.scannerView).attr('class', 'scanner_div_err');
 }
 
-/*
-// called by fillScannerTable or when a new scanner is added
-function CloneScannerTemplate(scanner)
-{
-    
-   var scannerTemplate = $(".scanner_div");
-   // ReSharper disable once UnknownCssClass
-   var scannerView = scannerTemplate.clone().removeClass("scanner_div").addClass("scanner_div_ok");
-
-   scanner.scannerView = scannerView;
-
-   // Name : Edit
-   var inputName = scannerView.find(".template_Name")[0];
-   inputName.scanner = scanner;
-   scanner.inputName = inputName;
-   scanner.inputName.value = scanner.Name;
-
-   // Name : Label
-   var labelName = scannerView.find(".span-Name")[0];
-   labelName.scanner = scanner;
-   scanner.labelName = labelName;
-
-   // collapse-block : div to collapse
-   var divCollapeBlock = scannerView.find(".collapse-block")[0];
-   divCollapeBlock.scanner = scanner;
-   scanner.divCollapeBlock = divCollapeBlock;
-   if (scanner.Collapsed === true)
-       setTimeout(function () { $(divCollapeBlock).fadeOut(100); }, 100);  // must be done when template is attached to scannerList_table
-
-   // Site : Edit
-   var inputSite = scannerView.find(".template_Site")[0];
-   inputSite.scanner = scanner;
-   scanner.inputSite = inputSite;
-   scanner.inputSite.value = scanner.Site;
-
-   // SearchSelector : Edit
-   var inputSearchSelector = scannerView.find(".template_SearchSelector")[0];
-   inputSearchSelector.scanner = scanner;
-   scanner.inputSearchSelector = inputSearchSelector;
-   scanner.inputSearchSelector.value = scanner.SearchSelector;
-
-   // CheckNow : Button
-   var inputCheckNow = scannerView.find(".template_CheckNow")[0];
-   inputCheckNow.scanner = scanner;
-   scanner.inputCheckNow = inputCheckNow;
-
-    // Open : Button
-   var inputOpen = scannerView.find(".template_Open")[0];
-   inputOpen.scanner = scanner;
-   scanner.inputOpen = inputOpen;
-
-    // Delete : Button
-   var inputDelete = scannerView.find(".template_Delete")[0];
-   inputDelete.scanner = scanner;
-   scanner.inputDelete = inputDelete;
-
-   // Result : Text
-   var inputResult = scannerView.find(".template_Result")[0];
-   inputResult.scanner = scanner;
-   scanner.inputResult = inputResult;
-   scanner.inputResult.innerText = "";
-
-   // ArraySelector : Edit
-   var inputArraySelector = scannerView.find(".template_ArraySelector")[0];
-   inputArraySelector.scanner = scanner;
-   scanner.inputArraySelector = inputArraySelector;
-   scanner.inputArraySelector.value = scanner.ArraySelector;
-
-    // PollingInterval : Edit
-   var inputPollingInterval = scannerView.find(".template_PollingInterval")[0];
-   inputPollingInterval.scanner = scanner;
-   if (inputPollingInterval === undefined)
-       inputPollingInterval = 1;
-   scanner.inputPollingInterval = inputPollingInterval;
-   scanner.inputPollingInterval.value = scanner.PollingInterval;
-
-    // Enabled : Checkbox
-   var inputEnabled = scannerView.find(".template_Enabled")[0];
-   inputEnabled.scanner = scanner;
-   scanner.inputEnabled = inputEnabled;
-   $(scanner.inputEnabled).prop("checked", scanner.Enabled);
-
-   // Validated : Checkbox
-   var inputValidated = scannerView.find(".template_Validated")[0];
-   inputValidated.scanner = scanner;
-   scanner.inputValidated = inputValidated;
-   $(scanner.inputValidated).prop("checked", scanner.Validated);
-
-   // Hash : Text
-   var inputChecksum = scannerView.find(".template_Checksum")[0];
-   inputChecksum.scanner = inputChecksum;
-   scanner.inputChecksum = inputChecksum;
-   var hashToDisplay = scanner.Hash;
-   if (scanner.newHash !== "undefined" && scanner.Hash !== scanner.newHash)
-      hashToDisplay = "" + scanner.newHash;
-   scanner.inputChecksum.innerText = hashToDisplay;
-
-   // CheckTime : Text
-   var inputCheckTime = scannerView.find(".template_CheckTime")[0];
-   inputCheckTime.scanner = inputCheckTime;
-   scanner.inputCheckTime = inputCheckTime;
-   var checkTime = scanner.CheckTime;
-   if (checkTime === null || checkTime === undefined)
-      checkTime = "";
-   scanner.inputCheckTime.innerText = checkTime;
-
-   var scannerTr = $("<tr></tr>");
-   var scannerTd = $("<td></td>");
-   scannerTr.append(scannerTd);
-   scannerTd.append(scannerView);
-
-   // set row id
-   $(scannerTr).attr({ id: scanner.id });
-
-   scannerTr.scanner = scanner;
-   return scannerTr;
-}
-*/
-function SetScannerEvents(currentScanner)
-{
-
-   // Input name
-   $(currentScanner.inputName).on("change keyup", function ()   // change paste keyup
-   {
-      this.scanner.Name = $(this).val();
-      backgroundPage.saveStorage();
-   });
-
-   // Site
-   $(currentScanner.inputSite).on("change keyup", function ()   // change paste keyup
-   {
-      this.scanner.Site = $(this).val();
-      backgroundPage.saveStorage();
-   });
-
-   // SearchSelector
-   $(currentScanner.inputSearchSelector).on("change keyup", function ()   // change paste keyup
-   {
-      this.scanner.SearchSelector = $(this).val();
-      backgroundPage.saveStorage();
-   });
-
-   // PollingInterval
-   $(currentScanner.inputPollingInterval).on("change keyup", function ()   // change paste keyup
-   {
-       this.scanner.PollingInterval = $(this).val();
-       backgroundPage.saveStorage();
-   });
-
-   // label name click 
-   $(currentScanner.labelName).click(function ()
-   {
-      // <div>
-      //     <span class="span-left span-Name">Name</span> ===>  CLICK : fadeToggle div with class "collapse-block"
-      //     <span class="span-right"><textarea class="template_Name">CodeProject - Tracetool</textarea></span>
-      // </div>
-      // <div class="collapse-block"> ...
-
-
-      // fadeToggle is a jquery method
-      var $labelName = $(this);
-      $labelName.toggleClass("collapsed");
-
-      var domLabelName = $labelName[0];
-      var $divCollapeBlock = $(domLabelName.scanner.divCollapeBlock);
-      domLabelName.scanner.Collapsed = $divCollapeBlock.is(":visible");
-
-      $divCollapeBlock.fadeToggle(100);
-      backgroundPage.saveStorage();
-   });
-
-   // Open
-   $(currentScanner.inputOpen).click(function ()
-   {
-       chrome.tabs.create({ url: this.scanner.Site });
-   });
-
-   // Delete
-   $(currentScanner.inputDelete).click(function ()
-   {
-       deleteScanner(this.scanner);
-   });
-
-   // CheckNow
-   $(currentScanner.inputCheckNow).click(function ()
-   {
-      backgroundPage.CheckScanners(this.scanner, true);
-   });
-
-   // Result 
-   // no event...
-
-   // ArraySelector
-   $(currentScanner.inputArraySelector).on("change keyup", function ()   // change paste keyup
-   {
-      this.scanner.ArraySelector = $(this).val();
-      backgroundPage.saveStorage();
-   });
-
-   // Enabled
-   $(currentScanner.inputEnabled).on("change keyup", function ()   // change paste keyup
-   {
-      this.scanner.Enabled = $(this).prop("checked");
-      backgroundPage.saveStorage();
-      // display number of unvalidated (and enabled) scanner 
-      backgroundPage.countUnValided();
-      backgroundPage.console.log("popup inputEnabled changed");
-   });
-
-   // Validated
-   $(currentScanner.inputValidated).on("change keyup", function ()   // change paste keyup
-   {
-      this.scanner.Validated = $(this).prop("checked");
-      backgroundPage.saveStorage();
-      // display number of unvalidated (and enabled) scanner 
-      backgroundPage.countUnValided();
-      backgroundPage.console.log("popup inputValidated changed");
-   });
-
-   // Hash  
-   // no event...
-
-   // CheckTime
-   // no event...
-}
 
