@@ -7,8 +7,6 @@ var pollInterval = 1000 * 3;     // poll interval
 var timerId ;                    // poll interval timer
 
 // used by CheckScanners, requestCallBack
-var toScanCount = 0 ;             // number of csanner to check
-var scannedCount = 0 ;            // number of scanner already checked
 var totalScannedCount = 0 ;       // number of scan performed
 var needToBeSaved = false ;       // flag indicate if the scanner list need to be saved after all scan
 
@@ -83,6 +81,7 @@ function saveStorage()
         scannerCopy.CheckTime       = scanner.CheckTime;
         scannerCopy.PollingInterval = scanner.PollingInterval;
         scannerCopy.Collapsed       = scanner.Collapsed;
+        scannerCopy.IsError         = scanner.IsError;
 
         scannerCopyList.push(scannerCopy);        
     }
@@ -115,7 +114,6 @@ function stopRequest()
  * @returns {} 
  */
 // callback is called by XMLHttpRequest.OnLoad
-// callback use theses 3 vars : toScanCount, scannedCount, needToBeSaved 
 
 // progressEvent.currentTarget : XMLHttpRequest
 // progressEvent.currentTarget.responseURL
@@ -124,7 +122,14 @@ function requestCallBack (progressEvent)
     //console.log("requestCallBack");
 
     var request = progressEvent.currentTarget ;
-    var scanner = progressEvent.currentTarget.scanner ;
+    var scanner = progressEvent.currentTarget.scanner;
+
+    // if page was previously in error (then unvalidated automatically), revalidate it.
+    if (scanner.isError)
+    {
+        scanner.isError = false;
+        scanner.Validated = true;
+    }
     
     $(scanner.scannerView).attr('class', 'scanner_div_ok');
 
@@ -215,31 +220,52 @@ function requestOnError(progressEvent)
    scanner.resultString = "Error loading page !";
    scanner.newHash = "" ;
    scanner.Validated = false;
+   scanner.isError = true;
    afterScan(scanner);
 }
 
 function afterScan(scanner)
 {
-   var dformat = moment().format("YYYY/MM/DD HH:mm:ss");
-   scanner.CheckTime = dformat;                // view model : CheckTime
+    var dformat = moment().format("YYYY/MM/DD HH:mm:ss");
+    scanner.CheckTime = dformat;                // view model : CheckTime
+    scanner.IsRunning = false;
 
-   // save model
-   scannedCount++;
-   //console.log("afterScan " + scannedCount + "/" + toScanCount);
-   if (scannedCount === toScanCount)   // || specificScanner !== undefined
-   {
-      if (needToBeSaved)
-         saveStorage();
+    var run = runningCount();
+    console.log("afterScan. Scanned running :  " + run + ", name : " + scanner.Name);
+ 
+    if (currentPopup !== null)
+    {
+        if (scanner.isError)
+            $(scanner.anchor).addClass('scanner_div_err');
+        else
+            $(scanner.anchor).removeClass('scanner_div_err');
+    }
+ 
+    if (runningCount() === 0)  
+    {
+        if (needToBeSaved)
+            saveStorage();
+ 
+        // display number of unvalidated (and enabled) scanner
+        nextScanTime();
+        if (currentPopup !== null)
+        {
+            $(currentPopup).find("#span-waiting").removeClass("span-waiting");
+            currentPopup.RefreshView(); // refresh selected Scanner
+        }
+    }
+} 
 
-      // display number of unvalidated (and enabled) scanner
-      nextScanTime();
-      if (currentPopup !== null)
-      {
-          $(currentPopup).find("#span-waiting").removeClass("span-waiting");
-          currentPopup.RefreshView() ; // refresh selected Scanner
-
-      }
-   }
+function runningCount()
+{
+    var result = 0 ;
+    for (let k = 0; k < scannerList.length; k++) 
+    {
+        var checkScanner = scannerList[k];
+        if (checkScanner.IsRunning === true)
+            result++;
+    }
+    return result;
 }
 
 function nextScanTime()
@@ -289,7 +315,7 @@ function nextScanTime()
             "Next scan in " + diffFormat + "\n" +
             "Total scanned page count : " + totalScannedCount + "\n" +
             "Not validated page count : " + unvalidatedScanner +"\n" + 
-            "Waiting : " + toScanCount
+            "Waiting : " + runningCount()
       });
    }
 }
@@ -303,26 +329,21 @@ function CheckScanners(specificScanner, ignoreTime)
 {
     //ttrace.debug.send("CheckScanners");
 
-    toScanCount = scannerList.length ;
-    if (specificScanner !== null)
-        toScanCount = 1 ;    
+    var toScanCount = 0 ;    
     
-    //console.log("CheckScanners start " + toScanCount);
-    scannedCount = 0 ;
     needToBeSaved = false ;
     for (let i = 0; i < scannerList.length; i++)
     {
-        var scanner = scannerList[i] ;
+        var scanner = scannerList[i];
+
+        scanner.IsRunning = false;
+        
         if (specificScanner !== null && scanner !== specificScanner)
             continue ; 
         
         // if specific scanner is used, don't check for enabled
         if (specificScanner === null && scanner.Enabled === false)
-        {
-           toScanCount--;
-           //console.log("CheckScanners not enabled" + toScanCount);
            continue;
-        }
 
         if (specificScanner === null && ignoreTime === false)
         {
@@ -336,15 +357,13 @@ function CheckScanners(specificScanner, ignoreTime)
             var m = moment(scanner.CheckTime, "YYYY/MM/DD HH:mm:ss");
             m.add(scanner.PollingInterval, 'minutes');
             if (m.isAfter(moment())) 
-            {
-               toScanCount-- ;
-               //console.log("CheckScanners not time" + toScanCount);
                continue;
-            }
         }
 
-        scanner.index = i ;
-        var url = scanner.Site ;
+        scanner.IsRunning = true;
+        //scanner.isError = false;      // keep error
+
+        var url = scanner.Site;
         // ReSharper disable once InconsistentNaming
         var xhr = new XMLHttpRequest();
         xhr.scanner = scanner; // save to xhr for later retreival (onload callback) 
@@ -361,12 +380,16 @@ function CheckScanners(specificScanner, ignoreTime)
            $(currentPopup).find("#span-waiting").addClass("span-waiting");
 
         totalScannedCount++;   // total number of page scanned
-
+        toScanCount++;
         xhr.onerror = requestOnError;
         xhr.onload = requestCallBack;
 
         xhr.open("GET", url, true);         // xhrReq.open(method, url, async, user, password); 
-        xhr.send(null);                     // fire onload
+        try {
+            xhr.send(null);                     // fire onload
+        } catch (e) {
+            // eat exception
+        }
     }   
     if (toScanCount === 0)
        nextScanTime();    

@@ -244,7 +244,12 @@ function AddScannerToListUl(scanner)
    $li.append($anchor);                                 // attach the 2 views <li><a> together
 
    $("#scannerListUl").append($li) ;                    // append to parent view
-   
+
+   if (scanner.isError)
+      $anchor.addClass('scanner_div_err');
+   else
+      $anchor.removeClass('scanner_div_err');
+
    $anchor.click(function ()                                // view click    
    {
       $("#scannerListUl li a").removeClass("selected");     // remove "selected" class to all <a>
@@ -268,7 +273,12 @@ function RefreshView()
    $inputEnabled        .prop("checked",selectedScanner.Enabled);          // input checkbox
    $inputValidated      .prop("checked",selectedScanner.Validated);        // input checkbox
 
-   // todo : $(scanner.scannerView).attr('class', 'scanner_div_err');
+   if (selectedScanner.isError)
+       $(selectedScanner.anchor).addClass('scanner_div_err');  // $(scanner.scannerView).attr('class', 'scanner_div_err');
+   else
+       $(selectedScanner.anchor).removeClass('scanner_div_err');
+
+   
 }
 
 
