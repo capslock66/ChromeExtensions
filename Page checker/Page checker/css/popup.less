@@ -47,10 +47,10 @@ html {
 }
 
 .span-waiting {
-    background:url('waiting.gif') ;   /*repeat*/
+    background:url('loader.gif') ;   /*repeat*/  /*waiting*/
     display: inline-block;
-    height: 25px;
-    width: 25px;
+    height: 16px;
+    width: 16px;
 }
 
 #scannerListUl {
@@ -63,7 +63,7 @@ html {
             border: 1px solid black;
             color: black;
             display: block;
-            padding: 5px;
+            padding: 5px 5px 5px 20px;
             text-align: left;
             text-decoration: none;
             &:hover {
@@ -73,6 +73,13 @@ html {
         a.selected {
             background-color: @colorBackground;
             border: 1px solid @colorGreen;
+        }
+        a.scanning::before {
+            content:"";
+            background:url('loader.gif') ;   /*repeat*/  /*waiting*/
+            display: inline-block;
+            height: 16px;
+            width: 16px;
         }
         a.scanner_div_err {
             color:red;
