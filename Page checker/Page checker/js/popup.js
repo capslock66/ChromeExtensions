@@ -268,7 +268,7 @@ function RefreshView()
     $inputName           [0].value =     selectedScanner.Name;              // textarea
     $inputSite           [0].value =     selectedScanner.Site;              // textarea
     $inputSearchSelector [0].value =     selectedScanner.SearchSelector;    // textarea
-    $inputResult         [0].innerText = selectedScanner.resultString;      // span
+    $inputResult         [0].value =     selectedScanner.resultString;      // textarea readonly
     $inputArraySelector  [0].value =     selectedScanner.ArraySelector;     // input
     $inputPollingInterval[0].value =     selectedScanner.PollingInterval;   // input
     $inputCheckTime      [0].innerText = selectedScanner.CheckTime;         // span

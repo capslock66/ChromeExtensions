@@ -12,10 +12,9 @@
     <script data-main="js/popup" src="components/require.js"> </script>
     
     <div id="actions" class="div-left">
-        <input type="button" class="scanner_action" id="check_all_button"    value="Check all" />
-        <input type="button" class="scanner_action" id="add_page_button"     value="Add current Page" />
-        <ul id=scannerListUl>
-        </ul>
+        <input type="button" class="scanner_action" id="check_all_button" value="Check all" />
+        <input type="button" class="scanner_action" id="add_page_button"  value="Add current Page" />
+        <ul id="scannerListUl"></ul>
     </div>
 
     <div class="div-right">
@@ -37,7 +36,7 @@
         <textarea id="template_SearchSelector" class="span-right">#ctl00_ArticleTabs_CmtCnt</textarea>
 
         <p>Search result</p>
-        <span id="template_Result" class="template_Result">some tags</span>
+        <textarea id="template_Result" class="template_Result" readonly>some tags</textarea>
 
         <p>Array Selection</p>
         <span class="span-right">

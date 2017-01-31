@@ -21,7 +21,7 @@ html {
   float: left;
   overflow: auto;
   overflow-x: hidden;
-  background-color: #cbf7f7;
+  background-color: rgba(203, 247, 247, 0.5);
   border-radius: 6px;
   border: 1px solid black;
   padding: 8px;
@@ -31,13 +31,14 @@ html {
 }
 #scannerListUl {
   list-style-type: none;
-  margin: 0;
+  margin-top: 2;
   overflow: hidden;
   padding: 0;
 }
 #scannerListUl li a {
   position: relative;
-  border: 1px solid black;
+  border-left: 1px  solid black;
+  border-bottom: 1px  solid black;
   color: black;
   display: block;
   padding: 5px 5px 5px 20px;
@@ -45,11 +46,11 @@ html {
   text-decoration: none;
 }
 #scannerListUl li a:hover {
-  background-color: #4caf50;
+  background-color: #7cb77f;
 }
 #scannerListUl li a.selected {
-  background-color: #cbf7f7;
-  border: 1px solid #4caf50;
+  background-color: rgba(203, 247, 247, 0.5);
+  border: 1px solid #7cb77f;
 }
 #scannerListUl li a.scanning::before {
   content: "";
@@ -73,8 +74,10 @@ html {
                 #f1f1c1 .75%);
             border-radius:6px;
             padding: 5px;
-
             */
+}
+#scannerListUl li:first-child {
+  border-top: 1px  solid black;
 }
 .scannerList_table {
   border-collapse: separate;
@@ -103,9 +106,10 @@ html {
 }
 .template_Result {
   border: 1px solid black;
-  max-height: 110px;
+  max-height: 200px;
   min-height: 22px;
   overflow: auto;
+  background: none;
 }
 #template_ArraySelector {
   width: 50px;
