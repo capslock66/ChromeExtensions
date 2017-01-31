@@ -235,49 +235,51 @@ function fillScannerTable()
 
 function AddScannerToListUl(scanner)
 {
-   var $anchor = $("<a>" + scanner.Name + "</a>") ;     // create view <a>
-   var anchor = $anchor[0];
-   anchor.scanner = scanner ;                           // link model to view
-   scanner.anchor = anchor ;
-   var $li = $("<li></li>");                            // create view <li>
-   $li.attr({ id: scanner.id });                        // set row id
-   $li.append($anchor);                                 // attach the 2 views <li><a> together
-
-   $("#scannerListUl").append($li) ;                    // append to parent view
-
-   if (scanner.isError)
-      $anchor.addClass('scanner_div_err');
-   else
-      $anchor.removeClass('scanner_div_err');
-
-   $anchor.click(function ()                                // view click    
-   {
-      $("#scannerListUl li a").removeClass("selected");     // remove "selected" class to all <a>
-      $(this).addClass('selected');                         // set the selected class to the <a>
-      selectedScanner = scanner ;
-      RefreshView();
-   });
+    var $anchor = $("<a>" + scanner.Name + "</a>") ;     // create view <a>
+    var anchor = $anchor[0];
+    anchor.scanner = scanner ;                           // link model to view
+    scanner.anchor = anchor ;
+    var $li = $("<li></li>");                            // create view <li>
+    $li.attr({ id: scanner.id });                        // set row id
+    $li.append($anchor);                                 // attach the 2 views <li><a> together
+ 
+    $("#scannerListUl").append($li) ;                    // append to parent view
+ 
+    if (scanner.isError)
+        $anchor.addClass('scanner_div_err');
+    //else
+    //    $anchor.removeClass('scanner_div_err');
+ 
+    if (scanner.IsScanning)
+        $(scanner.anchor).addClass('scanning');
+ 
+    $anchor.click(function ()                                 // view click    
+    {
+        $("#scannerListUl li a").removeClass("selected");     // remove "selected" class to all <a>
+        $(this).addClass('selected');                         // set the selected class to the <a>
+        selectedScanner = scanner ;
+        RefreshView();
+    });
 }
 
 // bind scanner properties to the view
 function RefreshView()
 {
-   $inputName           [0].value =     selectedScanner.Name;              // textarea
-   $inputSite           [0].value =     selectedScanner.Site;              // textarea
-   $inputSearchSelector [0].value =     selectedScanner.SearchSelector;    // textarea
-   $inputResult         [0].innerText = selectedScanner.resultString;      // span
-   $inputArraySelector  [0].value =     selectedScanner.ArraySelector;     // input
-   $inputPollingInterval[0].value =     selectedScanner.PollingInterval;   // input
-   $inputCheckTime      [0].innerText = selectedScanner.CheckTime;         // span
-   $inputChecksum       [0].innerText = selectedScanner.newHash;           // span
-   $inputEnabled        .prop("checked",selectedScanner.Enabled);          // input checkbox
-   $inputValidated      .prop("checked",selectedScanner.Validated);        // input checkbox
-
-   if (selectedScanner.isError)
-       $(selectedScanner.anchor).addClass('scanner_div_err');  // $(scanner.scannerView).attr('class', 'scanner_div_err');
-   else
-       $(selectedScanner.anchor).removeClass('scanner_div_err');
-
+    $inputName           [0].value =     selectedScanner.Name;              // textarea
+    $inputSite           [0].value =     selectedScanner.Site;              // textarea
+    $inputSearchSelector [0].value =     selectedScanner.SearchSelector;    // textarea
+    $inputResult         [0].innerText = selectedScanner.resultString;      // span
+    $inputArraySelector  [0].value =     selectedScanner.ArraySelector;     // input
+    $inputPollingInterval[0].value =     selectedScanner.PollingInterval;   // input
+    $inputCheckTime      [0].innerText = selectedScanner.CheckTime;         // span
+    $inputChecksum       [0].innerText = selectedScanner.newHash;           // span
+    $inputEnabled        .prop("checked",selectedScanner.Enabled);          // input checkbox
+    $inputValidated      .prop("checked",selectedScanner.Validated);        // input checkbox
+ 
+    if (selectedScanner.isError)
+        $(selectedScanner.anchor).addClass('scanner_div_err');  // $(scanner.scannerView).attr('class', 'scanner_div_err');
+    else
+        $(selectedScanner.anchor).removeClass('scanner_div_err');
    
 }
 

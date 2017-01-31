@@ -228,7 +228,7 @@ function afterScan(scanner)
 {
     var dformat = moment().format("YYYY/MM/DD HH:mm:ss");
     scanner.CheckTime = dformat;                // view model : CheckTime
-    scanner.IsRunning = false;
+    scanner.IsScanning = false;
 
     var run = runningCount();
     console.log("afterScan. Scanned running :  " + run + ", name : " + scanner.Name);
@@ -239,6 +239,7 @@ function afterScan(scanner)
             $(scanner.anchor).addClass('scanner_div_err');
         else
             $(scanner.anchor).removeClass('scanner_div_err');
+        $(scanner.anchor).removeClass('scanning');
     }
  
     if (runningCount() === 0)  
@@ -249,10 +250,7 @@ function afterScan(scanner)
         // display number of unvalidated (and enabled) scanner
         nextScanTime();
         if (currentPopup !== null)
-        {
-            $(currentPopup).find("#span-waiting").removeClass("span-waiting");
             currentPopup.RefreshView(); // refresh selected Scanner
-        }
     }
 } 
 
@@ -262,7 +260,7 @@ function runningCount()
     for (let k = 0; k < scannerList.length; k++) 
     {
         var checkScanner = scannerList[k];
-        if (checkScanner.IsRunning === true)
+        if (checkScanner.IsScanning === true)
             result++;
     }
     return result;
@@ -336,7 +334,7 @@ function CheckScanners(specificScanner, ignoreTime)
     {
         var scanner = scannerList[i];
 
-        scanner.IsRunning = false;
+        scanner.IsScanning = false;
         
         if (specificScanner !== null && scanner !== specificScanner)
             continue ; 
@@ -360,7 +358,10 @@ function CheckScanners(specificScanner, ignoreTime)
                continue;
         }
 
-        scanner.IsRunning = true;
+        if (currentPopup !== null)
+            $(scanner.anchor).addClass('scanning');
+
+        scanner.IsScanning = true;
         //scanner.isError = false;      // keep error
 
         var url = scanner.Site;
@@ -375,9 +376,6 @@ function CheckScanners(specificScanner, ignoreTime)
             xhr.isManualCheck = true;
         else
             xhr.isManualCheck = false;
-
-        if (currentPopup !== null)
-           $(currentPopup).find("#span-waiting").addClass("span-waiting");
 
         totalScannedCount++;   // total number of page scanned
         toScanCount++;

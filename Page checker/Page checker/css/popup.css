@@ -29,14 +29,6 @@ html {
 .scanner_action {
   vertical-align: top;
 }
-.span-waiting {
-  background: url('loader.gif');
-  /*repeat*/
-  /*waiting*/
-  display: inline-block;
-  height: 16px;
-  width: 16px;
-}
 #scannerListUl {
   list-style-type: none;
   margin: 0;
@@ -44,6 +36,7 @@ html {
   padding: 0;
 }
 #scannerListUl li a {
+  position: relative;
   border: 1px solid black;
   color: black;
   display: block;
@@ -60,9 +53,11 @@ html {
 }
 #scannerListUl li a.scanning::before {
   content: "";
+  z-index: 1;
+  position: absolute;
+  left: 2px;
+  top: 5px;
   background: url('loader.gif');
-  /*repeat*/
-  /*waiting*/
   display: inline-block;
   height: 16px;
   width: 16px;

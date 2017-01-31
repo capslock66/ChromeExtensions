@@ -46,13 +46,6 @@ html {
     vertical-align: top;
 }
 
-.span-waiting {
-    background:url('loader.gif') ;   /*repeat*/  /*waiting*/
-    display: inline-block;
-    height: 16px;
-    width: 16px;
-}
-
 #scannerListUl {
     list-style-type: none;
     margin: 0;
@@ -60,6 +53,7 @@ html {
     padding: 0;
     li {
         a {
+            position: relative;
             border: 1px solid black;
             color: black;
             display: block;
@@ -76,7 +70,11 @@ html {
         }
         a.scanning::before {
             content:"";
-            background:url('loader.gif') ;   /*repeat*/  /*waiting*/
+            z-index: 1;
+            position: absolute;
+            left: 2px;
+            top: 5px;
+            background:url('loader.gif') ;   
             display: inline-block;
             height: 16px;
             width: 16px;
