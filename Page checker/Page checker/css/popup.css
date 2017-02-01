@@ -56,11 +56,17 @@ html {
 #scannerListUl li a:hover {
   background-color: #7cb77f;
 }
-#scannerListUl li a.selected {
+#scannerListUl li a.scanner_selected {
   background-color: rgba(203, 247, 247, 0.5);
   border: 2px solid #7cb77f;
 }
-#scannerListUl li a.scanning::before {
+#scannerListUl li a.scanner_not_validated {
+  font-weight: bold;
+}
+#scannerListUl li a.scanner_not_enabled {
+  font-style: oblique;
+}
+#scannerListUl li a.scanner_scanning::before {
   content: "";
   z-index: 1;
   position: absolute;
@@ -71,7 +77,7 @@ html {
   height: 16px;
   width: 16px;
 }
-#scannerListUl li a.scanner_div_err {
+#scannerListUl li a.scanner_err {
   color: red;
   font-weight: bold;
   /*

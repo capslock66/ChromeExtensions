@@ -73,11 +73,17 @@ html {
                 background-color: @colorGreen;
             }
         }
-        a.selected {
+        a.scanner_selected {
             background-color: @colorBackground;
             border: 2px  solid @colorGreen;
         }
-        a.scanning::before {
+        a.scanner_not_validated {
+            font-weight: bold;
+        }
+        a.scanner_not_enabled {
+            font-style: oblique;            
+        }
+        a.scanner_scanning::before {
             content:"";
             z-index: 1;
             position: absolute;
@@ -88,7 +94,7 @@ html {
             height: 16px;
             width: 16px;
         }
-        a.scanner_div_err {
+        a.scanner_err {
             color:red;
             font-weight: bold;
             /*
