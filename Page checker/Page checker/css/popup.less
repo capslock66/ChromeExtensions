@@ -28,6 +28,10 @@ html {
     width:@widthLeft;
     height:@heightPopup;
     float:left;
+    div {
+        border-bottom: 1px solid gray; 
+        padding-bottom: 3px;
+    }
 }
 
 .div-right {
@@ -36,9 +40,9 @@ html {
     float:left;
     overflow: auto;     // scrollbar
     overflow-x: hidden;
-    background-color: @colorBackground;
+    /*background-color: @colorBackground;*/
     border-radius:6px;
-    border: 1px solid black;
+    border: 1px solid gray;
     padding: 8px;
 }
 
@@ -48,14 +52,18 @@ html {
 
 #scannerListUl {
     list-style-type: none;
-    margin-top: 2;
+    margin-top: 3;
     overflow: hidden;
     padding: 0;
     li {
         a {
             position: relative;
+            /*
             border-left: 1px  solid black;
             border-bottom: 1px  solid black;
+            */
+            margin-bottom : 1px ;
+            background-color: ghostwhite;
             color: black;
             display: block;
             padding: 5px 5px 5px 20px;
@@ -67,7 +75,7 @@ html {
         }
         a.selected {
             background-color: @colorBackground;
-            border: 1px solid @colorGreen;
+            border: 2px  solid @colorGreen;
         }
         a.scanning::before {
             content:"";
@@ -95,7 +103,7 @@ html {
         }
     }
     li:first-child { 
-        border-top: 1px  solid black;
+        /*border-top: 1px  solid black;*/
     }
 }
 
@@ -105,42 +113,51 @@ html {
     width:auto;
 }
 
+/* Polling interval, Last check time, Checksum*/
 .span-group {
-    border: 1px solid;
+    border-bottom: 1px solid gray;
     display: inline-block;
     height: 22px;
+    width:@widthRight;
     
-    margin-right: 3px;  // margin outsite border
+    // margin outsite border
+    margin-right: 3px;  
     margin-top : 3px;
 
-    padding-bottom:4px; // padding inside border
-    padding-left:5px;
-    padding-right: 5px;
+    // padding inside border
+    padding-bottom:4px; 
+    // padding-left:5px;
+    // padding-right: 5px;
 }
 
-.span-left {
-    display: inline-block;
-    vertical-align: top;
-    width:130px;
-}
-
+/*editors on right pane*/
 .span-right {
     display: inline-block;
     width:@widthRight;
 }
 
 .template_Result {
-    &:extend(.span-right);
-    border: 1px solid black;
+    display: inline-block;
+    width:@widthRight;
+    border: 1px solid gray;
     max-height: 200px;
     min-height: 22px;
-    overflow: auto;
-    background: none; 
+    overflow: auto;             /*scrollbar*/
+    background: none;           /*transparent*/
 }
 
-#template_ArraySelector {
-    width: 50px;
+.block_ArraySelector {
+    display: inline-block;
+    width:@widthRight;
+    padding-bottom:8px; // padding inside border
+    border-bottom: 1px solid gray;
+
+    #template_ArraySelector {
+        width: 50px;
+    }
+    
 }
+
 
 p {
     font-weight: bold;
