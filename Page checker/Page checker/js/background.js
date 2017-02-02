@@ -145,9 +145,38 @@ function requestCallBack (progressEvent)
 
     if (scanner.SearchSelector === '')
         searchResults = newDivElement;
-    else
-        searchResults = $(scanner.SearchSelector, newDivElement);
+    else {
+        try { 
+            searchResults = $(scanner.SearchSelector, newDivElement);
+        } catch(e) { 
+            scanner.resultString = e.toString();
+            scanner.newHash = "" ;
+            scanner.Validated = false;
+            scanner.isError = true;
+            afterScan(scanner);
+            return ;
+        }
+    }
     scanner.newHash = 0 ;  
+
+    /*
+    we have some options :
+
+    1) all text in all descendants
+    searchResults.text() 
+
+    2) text at first level
+
+    .clone()    //clone the element
+    .children() //select all the children
+    .remove()   //remove all the children
+    .end()  //again go back to selected element
+    .text();
+
+    3) searchResults[j].outerHTML
+
+    */
+
     
     if (searchResults.length !== 0)
     {
