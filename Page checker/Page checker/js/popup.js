@@ -118,6 +118,8 @@ function popupInit()
            if (selectedScanner === null)
                return ;
            selectedScanner.Name = $(this).val();
+           selectedScanner.anchor.innerHTML = selectedScanner.Name ;
+             
            backgroundPage.saveStorage();
         });
  
