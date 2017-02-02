@@ -234,13 +234,7 @@ function afterScan(scanner)
     console.log("afterScan. Scanned running :  " + run + ", name : " + scanner.Name);
  
     if (currentPopup !== null)
-    {
-        if (scanner.isError)
-            $(scanner.anchor).addClass('scanner_div_err');
-        else
-            $(scanner.anchor).removeClass('scanner_div_err');
-        $(scanner.anchor).removeClass('scanning');
-    }
+        currentPopup.SetScannerClass(scanner);
  
     if (runningCount() === 0)  
     {
@@ -359,7 +353,7 @@ function CheckScanners(specificScanner, ignoreTime)
         }
 
         if (currentPopup !== null)
-            $(scanner.anchor).addClass('scanning');
+            $(scanner.anchor).addClass('scanner_scanning');
 
         scanner.IsScanning = true;
         //scanner.isError = false;      // keep error

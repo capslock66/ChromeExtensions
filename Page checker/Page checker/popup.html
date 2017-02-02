@@ -12,8 +12,10 @@
     <script data-main="js/popup" src="components/require.js"> </script>
     
     <div id="actions" class="div-left">
-        <input type="button" class="scanner_action" id="check_all_button" value="Check all" />
-        <input type="button" class="scanner_action" id="add_page_button"  value="Add current Page" />
+        <div>
+            <input type="button" class="scanner_action" id="check_all_button" value="Check all" />
+            <input type="button" class="scanner_action" id="add_page_button"  value="Add current Page" />
+        </div>
         <ul id="scannerListUl"></ul>
     </div>
 
@@ -25,6 +27,12 @@
         <span style="display: inline-block; width: 15px"> </span>
 
         <input type="button" value="Delete" id="template_Delete" />
+        <span style="display: inline-block; width: 15px"> </span>
+
+        <input type="checkbox" id="template_Enabled" /> <span>Enabled</span>
+        <span style="display: inline-block; width: 15px"> </span>
+
+        <input type="checkbox" id="template_Validated" /> <span>Validated</span>
 
         <p class="span-Name">Name</p>
         <textarea id="template_Name" class="span-right">my name</textarea>
@@ -39,7 +47,7 @@
         <textarea id="template_Result" class="template_Result" readonly>some tags</textarea>
 
         <p>Array Selection</p>
-        <span class="span-right">
+        <span class="block_ArraySelector">
             <span>
                 <input id="template_ArraySelector">
                 <span style="display: inline-block;width:3px"> </span>
@@ -47,28 +55,21 @@
             </span>
         </span>
 
-        <span class="span-group" style="width: 230px;">
+        <span class="span-group" >  <!--style="width: 230px;"-->
             <span>Polling interval</span>
             <input id="template_PollingInterval" style="width:60px">
             <span>minutes</span>
         </span>
-        <span class="span-group" style="width: 270px;">
+ 
+        <span class="span-group" >  <!--style="width: 270px;"-->
             <span>Last check time</span>
             <span style="display: inline-block;width:5px"> </span>
             <span style="color:blue" id="template_CheckTime">123</span>
-        </span>
-        <span class="span-group" style="width: 185px;">
+            <span style="display: inline-block;width:3px"> </span>
             <span>Checksum</span>
             <span style="display: inline-block;width:5px"> </span>
             <span style="color:blue" id="template_Checksum">123</span>
         </span>
-
-        <div>
-            <input type="checkbox" id="template_Enabled" /> <span>Enabled</span>
-            <span style="display: inline-block; width: 15px"> </span>
-            <input type="checkbox" id="template_Validated" /> <span>Validated</span>
-        </div>
-
 
     </div>
 

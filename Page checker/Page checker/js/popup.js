@@ -43,7 +43,8 @@ function popupInit()
     $(document).ready(function() 
     {
         backgroundPage.currentPopup = this;
-        backgroundPage.currentPopup.RefreshView = RefreshView ;
+        backgroundPage.currentPopup.RefreshView = RefreshView;
+        backgroundPage.currentPopup.SetScannerClass = SetScannerClass;
 
         addEventListener("unload", function (event)
         {
@@ -117,6 +118,8 @@ function popupInit()
            if (selectedScanner === null)
                return ;
            selectedScanner.Name = $(this).val();
+           selectedScanner.anchor.innerHTML = selectedScanner.Name ;
+             
            backgroundPage.saveStorage();
         });
  
@@ -162,10 +165,12 @@ function popupInit()
            if (selectedScanner === null)
                return ;
            selectedScanner.Enabled = $(this).prop("checked");
+           SetScannerClass(selectedScanner);
            backgroundPage.saveStorage();
            // display number of unvalidated (and enabled) scanner 
            backgroundPage.countUnValided();
            backgroundPage.console.log("popup inputEnabled changed");
+
         });
  
         // Validated
@@ -174,6 +179,7 @@ function popupInit()
            if (selectedScanner === null)
                return ;
            selectedScanner.Validated = $(this).prop("checked");
+           SetScannerClass(selectedScanner);
            backgroundPage.saveStorage();
            // display number of unvalidated (and enabled) scanner 
            backgroundPage.countUnValided();
@@ -244,22 +250,41 @@ function AddScannerToListUl(scanner)
     $li.append($anchor);                                 // attach the 2 views <li><a> together
  
     $("#scannerListUl").append($li) ;                    // append to parent view
- 
-    if (scanner.isError)
-        $anchor.addClass('scanner_div_err');
-    //else
-    //    $anchor.removeClass('scanner_div_err');
- 
-    if (scanner.IsScanning)
-        $(scanner.anchor).addClass('scanning');
+    SetScannerClass(scanner);
  
     $anchor.click(function ()                                 // view click    
     {
-        $("#scannerListUl li a").removeClass("selected");     // remove "selected" class to all <a>
-        $(this).addClass('selected');                         // set the selected class to the <a>
+        $("#scannerListUl li a").removeClass("scanner_selected");     // remove "selected" class to all <a>
+        $(this).addClass('scanner_selected');                         // set the selected class to the <a>
         selectedScanner = scanner ;
         RefreshView();
     });
+}
+
+function SetScannerClass(scanner)
+{
+    if (scanner.isError)
+        $(scanner.anchor).addClass('scanner_err');
+    else
+        $(scanner.anchor).removeClass('scanner_err');
+
+    if (scanner.IsScanning)
+        $(scanner.anchor).addClass('scanner_scanning');
+    else
+        $(scanner.anchor).removeClass('scanner_scanning');
+
+    if (scanner.Enabled === false)
+        $(scanner.anchor).addClass('scanner_not_enabled');
+    else
+        $(scanner.anchor).removeClass('scanner_not_enabled');
+
+    if (scanner.Validated === false)
+        $(scanner.anchor).addClass('scanner_not_validated');
+    else
+        $(scanner.anchor).removeClass('scanner_not_validated');
+
+    // validated : 
+
 }
 
 // bind scanner properties to the view
@@ -274,13 +299,7 @@ function RefreshView()
     $inputCheckTime      [0].innerText = selectedScanner.CheckTime;         // span
     $inputChecksum       [0].innerText = selectedScanner.newHash;           // span
     $inputEnabled        .prop("checked",selectedScanner.Enabled);          // input checkbox
-    $inputValidated      .prop("checked",selectedScanner.Validated);        // input checkbox
- 
-    if (selectedScanner.isError)
-        $(selectedScanner.anchor).addClass('scanner_div_err');  // $(scanner.scannerView).attr('class', 'scanner_div_err');
-    else
-        $(selectedScanner.anchor).removeClass('scanner_div_err');
-   
+    $inputValidated      .prop("checked",selectedScanner.Validated);        // input checkbox  
 }
 
 
