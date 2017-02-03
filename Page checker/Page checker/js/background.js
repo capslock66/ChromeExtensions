@@ -49,6 +49,9 @@ function backgroundInit()
        for (var i = 0; i < scannerList.length; i++)
        {
            var scanner = scannerList[i];
+           if (scanner.ParsingMethod === undefined)
+               scanner.ParsingMethod = "OuterHTML" ;
+
            scanner.id = "scannerTr" + i;
        }
        scannerNextId = scannerList.length;      // next id : 10
@@ -77,6 +80,7 @@ function saveStorage()
         scannerCopy.Validated       = scanner.Validated ;
         scannerCopy.Site            = scanner.Site ;
         scannerCopy.SearchSelector  = scanner.SearchSelector ; 
+        scannerCopy.ParsingMethod   = scanner.ParsingMethod ;
         scannerCopy.Hash            = scanner.Hash ;
         scannerCopy.CheckTime       = scanner.CheckTime;
         scannerCopy.PollingInterval = scanner.PollingInterval;
@@ -222,21 +226,41 @@ function convertSearchResult(scanner, searchResult)
     /*
     some options :
 
+                <option value="InnerHTML">Inner html</option>
+                <option value="OuterHTML">Outer html</option>
+                <option value="AllText">  All Text (including sub node text)</option>
+                <option value="MainText"> Main text (no sub node text)</option>
+
     1) all text in all descendants
-    searchResults.text() 
+    searchResult.text() 
 
     2) text at first level
 
-    .clone()    //clone the element
-    .children() //select all the children
-    .remove()   //remove all the children
-    .end()  //again go back to selected element
-    .text();
-
-    3) searchResults[j].outerHTML
+    3) searchResult.outerHTML
+    4) searchResult.innerHTML
 
     */
+
+    if (scanner.ParsingMethod === "InnerHTML")
+        return searchResult.innerHTML;
+    if (scanner.ParsingMethod === "OuterHTML")
+        return searchResult.outerHTML;
+
+    if (scanner.ParsingMethod === "AllText")
+        return $(searchResult).text();
+
+    if (scanner.ParsingMethod === "MainText")
+    {
+        return $(searchResult)
+            //.clone()    // clone the element
+            .children() // select all the children
+            .remove()   // remove all the children
+            .end()      // go back to selected element
+            .text();
+    }
+
     return searchResult.outerHTML;
+
 }
 
 // progressEvent.currentTarget : XMLHttpRequest
