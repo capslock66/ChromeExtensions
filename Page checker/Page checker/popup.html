@@ -43,26 +43,40 @@
         <p>Search Selector</p>
         <textarea id="template_SearchSelector" class="span-right">#ctl00_ArticleTabs_CmtCnt</textarea>
 
-        <p>Search result</p>
-        <textarea id="template_Result" class="template_Result" readonly>some tags</textarea>
-
-        <p>Array Selection</p>
+        <p>Array selection</p>
         <span class="block_ArraySelector">
-            <span>
-                <input id="template_ArraySelector">
-                <span style="display: inline-block;width:3px"> </span>
-                <span>0=first, last=-1, use count as result = -2 </span>
-            </span>
+            <select id="template_ArraySelectorList">
+                <option value="0">First</option>
+                <option value="-1">Last</option>
+                <option value="-2">Use count as result</option>
+                <option value="-3">Specific index</option>
+            </select>
+            <input id="template_ArraySelector">
+            <!--<span style="display: inline-block;width:3px"> </span>-->
+            <!--<span>0=first, last=-1, use count as result = -2 </span>-->
         </span>
 
+        <p>Selection parsing</p>
+        <span class="block_ArraySelector">
+            <select id="template_ParsingMethod">
+                <option value="InnerHTML">Inner html</option>
+                <option value="OuterHTML">Outer html</option>
+                <option value="AllText">  All Text (including sub node text)</option>
+                <option value="MainText"> Main text (no sub node text)</option>
+            </select>
+        </span>
+
+        <p>Search result</p>
+        <textarea id="template_Result" class="template_Result" readonly>some tags</textarea>
+        
         <span class="span-group" >  <!--style="width: 230px;"-->
-            <span>Polling interval</span>
+            <span style="font-weight: bold;">Polling interval</span>
             <input id="template_PollingInterval" style="width:60px">
             <span>minutes</span>
         </span>
  
         <span class="span-group" >  <!--style="width: 270px;"-->
-            <span>Last check time</span>
+            <span style="font-weight: bold;">Last check time</span>
             <span style="display: inline-block;width:5px"> </span>
             <span style="color:blue" id="template_CheckTime">123</span>
             <span style="display: inline-block;width:3px"> </span>

@@ -49,6 +49,9 @@ function backgroundInit()
        for (var i = 0; i < scannerList.length; i++)
        {
            var scanner = scannerList[i];
+           if (scanner.ParsingMethod === undefined)
+               scanner.ParsingMethod = "OuterHTML" ;
+
            scanner.id = "scannerTr" + i;
        }
        scannerNextId = scannerList.length;      // next id : 10
@@ -77,6 +80,7 @@ function saveStorage()
         scannerCopy.Validated       = scanner.Validated ;
         scannerCopy.Site            = scanner.Site ;
         scannerCopy.SearchSelector  = scanner.SearchSelector ; 
+        scannerCopy.ParsingMethod   = scanner.ParsingMethod ;
         scannerCopy.Hash            = scanner.Hash ;
         scannerCopy.CheckTime       = scanner.CheckTime;
         scannerCopy.PollingInterval = scanner.PollingInterval;
@@ -145,10 +149,20 @@ function requestCallBack (progressEvent)
 
     if (scanner.SearchSelector === '')
         searchResults = newDivElement;
-    else
-        searchResults = $(scanner.SearchSelector, newDivElement);
+    else {
+        try { 
+            searchResults = $(scanner.SearchSelector, newDivElement);
+        } catch(e) { 
+            scanner.resultString = e.toString();
+            scanner.newHash = "" ;
+            scanner.Validated = false;
+            scanner.isError = true;
+            afterScan(scanner);
+            return ;
+        }
+    }
     scanner.newHash = 0 ;  
-    
+
     if (searchResults.length !== 0)
     {
         var arraySelector = Number(scanner.ArraySelector) ;
@@ -162,7 +176,7 @@ function requestCallBack (progressEvent)
         {
            // limit the number of result : take first 3 , the user chose (arraySelector) and the last one
             if (j < 3 || j === arraySelector || j === searchResults.length-1 )                
-                scanner.resultString = scanner.resultString + "\n" + "[" + j + "]" + searchResults[j].outerHTML ;
+                scanner.resultString = scanner.resultString + "\n" + "[" + j + "]" + convertSearchResult(scanner,searchResults[j]);
             else if (j === 3)
                 scanner.resultString = scanner.resultString + "\n" + "..." ;
         }
@@ -171,7 +185,7 @@ function requestCallBack (progressEvent)
         {
             // take last
             var index = searchResults.length-1  ;  
-            searchResult = searchResults[index].outerHTML ;                                        
+            searchResult = convertSearchResult(scanner,searchResults[index]);
         } else if (arraySelector === -2) { 
             // use count as a result
             searchResult = "" + searchResults.length ;
@@ -182,7 +196,7 @@ function requestCallBack (progressEvent)
                 searchResult = "Out of range" ;
                 scanner.resultString = scanner.resultString + "\n" + arraySelector + " : Out of range" ;
             } else {
-                searchResult = searchResults[arraySelector].outerHTML  ;
+                searchResult = convertSearchResult(scanner,searchResults[arraySelector]);
             }
         }  
     } else {
@@ -205,6 +219,48 @@ function requestCallBack (progressEvent)
     }
     scanner.Hash = scanner.newHash ;             // view model :  Hash           
     afterScan(scanner);
+}
+
+function convertSearchResult(scanner, searchResult)
+{
+    /*
+    some options :
+
+                <option value="InnerHTML">Inner html</option>
+                <option value="OuterHTML">Outer html</option>
+                <option value="AllText">  All Text (including sub node text)</option>
+                <option value="MainText"> Main text (no sub node text)</option>
+
+    1) all text in all descendants
+    searchResult.text() 
+
+    2) text at first level
+
+    3) searchResult.outerHTML
+    4) searchResult.innerHTML
+
+    */
+
+    if (scanner.ParsingMethod === "InnerHTML")
+        return searchResult.innerHTML;
+    if (scanner.ParsingMethod === "OuterHTML")
+        return searchResult.outerHTML;
+
+    if (scanner.ParsingMethod === "AllText")
+        return $(searchResult).text();
+
+    if (scanner.ParsingMethod === "MainText")
+    {
+        return $(searchResult)
+            //.clone()    // clone the element
+            .children() // select all the children
+            .remove()   // remove all the children
+            .end()      // go back to selected element
+            .text();
+    }
+
+    return searchResult.outerHTML;
+
 }
 
 // progressEvent.currentTarget : XMLHttpRequest

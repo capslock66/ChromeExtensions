@@ -4,21 +4,23 @@ var ttrace;
 var backgroundPage;
 var chrome;                     // remove warning about undeclared chrome var
 
-var $inputCheckAll        ;
-var $inputAddPage         ;
-var $inputCheckNow        ;
-var $inputOpen            ;
-var $inputDelete          ;
-var $inputName            ;
-var $inputSite            ;
-var $inputSearchSelector  ;
-var $inputResult          ;
-var $inputArraySelector   ;
-var $inputPollingInterval ;
-var $inputCheckTime       ;
-var $inputChecksum        ;
-var $inputEnabled         ;
-var $inputValidated       ;
+var $inputCheckAll          ;
+var $inputAddPage           ;
+var $inputCheckNow          ;
+var $inputOpen              ;
+var $inputDelete            ;
+var $inputName              ;
+var $inputSite              ;
+var $inputSearchSelector    ;
+var $inputResult            ;
+var $inputPollingInterval   ;
+var $inputCheckTime         ;
+var $inputChecksum          ;
+var $inputEnabled           ;
+var $inputValidated         ;
+var $inputArraySelector     ;
+var $inputArraySelectorList ;
+var $inputParsingMethod     ;
          
 
 var selectedScanner = null ;
@@ -52,21 +54,23 @@ function popupInit()
            backgroundPage.currentPopup = null;
         }, true);
 
-        $inputCheckAll        = $("#check_all_button") ;
-        $inputAddPage         = $("#add_page_button") ;
-        $inputCheckNow        = $("#template_CheckNow");
-        $inputOpen            = $("#template_Open") ;
-        $inputDelete          = $("#template_Delete") ;
-        $inputName            = $("#template_Name") ;
-        $inputSite            = $("#template_Site") ;
-        $inputSearchSelector  = $("#template_SearchSelector") ;
-        $inputResult          = $("#template_Result") ;
-        $inputArraySelector   = $("#template_ArraySelector") ;
-        $inputPollingInterval = $("#template_PollingInterval") ;
-        $inputCheckTime       = $("#template_CheckTime") ;
-        $inputChecksum        = $("#template_Checksum") ;
-        $inputEnabled         = $("#template_Enabled") ;
-        $inputValidated       = $("#template_Validated") ;
+        $inputCheckAll          = $("#check_all_button") ;
+        $inputAddPage           = $("#add_page_button") ;
+        $inputCheckNow          = $("#template_CheckNow");
+        $inputOpen              = $("#template_Open") ;
+        $inputDelete            = $("#template_Delete") ;
+        $inputName              = $("#template_Name") ;
+        $inputSite              = $("#template_Site") ;
+        $inputSearchSelector    = $("#template_SearchSelector") ;
+        $inputResult            = $("#template_Result") ;
+        $inputCheckTime         = $("#template_CheckTime") ;
+        $inputChecksum          = $("#template_Checksum") ;
+        $inputEnabled           = $("#template_Enabled") ;
+        $inputValidated         = $("#template_Validated") ;
+        $inputPollingInterval   = $("#template_PollingInterval") ;
+        $inputArraySelector     = $("#template_ArraySelector") ;
+        $inputArraySelectorList = $("#template_ArraySelectorList") ;
+        $inputParsingMethod     = $("#template_ParsingMethod") ;
 
         // check all button
         $inputCheckAll.click(function ()
@@ -150,6 +154,37 @@ function popupInit()
             backgroundPage.saveStorage();
         });
  
+        // ParsingMethod
+        $inputParsingMethod.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+           selectedScanner.ParsingMethod = $(this).val() ;
+           backgroundPage.saveStorage();
+        });
+
+        // ArraySelectorList
+        $inputArraySelectorList.on("change keyup", function ()   // change paste keyup
+        {
+           if (selectedScanner === null)
+               return ;
+           var selector = parseInt($(this).val());
+           if (selector === -3)
+           {
+               selector = $inputArraySelector [0].value ;
+               if (selector <= 0)
+                   selector = 1 ;
+               selectedScanner.ArraySelector = selector ;
+               $inputArraySelector [0].value = selectedScanner.ArraySelector;          // input
+               $inputArraySelector.show();
+           } else {
+               selectedScanner.ArraySelector = selector;
+               $inputArraySelector.hide();
+           }
+
+           backgroundPage.saveStorage();
+        });
+ 
         // ArraySelector
         $inputArraySelector.on("change keyup", function ()   // change paste keyup
         {
@@ -158,7 +193,7 @@ function popupInit()
            selectedScanner.ArraySelector = $(this).val();
            backgroundPage.saveStorage();
         });
- 
+
         // Enabled
         $inputEnabled.on("change keyup", function ()   // change paste keyup
         {
@@ -234,7 +269,7 @@ function fillScannerTable()
     }
     if (selectedScanner !== null)
     {
-      $(selectedScanner.anchor).addClass('selected');                         // set the selected class to the <a>
+      $(selectedScanner.anchor).addClass('scanner_selected');               // set the selected class to the <a>
       RefreshView();
     }
 }
@@ -290,16 +325,27 @@ function SetScannerClass(scanner)
 // bind scanner properties to the view
 function RefreshView()
 {
-    $inputName           [0].value =     selectedScanner.Name;              // textarea
-    $inputSite           [0].value =     selectedScanner.Site;              // textarea
-    $inputSearchSelector [0].value =     selectedScanner.SearchSelector;    // textarea
-    $inputResult         [0].value =     selectedScanner.resultString;      // textarea readonly
-    $inputArraySelector  [0].value =     selectedScanner.ArraySelector;     // input
-    $inputPollingInterval[0].value =     selectedScanner.PollingInterval;   // input
-    $inputCheckTime      [0].innerText = selectedScanner.CheckTime;         // span
-    $inputChecksum       [0].innerText = selectedScanner.newHash;           // span
-    $inputEnabled        .prop("checked",selectedScanner.Enabled);          // input checkbox
-    $inputValidated      .prop("checked",selectedScanner.Validated);        // input checkbox  
+    $inputName            [0].value =     selectedScanner.Name;                   // textarea
+    $inputSite            [0].value =     selectedScanner.Site;                   // textarea
+    $inputSearchSelector  [0].value =     selectedScanner.SearchSelector;         // textarea
+    $inputResult          [0].value =     selectedScanner.resultString;           // textarea readonly
+    $inputPollingInterval [0].value =     selectedScanner.PollingInterval;        // input
+    $inputCheckTime       [0].innerText = selectedScanner.CheckTime;              // span
+    $inputChecksum        [0].innerText = selectedScanner.newHash;                // span
+    $inputEnabled         .prop("checked",selectedScanner.Enabled);               // input checkbox
+    $inputValidated       .prop("checked",selectedScanner.Validated);             // input checkbox  
+    $inputParsingMethod   [0].value     = selectedScanner.ParsingMethod ;         // select
+
+    if (selectedScanner.ArraySelector > 0)
+        $inputArraySelectorList [0].value = "-3";                                 // select
+    else
+        $inputArraySelectorList [0].value =  "" + selectedScanner.ArraySelector;  // select
+    $inputArraySelector   [0].value =     selectedScanner.ArraySelector;          // input
+    if (selectedScanner.ArraySelector > 0)
+        $inputArraySelector.show();
+    else
+        $inputArraySelector.hide();
+
 }
 
 
