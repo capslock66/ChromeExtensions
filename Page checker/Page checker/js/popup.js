@@ -224,6 +224,34 @@ function popupInit()
            backgroundPage.console.log("popup inputValidated changed");
         });
  
+        $("ul").keydown(function (e) {
+            var $selectedAnchor = $("li a.scanner_selected");
+            if ($selectedAnchor.length === 0)  // no anchor selected 
+                return ;
+            var $selectedLi = $selectedAnchor.parent();
+            var $newSelectedLi ;
+
+            if (e.keyCode === 40) { // down
+                $newSelectedLi = $selectedLi.next();
+                if ($newSelectedLi.length === 0)  // no next <li> element
+                    return;
+            }
+            if (e.keyCode === 38) { // up
+                $newSelectedLi = $selectedLi.prev();
+                if ($newSelectedLi.length === 0)  // no next <li> element
+                    return;
+            }
+            if ($newSelectedLi === undefined)  // no prev or next <li>
+                return;
+            var $newSelectedAnchor = $newSelectedLi.children("a").first();
+            var anchor = $newSelectedAnchor.get();
+            var scanner = anchor.scanner;
+
+            $selectedAnchor.removeClass('scanner_selected');                // remove "scanner_selected" class to old selected <a>
+            $newSelectedAnchor.addClass('scanner_selected');                // set the scanner_selected class to the <a>
+            selectedScanner = scanner;
+            RefreshView();
+        });
         fillScannerTable();
     });
 }
@@ -292,11 +320,12 @@ function AddScannerToListUl(scanner)
  
     $anchor.click(function ()                                 // view click    
     {
-        $("#scannerListUl li a").removeClass("scanner_selected");     // remove "selected" class to all <a>
-        $(this).addClass('scanner_selected');                         // set the selected class to the <a>
+        $("#scannerListUl li a").removeClass("scanner_selected");     // remove "scanner_selected" class to all <a>
+        $(this).addClass('scanner_selected');                         // set the scanner_selected class to the <a>
         selectedScanner = scanner ;
         RefreshView();
     });
+
 }
 
 function SetScannerClass(scanner)
