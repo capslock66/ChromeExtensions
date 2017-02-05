@@ -20,7 +20,7 @@ html {
   padding-bottom: 3px;
 }
 .div-right {
-  width: 460px;
+  width: 465px;
   height: 570px;
   float: left;
   overflow: auto;
@@ -99,12 +99,30 @@ html {
   height: auto;
   width: auto;
 }
-/* Polling interval, Last check time, Checksum*/
-.span-group {
+.block_ArraySelector {
+  display: inline-block;
+  height: 22px;
+  width: 455px;
+  max-width: 455px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid gray;
+}
+#template_ArraySelector {
+  width: 50px;
+}
+.span-group1 {
+  display: inline-block;
+  height: 22px;
+  width: 455px;
+  max-width: 455px;
+  margin-right: 3px;
+  margin-top: 3px;
+}
+.span-group2 {
   border-bottom: 1px solid gray;
   display: inline-block;
   height: 22px;
-  width: 460px;
+  width: 455px;
   margin-right: 3px;
   margin-top: 3px;
   padding-bottom: 4px;
@@ -112,27 +130,19 @@ html {
 /*editors on right pane*/
 .span-right {
   display: inline-block;
-  width: 460px;
+  width: 455px;
+  max-width: 455px;
 }
 .template_Result {
   display: inline-block;
-  width: 460px;
+  width: 455px;
+  max-width: 455px;
   border: 1px solid gray;
-  max-height: 200px;
-  min-height: 22px;
+  height: 100px;
   overflow: auto;
   /*scrollbar*/
   background: none;
   /*transparent*/
-}
-.block_ArraySelector {
-  display: inline-block;
-  width: 460px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid gray;
-}
-.block_ArraySelector #template_ArraySelector {
-  width: 50px;
 }
 p {
   font-weight: bold;

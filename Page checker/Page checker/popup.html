@@ -8,15 +8,15 @@
     <!-- popup reuse tracetool from background <script type="text/javascript" src="components/tracetool/tracetool.js"></script> -->
     <!--<script type="text/javascript" src="components/jquery/jquery.min.js"></script>-->
     <!--<script src="js/popup.js"> </script>-->
-    
+
     <script data-main="js/popup" src="components/require.js"> </script>
-    
+
     <div id="actions" class="div-left">
         <div>
             <input type="button" class="scanner_action" id="check_all_button" value="Check all" />
-            <input type="button" class="scanner_action" id="add_page_button"  value="Add current Page" />
+            <input type="button" class="scanner_action" id="add_page_button" value="Add current Page" />
         </div>
-        <ul id="scannerListUl"></ul>
+        <ul id="scannerListUl" tabindex="1"></ul>  <!--tabindex is needed to receive focus-->
     </div>
 
     <div class="div-right">
@@ -43,21 +43,26 @@
         <p>Search Selector</p>
         <textarea id="template_SearchSelector" class="span-right">#ctl00_ArticleTabs_CmtCnt</textarea>
 
-        <p>Array selection</p>
-        <span class="block_ArraySelector">
+        <span style="display: inline-block;">
+            <span style="font-weight: bold;">Search result</span>
+            <span id="template_ResultResume"></span>
+        </span>
+        <textarea id="template_Result" class="template_Result" readonly></textarea>
+
+        <span class="span-group1"><!--block_ArraySelector-->
+            <span style="display: inline-block;width: 100px;font-weight: bold;">Array selection</span>
             <select id="template_ArraySelectorList">
                 <option value="0">First</option>
                 <option value="-1">Last</option>
                 <option value="-2">Use count as result</option>
                 <option value="-3">Specific index</option>
             </select>
+            <span style="display: inline-block; width: 18px"> </span>
             <input id="template_ArraySelector">
-            <!--<span style="display: inline-block;width:3px"> </span>-->
-            <!--<span>0=first, last=-1, use count as result = -2 </span>-->
         </span>
 
-        <p>Selection parsing</p>
-        <span class="block_ArraySelector">
+        <span class="span-group1">
+            <span style="display: inline-block;width: 100px;font-weight: bold;">Selection parsing</span>
             <select id="template_ParsingMethod">
                 <option value="InnerHTML">Inner html</option>
                 <option value="OuterHTML">Outer html</option>
@@ -66,27 +71,26 @@
             </select>
         </span>
 
-        <p>Search result</p>
-        <textarea id="template_Result" class="template_Result" readonly>some tags</textarea>
-        
-        <span class="span-group" >  <!--style="width: 230px;"-->
-            <span style="font-weight: bold;">Polling interval</span>
-            <input id="template_PollingInterval" style="width:60px">
-            <span>minutes</span>
+        <span class="span-group1">
+            <span style="display: inline-block;width: 220px;">
+                <span style="display: inline-block;width: 100px;font-weight: bold;">Polling interval</span>
+                <input id="template_PollingInterval" style="width:40px">
+                <span>minutes</span>
+            </span>
+            <span style="display: inline-block;width: 100px;font-weight: bold;">Last check time</span>
+            <span style="color: blue" id="template_CheckTime"></span>
         </span>
- 
-        <span class="span-group" >  <!--style="width: 270px;"-->
-            <span style="font-weight: bold;">Last check time</span>
-            <span style="display: inline-block;width:5px"> </span>
-            <span style="color:blue" id="template_CheckTime">123</span>
-            <span style="display: inline-block;width:3px"> </span>
-            <span>Checksum</span>
-            <span style="display: inline-block;width:5px"> </span>
-            <span style="color:blue" id="template_Checksum">123</span>
+
+        <span class="span-group1">
+            <span style="display: inline-block;width: 220px;">
+                <span style="display: inline-block;width: 100px;font-weight: bold;">Checksum</span>
+                <span style="color: blue" id="template_Checksum"></span>
+            </span>
+            <span style="display: inline-block; width: 100px;font-weight: bold;">Update time</span>
+            <span style="color: blue" id="template_UpdateTime"></span>
         </span>
 
     </div>
-
 </body>
 </html>
 <!-- ReSharper restore UnknownCssClass -->

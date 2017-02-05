@@ -13,7 +13,7 @@
 
 // Width variables
 @widthLeft: 300px; 
-@widthRight: 460px; 
+@widthRight: 455px; 
 
 // Height variables
 @heightPopup: 570px; 
@@ -35,7 +35,7 @@ html {
 }
 
 .div-right {
-    width:@widthRight;
+    width:@widthRight+10;   // give 10 px for scrollbar
     height:@heightPopup;
     float:left;
     overflow: auto;     // scrollbar
@@ -113,6 +113,7 @@ html {
     li:first-child { 
         /*border-top: 1px  solid black;*/
     }
+
 }
 
 .scannerList_table {
@@ -121,8 +122,33 @@ html {
     width:auto;
 }
 
-/* Polling interval, Last check time, Checksum*/
-.span-group {
+.block_ArraySelector {
+    display: inline-block;
+    height: 22px;
+    width:@widthRight;
+    max-width:@widthRight;
+    padding-bottom:8px; // padding inside border
+    border-bottom: 1px solid gray;
+}
+
+#template_ArraySelector {
+    width: 50px;
+}
+
+// Polling interval, Last check time
+.span-group1 {
+    display: inline-block;
+    height: 22px;
+    width:@widthRight;
+    max-width:@widthRight;
+    
+    // margin outsite border
+    margin-right: 3px;  
+    margin-top : 3px;
+}
+
+// Checksum, update time
+.span-group2 {
     border-bottom: 1px solid gray;
     display: inline-block;
     height: 22px;
@@ -134,37 +160,26 @@ html {
 
     // padding inside border
     padding-bottom:4px; 
-    // padding-left:5px;
-    // padding-right: 5px;
 }
 
 /*editors on right pane*/
 .span-right {
     display: inline-block;
     width:@widthRight;
+    max-width:@widthRight;
 }
 
 .template_Result {
     display: inline-block;
     width:@widthRight;
+    max-width:@widthRight;
     border: 1px solid gray;
-    max-height: 200px;
-    min-height: 22px;
+    height:100px;
     overflow: auto;             /*scrollbar*/
     background: none;           /*transparent*/
 }
 
-.block_ArraySelector {
-    display: inline-block;
-    width:@widthRight;
-    padding-bottom:8px; // padding inside border
-    border-bottom: 1px solid gray;
 
-    #template_ArraySelector {
-        width: 50px;
-    }
-    
-}
 
 
 p {

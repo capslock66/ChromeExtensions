@@ -50,9 +50,12 @@ function backgroundInit()
        {
            var scanner = scannerList[i];
            if (scanner.ParsingMethod === undefined)
-               scanner.ParsingMethod = "OuterHTML" ;
+               scanner.ParsingMethod = "OuterHTML";
+           if (scanner.UpdateTime === undefined)
+               scanner.UpdateTime = "";
 
            scanner.id = "scannerTr" + i;
+           scanner.resultResume = "";
        }
        scannerNextId = scannerList.length;      // next id : 10
 
@@ -83,10 +86,10 @@ function saveStorage()
         scannerCopy.ParsingMethod   = scanner.ParsingMethod ;
         scannerCopy.Hash            = scanner.Hash ;
         scannerCopy.CheckTime       = scanner.CheckTime;
+        scannerCopy.UpdateTime      = scanner.UpdateTime ;
         scannerCopy.PollingInterval = scanner.PollingInterval;
         scannerCopy.Collapsed       = scanner.Collapsed;
         scannerCopy.IsError         = scanner.IsError;
-
         scannerCopyList.push(scannerCopy);        
     }
     
@@ -110,8 +113,6 @@ function stopRequest()
 {
     window.clearTimeout(timerId);
 }
-
-
 
 /* 
  * @param {} progressEvent 
@@ -157,6 +158,7 @@ function requestCallBack (progressEvent)
             scanner.newHash = "" ;
             scanner.Validated = false;
             scanner.isError = true;
+            scanner.resultResume = "Error";
             afterScan(scanner);
             return ;
         }
@@ -167,18 +169,23 @@ function requestCallBack (progressEvent)
     {
         var arraySelector = Number(scanner.ArraySelector) ;
         
-        if (searchResults.length === 1)
-            scanner.resultString = "1 result" ;
-        else
-            scanner.resultString = "" + searchResults.length + " results. Specify Array Selection " ;
+        scanner.resultResume = " : " + searchResults.length + " result(s)";
+
+        //if (searchResults.length === 1)
+        //    scanner.resultString = "1 result" ;
+        //else
+        //    scanner.resultString = "" + searchResults.length + " results. Specify Array Selection " ;
+        scanner.resultString = "";
         
         for (var j = 0; j < searchResults.length; j++  )
         {
-           // limit the number of result : take first 3 , the user chose (arraySelector) and the last one
+            if (j > 0 && j < 3)
+               scanner.resultString = scanner.resultString + "\n";
+            // limit the number of result : take first 3 , the user chose (arraySelector) and the last one
             if (j < 3 || j === arraySelector || j === searchResults.length-1 )                
-                scanner.resultString = scanner.resultString + "\n" + "[" + j + "]" + convertSearchResult(scanner,searchResults[j]);
+                scanner.resultString = scanner.resultString + "[" + j + "]" + convertSearchResult(scanner,searchResults[j]);
             else if (j === 3)
-                scanner.resultString = scanner.resultString + "\n" + "..." ;
+                scanner.resultString = scanner.resultString + "\n" + "..." + "\n";
         }
           
         if (arraySelector === -1) 
@@ -209,13 +216,16 @@ function requestCallBack (progressEvent)
     var hashToDisplay = scanner.newHash ;
     if (scanner.Hash !== -1 && scanner.Hash !== scanner.newHash)
     {
-
-       if (request.isManualCheck === false)
+        // if manual check, don't unvalidate
+        if (request.isManualCheck === false)
           scanner.Validated = false;
 
-       hashToDisplay = "" + scanner.newHash ;
-       scanner.resultString = scanner.resultString + "\n" + "Page changed !!!" ;
-       needToBeSaved = true ;
+        var dformat = moment().format("YYYY/MM/DD HH:mm:ss");
+        scanner.UpdateTime = dformat;               
+
+        hashToDisplay = "" + scanner.newHash ;
+        scanner.resultResume = scanner.resultResume + ", Page changed !!!";
+        needToBeSaved = true ;
     }
     scanner.Hash = scanner.newHash ;             // view model :  Hash           
     afterScan(scanner);
@@ -223,24 +233,6 @@ function requestCallBack (progressEvent)
 
 function convertSearchResult(scanner, searchResult)
 {
-    /*
-    some options :
-
-                <option value="InnerHTML">Inner html</option>
-                <option value="OuterHTML">Outer html</option>
-                <option value="AllText">  All Text (including sub node text)</option>
-                <option value="MainText"> Main text (no sub node text)</option>
-
-    1) all text in all descendants
-    searchResult.text() 
-
-    2) text at first level
-
-    3) searchResult.outerHTML
-    4) searchResult.innerHTML
-
-    */
-
     if (scanner.ParsingMethod === "InnerHTML")
         return searchResult.innerHTML;
     if (scanner.ParsingMethod === "OuterHTML")
@@ -252,15 +244,13 @@ function convertSearchResult(scanner, searchResult)
     if (scanner.ParsingMethod === "MainText")
     {
         return $(searchResult)
-            //.clone()    // clone the element
+            .clone()    // clone the element
             .children() // select all the children
             .remove()   // remove all the children
             .end()      // go back to selected element
             .text();
     }
-
     return searchResult.outerHTML;
-
 }
 
 // progressEvent.currentTarget : XMLHttpRequest
@@ -285,6 +275,9 @@ function afterScan(scanner)
     var dformat = moment().format("YYYY/MM/DD HH:mm:ss");
     scanner.CheckTime = dformat;                // view model : CheckTime
     scanner.IsScanning = false;
+
+    if (scanner.UpdateTime === undefined)
+       scanner.UpdateTime = dformat;
 
     var run = runningCount();
     console.log("afterScan. Scanned running :  " + run + ", name : " + scanner.Name);

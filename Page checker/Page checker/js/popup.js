@@ -4,24 +4,25 @@ var ttrace;
 var backgroundPage;
 var chrome;                     // remove warning about undeclared chrome var
 
-var $inputCheckAll          ;
-var $inputAddPage           ;
-var $inputCheckNow          ;
-var $inputOpen              ;
-var $inputDelete            ;
-var $inputName              ;
-var $inputSite              ;
-var $inputSearchSelector    ;
-var $inputResult            ;
-var $inputPollingInterval   ;
-var $inputCheckTime         ;
-var $inputChecksum          ;
-var $inputEnabled           ;
-var $inputValidated         ;
-var $inputArraySelector     ;
-var $inputArraySelectorList ;
-var $inputParsingMethod     ;
-         
+var $inputCheckAll;
+var $inputAddPage;
+var $inputCheckNow;
+var $inputOpen;
+var $inputDelete;
+var $inputName;
+var $inputSite;
+var $inputSearchSelector;
+var $inputResult;
+var $inputResultResume;
+var $inputPollingInterval;
+var $inputCheckTime;
+var $inputUpdateTime;
+var $inputChecksum;
+var $inputEnabled;
+var $inputValidated;
+var $inputArraySelector;
+var $inputArraySelectorList;
+var $inputParsingMethod;
 
 var selectedScanner = null ;
 
@@ -63,7 +64,9 @@ function popupInit()
         $inputSite              = $("#template_Site") ;
         $inputSearchSelector    = $("#template_SearchSelector") ;
         $inputResult            = $("#template_Result") ;
+        $inputResultResume      = $("#template_ResultResume") ;
         $inputCheckTime         = $("#template_CheckTime") ;
+        $inputUpdateTime        = $("#template_UpdateTime") ;
         $inputChecksum          = $("#template_Checksum") ;
         $inputEnabled           = $("#template_Enabled") ;
         $inputValidated         = $("#template_Validated") ;
@@ -221,6 +224,34 @@ function popupInit()
            backgroundPage.console.log("popup inputValidated changed");
         });
  
+        $("ul").keydown(function (e) {
+            var $selectedAnchor = $("li a.scanner_selected");
+            if ($selectedAnchor.length === 0)  // no anchor selected 
+                return ;
+            var $selectedLi = $selectedAnchor.parent();
+            var $newSelectedLi ;
+
+            if (e.keyCode === 40) { // down
+                $newSelectedLi = $selectedLi.next();
+                if ($newSelectedLi.length === 0)  // no next <li> element
+                    return;
+            }
+            if (e.keyCode === 38) { // up
+                $newSelectedLi = $selectedLi.prev();
+                if ($newSelectedLi.length === 0)  // no next <li> element
+                    return;
+            }
+            if ($newSelectedLi === undefined)  // no prev or next <li>
+                return;
+            var $newSelectedAnchor = $newSelectedLi.children("a").first();
+            var anchor = $newSelectedAnchor.get();
+            var scanner = anchor.scanner;
+
+            $selectedAnchor.removeClass('scanner_selected');                // remove "scanner_selected" class to old selected <a>
+            $newSelectedAnchor.addClass('scanner_selected');                // set the scanner_selected class to the <a>
+            selectedScanner = scanner;
+            RefreshView();
+        });
         fillScannerTable();
     });
 }
@@ -289,11 +320,12 @@ function AddScannerToListUl(scanner)
  
     $anchor.click(function ()                                 // view click    
     {
-        $("#scannerListUl li a").removeClass("scanner_selected");     // remove "selected" class to all <a>
-        $(this).addClass('scanner_selected');                         // set the selected class to the <a>
+        $("#scannerListUl li a").removeClass("scanner_selected");     // remove "scanner_selected" class to all <a>
+        $(this).addClass('scanner_selected');                         // set the scanner_selected class to the <a>
         selectedScanner = scanner ;
         RefreshView();
     });
+
 }
 
 function SetScannerClass(scanner)
@@ -329,8 +361,11 @@ function RefreshView()
     $inputSite            [0].value =     selectedScanner.Site;                   // textarea
     $inputSearchSelector  [0].value =     selectedScanner.SearchSelector;         // textarea
     $inputResult          [0].value =     selectedScanner.resultString;           // textarea readonly
+    $inputResultResume    [0].innerText = selectedScanner.resultResume;           // span
+
     $inputPollingInterval [0].value =     selectedScanner.PollingInterval;        // input
     $inputCheckTime       [0].innerText = selectedScanner.CheckTime;              // span
+    $inputUpdateTime      [0].innerText = selectedScanner.UpdateTime;             // span
     $inputChecksum        [0].innerText = selectedScanner.newHash;                // span
     $inputEnabled         .prop("checked",selectedScanner.Enabled);               // input checkbox
     $inputValidated       .prop("checked",selectedScanner.Validated);             // input checkbox  
